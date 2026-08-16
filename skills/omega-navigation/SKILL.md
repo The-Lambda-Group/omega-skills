@@ -1,6 +1,6 @@
 ---
 name: omega-navigation
-description: Use when you have the query-omega OmegaAI MCP tools and need to find your bearings in a workspace — establishes the standard entry convention (list workspaces, pick the active one, ls the root, enter Notes/README).
+description: Use when you have the query-omega OmegaAI MCP tools and need to find your bearings in a workspace — establishes the standard entry convention (list workspaces, pick the active one, ls the root, read the root README and follow its links).
 ---
 
 # Omega Navigation
@@ -14,8 +14,8 @@ Whenever you have the `query-omega` MCP tools (`list_workspaces`, `ls`, `get`, `
 1. **List workspaces.** Call `list_workspaces` to see the workspaces you have access to and which one is currently active.
 2. **Pick the active workspace**, unless the user has clearly asked you to work in a different one.
 3. **List the root.** Call `ls` with no `page_path` (i.e. at the workspace root) to see the top-level pages.
-4. **Find the Notes.** Look for a `Notes` folder among the top-level pages and open `Notes/README` (or, if there is no `README`, the first child under `Notes`). This is the canonical, human-authored entry point and index for the workspace.
-5. **Go deeper as needed.** From `Notes/README`, follow the links and structure it describes, using `ls` and `read` to explore further pages.
+4. **Read the root README.** Open the `README` page at the workspace root (`read "README"`). This is the canonical operator entry point and index — every workspace keeps one, and it links out to everything else (guides, notes, per-area "Skills" pages). If there is genuinely no root `README`, fall back to a `Notes/README` or the first child under `Notes`.
+5. **Follow its links.** From the root `README`, follow the links and structure it describes, using `ls` and `read` to reach guides, `Skills/…` pages, and data.
 
 ## Conventions
 
@@ -23,7 +23,7 @@ OmegaAI workspaces are trees of pages addressed by slash-delimited paths (e.g. `
 
 - **Folder pages** contain sub-pages — `ls` on a folder page lists its children.
 - **Database pages** hold rows. Before you `describe` or `query` a database page, check its `primary-key` so you understand how rows are identified.
-- **Documentation and notes** live under `Notes/`.
+- **The operator entry point is the root `README`**, which links to `Notes/` and any `Skills/…` guide pages. Documentation and notes live under `Notes/`; operator guides for a specific area live under `Skills/<area>/`.
 - **Structured data** lives under dedicated database pages, not under `Notes/`.
 - **Component installs** live under `Component Installs/`.
 
