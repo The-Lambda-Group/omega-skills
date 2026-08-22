@@ -34,6 +34,7 @@ Whenever you need to find an OmegaAI package, associate it with a workspace, or 
 
 - `describe` is the single way to learn what a page or component can do — protocol and implementation docs surface there. Don't reverse-engineer behavior from a package or component name.
 - `get_package_docs` is for the package's own README/docs, which is a different surface from `describe`'s per-page protocol/method docs.
+- **The docs story is `qo push` deployment, not manual bookkeeping.** A package's `docs_page_id` is normally populated as part of the publisher's own deploy flow (pushing a docs tree, e.g. `qo doc push <pages-dir> "<Docs Folder>"`), not by hand-calling `set_package_docs` as a one-off step when you're just consuming a package. As a consumer, treat `get_package_docs`/`docs_page_id` as read-only signal of where the publisher already put their docs.
 - Installing a package and using it on a page are two independent steps. A package can be installed and never used on any page; a component can be set on a page via `set-component` from a package that was never formally "installed."
 - Keep install, set-component, describe, and run as steps within this one journey — they are not separate skills.
 
