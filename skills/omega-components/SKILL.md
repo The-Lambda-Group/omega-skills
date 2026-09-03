@@ -3,6 +3,9 @@ name: omega-components
 description: Umbrella model skill for OmegaAI components — component vs package, library (a definition) vs install (a running instance), and the guardrail against running a library directly. Read this first, then follow to a child skill for the specific journey (consuming, developing).
 ---
 
+**Parent skill: `omega-navigation`.** If you have not invoked `omega-navigation` yet, invoke it
+first — it establishes how to find your bearings in a workspace — then come back here.
+
 # Omega Components
 
 ## When to use
