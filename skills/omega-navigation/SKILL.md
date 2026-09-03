@@ -3,6 +3,20 @@ name: omega-navigation
 description: Use when you have the query-omega OmegaAI MCP tools and need to find your bearings in a workspace — establishes the standard entry convention (list workspaces, pick the active one, ls the root, read the root README and follow its links) and how to find out what an unfamiliar page is and what can be called on it (describe, then run).
 ---
 
+**This is the ROOT skill of the Omega skills tree.** It has no parent. Every other Omega skill is a
+child of this one and will tell you to come here first.
+
+## Children
+
+Invoke a child only after you have read this skill. Each says what it is for:
+
+- **`omega-database-pages`** — writing to a database page: rows, row pages, and setting a row's
+  column values. Use it before any `write` to a database page.
+- **`omega-components`** — the component / library / install model. Use it before touching a
+  component or an install.
+- **`omega-devcontainers`** — defining and building a devcontainer image from a features spec.
+- **`omega-packages`** — discovering, installing, and using OmegaAI packages.
+
 # Omega Navigation
 
 ## When to use
