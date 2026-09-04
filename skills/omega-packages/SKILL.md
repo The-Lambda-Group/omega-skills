@@ -3,6 +3,9 @@ name: omega-packages
 description: discover, install, and use OmegaAI packages via the query-omega MCP.
 ---
 
+**Parent skill: `omega-navigation`.** If you have not invoked `omega-navigation` yet, invoke it
+first — it establishes how to find your bearings in a workspace — then come back here.
+
 # Omega Packages
 
 See `omega-skills:omega-components` for the model — component vs package, library (definition) vs install (running instance) — before working through this journey.

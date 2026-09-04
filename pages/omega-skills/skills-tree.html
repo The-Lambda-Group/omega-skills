@@ -1,0 +1,31 @@
+<h1>The Skills Tree</h1>
+<p>The public skills in this repo form a <strong>Skills Tree</strong>. Each skill names its <strong>Parent Skill</strong> in its first body line; each parent names its <strong>Child Skills</strong>. The links are reciprocal so the tree is navigable from either end — an agent that starts at the root learns what exists below it, and an agent that lands mid-tree (skills are matched on their <code>description</code>, so this is the common case) learns to go up first.</p>
+
+<h2>The tree</h2>
+<pre><code>omega-navigation                 (ROOT -- orientation, reading, describe)
+├── omega-database-pages         rows, row pages, writing a row's column values
+├── omega-components             the component / library / install model
+├── omega-devcontainers          defining and building a devcontainer image
+└── omega-packages               discovering and installing packages
+</code></pre>
+
+<h2>The parent line</h2>
+<p>Every non-root skill opens its body — immediately after the frontmatter, before the <code>&lt;h1&gt;</code> — with:</p>
+<pre><code>**Parent skill: `omega-navigation`.** If you have not invoked `omega-navigation` yet, invoke it
+first — it establishes how to find your bearings in a workspace — then come back here.
+</code></pre>
+<p>The root carries no parent line. It declares itself the root and lists its children under a <code>## Children</code> heading.</p>
+
+<h2>Advisory, not enforced</h2>
+<p>Nothing blocks an agent that invokes a child without its parent — the line tells it to go read the parent and return, and that is all. There is no loader check. This is deliberate: the skills are Markdown read by a model, and a hard gate would need machinery in the skills loader that does not exist and that this convention does not justify.</p>
+
+<h2>Shipping a change</h2>
+<p>These skills are baked into the agent sandbox image at <code>/opt/omega-skills/skills</code>, and <code>buildOpencodeSpec</code> points opencode's <code>skills.paths</code> there — so a skills change ships as a <strong>sandbox image rebuild</strong>, never a runtime edit. See <code>omega-ai-agent-service/pages/agent-service/sandbox-runtime.html</code>. To iterate locally without a deploy, stage your checkout with <code>OMEGA_SKILLS_DIR</code> and run <code>./scripts/local-dev.sh</code> — see that repo's <code>local-development.html</code>, "Iterating on a skills change".</p>
+
+<h2>Adding a skill</h2>
+<ol>
+  <li>Create <code>skills/&lt;name&gt;/SKILL.md</code> with <code>name</code> + <code>description</code> frontmatter. The description is what an agent matches on — write it as "use when…", not as a title.</li>
+  <li>Add the parent line as the first body line.</li>
+  <li>Add the skill to its parent's <code>## Children</code> list, with one line saying when to use it.</li>
+  <li>Add it to the tree in this page and in the repo <code>README.md</code>.</li>
+</ol>

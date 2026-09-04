@@ -2,4 +2,16 @@
 <dl>
   <dt><strong>Omega Public Skills</strong></dt>
   <dd>Generic, public Hermes-agent skills for working with OmegaAI via the query-omega MCP — this repo, <code>omega-skills</code> (omega-navigation, omega-components, omega-packages, omega-devcontainers). Grounded in this repo's <code>README.md</code> ("Generic, public Hermes agent skills for working with OmegaAI via the query-omega MCP").</dd>
+
+  <dt>Skills Tree</dt>
+  <dd>The parent/child structure over this repo's public skills. Every skill names its Parent Skill; every parent names its Child Skills. The links are reciprocal so the tree is navigable from either end. See <a href="skills-tree.html">The Skills Tree</a>.</dd>
+
+  <dt>Root Skill</dt>
+  <dd>The one skill in the Skills Tree with no Parent Skill: <code>omega-navigation</code>. It establishes workspace orientation — list workspaces, <code>ls</code> the root, read the README, <code>describe</code> an unfamiliar page — which every Child Skill assumes has already happened.</dd>
+
+  <dt>Parent Skill</dt>
+  <dd>The skill a Child Skill names in its first body line, instructing the agent to invoke it first and come back. Advisory: nothing enforces the order.</dd>
+
+  <dt>Child Skill</dt>
+  <dd>A skill named in a Parent Skill's <code>## Children</code> list, with one line saying when to use it. Every skill except the Root Skill is a Child Skill.</dd>
 </dl>

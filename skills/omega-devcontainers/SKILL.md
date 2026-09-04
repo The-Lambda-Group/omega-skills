@@ -3,6 +3,9 @@ name: omega-devcontainers
 description: How to define and build a devcontainer in OmegaAI — a reproducible per-container image built from a small features spec (apt/pip/run + mounts). Covers the spec shape, the build-status lifecycle, reading the resulting image, and the common gotchas (locked base image, no pip preinstalled, supported keys only).
 ---
 
+**Parent skill: `omega-navigation`.** If you have not invoked `omega-navigation` yet, invoke it
+first — it establishes how to find your bearings in a workspace — then come back here.
+
 # Omega Devcontainers
 
 ## When to use
