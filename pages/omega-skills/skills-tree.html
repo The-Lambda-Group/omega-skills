@@ -22,6 +22,11 @@ first — it establishes how to find your bearings in a workspace — then come 
 <h2>Shipping a change</h2>
 <p>These skills are baked into the agent sandbox image at <code>/opt/omega-skills/skills</code>, and <code>buildOpencodeSpec</code> points opencode's <code>skills.paths</code> there — so a skills change ships as a <strong>sandbox image rebuild</strong>, never a runtime edit. See <code>omega-ai-agent-service/pages/agent-service/sandbox-runtime.html</code>. To iterate locally without a deploy, stage your checkout with <code>OMEGA_SKILLS_DIR</code> and run <code>./scripts/local-dev.sh</code> — see that repo's <code>local-development.html</code>, "Iterating on a skills change".</p>
 
+<h2>A skill only works if it is invoked</h2>
+<p>Skills are matched by their <code>description</code> and read only when the agent invokes the <code>skill</code> tool. Nothing loads one automatically, and the parent line above is advisory text, so an agent can — and does — write to a page without consulting anything.</p>
+<p><strong>MEASURED 2026-09-04</strong>, five in-cluster runs against the same fixture and prompt: the agent consulted <code>omega-database-pages</code> in 3 of 4 runs where it was available. Every run that consulted it produced a correct result; the run that did not reproduced the exact bug the skill exists to prevent — a uuid-named orphan row.</p>
+<p>What makes it reliable is the <strong>baked agent instructions</strong>, not the skill itself: <code>agent-docs/CLAUDE.md</code> in <code>omega-ai-agent-service</code> is copied to <code>/workspace/CLAUDE.md</code> (the sandbox's working directory) and is read at session start. Its <code>## Skills</code> section names the trigger for each skill. <strong>When you add a skill here, add its trigger there too</strong> — otherwise it ships as a file agents may never open.</p>
+
 <h2>Adding a skill</h2>
 <ol>
   <li>Create <code>skills/&lt;name&gt;/SKILL.md</code> with <code>name</code> + <code>description</code> frontmatter. The description is what an agent matches on — write it as "use when…", not as a title.</li>
