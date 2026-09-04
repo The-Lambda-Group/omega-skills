@@ -48,6 +48,23 @@ write "Path/To/DbPage#prop-vals:<page-id>" --data '{"prop-vals":{"ColumnName":"v
 `#prop-vals:<page-id>` addresses that ONE row page's column values. It is an upsert: it works
 whether or not the page already has values. Get the `<page-id>` from `ls` with verbose output.
 
+**If your tools are MCP (`omega_*`), the tool for this is `write_data` — NOT `write`.**
+
+```
+write_data  path:  "Path/To/DbPage#prop-vals:<page-id>"
+            patch: {"prop-vals": {"ColumnName": "value"}}
+```
+
+`write` sends its payload on stdin, and a `#fragment` path requires `--data`, so **`write` on a
+`#prop-vals` path always fails** with `--data is required for a #fragment path`. `write_data` sends
+`--data` and is the same call as the CLI line above. Its description says to prefer `write` for
+database rows — that guidance is about whole-row `{header, rows}` writes and does **not** apply to a
+`#prop-vals` fragment.
+
+**If a write fails, do not retry it with different arguments and do not shell out.** Say which call
+failed and stop — a tool that cannot express the operation is a problem for a human to fix, not
+something to work around.
+
 ## The correct sequence for "an entry with content and column data"
 
 ```
