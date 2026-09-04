@@ -58,8 +58,39 @@ write "Journal#prop-vals:<that page-id>" --data '{"prop-vals":{"Date":"2026-09-0
 
 One page, named, carrying both. No orphan.
 
+## The page's shape is NOT yours to change
+
+**MEASURED 2026-09-04: this is the failure that actually happens.** Two agents, asked for a journal
+entry on a page whose only column was `Date`, both decided the page was missing columns and fixed it:
+
+```
+set_db_columns  ["Date","Title","Body"]   ← added columns nobody asked for
+set_primary_key ["Date"]                  ← imposed a key the page did not have
+write {"header":["Date","Title","Body"], "rows":[[...]]}
+```
+
+Every call returned `ok`. The user asked for an entry and got a **schema change to their database**.
+That is worse than the orphan: it is silent, it is destructive (`set_columns` DROPS any column you
+omit, along with its data), and it changes how every future write to that page behaves.
+
+**You were asked to add a ROW, not to redesign the TABLE.**
+
+- **Never `set_db_columns` / `set_column` on a page you were asked to write to.** It is a schema
+  migration.
+- **Never `set_primary_key` on a page that has none.** Keyless is a deliberate design — a page whose
+  rows are named entries does not want a key.
+- **If the data does not fit the columns, that is because it is not column data.** On an entry page:
+  the **title is the page's NAME**, the **body is an HTML block**, and only the remaining fields are
+  columns. See "The correct sequence" above — `add_page` carries the title, `set_html` carries the
+  body, `#prop-vals` carries the date. Nothing there needs a new column.
+
+If you genuinely believe the schema is wrong, say so and stop. Changing it is the user's decision,
+not yours.
+
 ## Rules
 
+- **Never change the schema.** No `set_db_columns`, no `set_primary_key`, on a page you were asked
+  to write a row to. Title → page name, body → HTML block, the rest → columns that already exist.
 - **`describe` before you write.** The `primary-key` field decides everything.
 - **`write {header, rows}` CREATES a row.** Reach for it when you want a new row, not when you want
   to modify one you already made.
