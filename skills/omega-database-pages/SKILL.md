@@ -42,16 +42,20 @@ A database page's rows ARE pages. How a `write` behaves depends entirely on the 
 This is the call that was missing above:
 
 ```
-write "Path/To/DbPage#prop-vals:<page-id>" --data '{"prop-vals":{"ColumnName":"value"}}'
+write "Path/To/Table/Row#prop-vals" --data '{"prop-vals":{"ColumnName":"value"}}'
 ```
 
-`#prop-vals:<page-id>` addresses that ONE row page's column values. It is an upsert: it works
-whether or not the page already has values. Get the `<page-id>` from `ls` with verbose output.
+`Path/To/Table/Row#prop-vals` addresses THAT ROW PAGE's column values — you name the row, and
+resolution supplies the table. It is an upsert: it works whether or not the page already has values.
+You do not need a page-id.
+
+The older form `Path/To/Table#prop-vals:<row-page-id>` still works, but prefer the row path — it
+needs no page-id, and mixing them (`Table/Row#prop-vals:<id>`) is rejected.
 
 **If your tools are MCP (`omega_*`), the tool for this is `write_data` — NOT `write`.**
 
 ```
-write_data  path:  "Path/To/DbPage#prop-vals:<page-id>"
+write_data  path:  "Path/To/Table/Row#prop-vals"
             patch: {"prop-vals": {"ColumnName": "value"}}
 ```
 
@@ -70,7 +74,7 @@ something to work around.
 ```
 add_page "Journal" "My Entry Title"          → returns the new page-id
 set_html "Journal/My Entry Title" "<p>…</p>" → the content
-write "Journal#prop-vals:<that page-id>" --data '{"prop-vals":{"Date":"2026-09-02"}}'
+write "Journal/My Entry Title#prop-vals" --data '{"prop-vals":{"Date":"2026-09-02"}}'
 ```
 
 One page, named, carrying both. No orphan.
@@ -111,7 +115,7 @@ not yours.
 - **`describe` before you write.** The `primary-key` field decides everything.
 - **`write {header, rows}` CREATES a row.** Reach for it when you want a new row, not when you want
   to modify one you already made.
-- **`write "<page>#prop-vals:<page-id>"` SETS values on an existing row page.** Reach for it when
-  the page already exists.
+- **`write "<table>/<row>#prop-vals"` SETS values on an existing row page.** Reach for it when the
+  row page already exists. Name the ROW, not the table — the table is inferred.
 - **A uuid-named page is a symptom.** If `ls` shows a child whose name is a uuid, a write created it
   by accident — the values landed there instead of on the page you meant.
