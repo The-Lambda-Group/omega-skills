@@ -28,8 +28,8 @@ Whenever you have the `query-omega` MCP tools (`list_workspaces`, `ls`, `get`, `
 1. **List workspaces.** Call `list_workspaces` to see the workspaces you have access to and which one is currently active.
 2. **Pick the active workspace**, unless the user has clearly asked you to work in a different one.
 3. **List the root.** Call `ls` with no `page_path` (i.e. at the workspace root) to see the top-level pages.
-4. **Read the root README.** Open the `README` page at the workspace root (`read "README"`). This is the canonical operator entry point and index — every workspace keeps one, and it links out to everything else (guides, notes, per-area "Skills" pages). If there is genuinely no root `README`, fall back to a `Notes/README` or the first child under `Notes`.
-5. **Follow its links.** From the root `README`, follow the links and structure it describes, using `ls` and `read` to reach guides, `Skills/…` pages, and data.
+4. **Read the site map: `Notes/README`.** Open it with `read "Notes/README"`. This is the canonical operator entry point — the workspace's site map. It is a tree, and you navigate it **one branch at a time, one leaf at a time**: read the README, pick the one branch relevant to your task, `ls` that branch, `read` the one leaf you need. Do not sweep the whole workspace. If there is genuinely no `Notes/README`, fall back to a root `README` or the first child under `Notes`.
+5. **Follow its links.** From `Notes/README`, follow the branch it points you to, using `ls` and `read` to reach guides, `Skills/…` pages, and data. Blocks (devcontainers, volumes, service accounts, push connectors) do not appear in `ls` — the README names the page they live on, and `read` on that page shows them.
 6. **When you land on a page you don't recognize, `describe` it rather than guessing from its name or path.** See "Finding out what a page is" below.
 
 ## Conventions
@@ -38,7 +38,7 @@ OmegaAI workspaces are trees of pages addressed by slash-delimited paths (e.g. `
 
 - **Folder pages** contain sub-pages — `ls` on a folder page lists its children.
 - **Database pages** hold rows. Before you `query` a database page, check its `primary-key` (from `describe`) so you understand how rows are identified — `query` is database-page-specific, unlike `describe`, which works on any page.
-- **The operator entry point is the root `README`**, which links to `Notes/` and any `Skills/…` guide pages. Documentation and notes live under `Notes/`; operator guides for a specific area live under `Skills/<area>/`.
+- **The operator entry point is `Notes/README`**, the site map. It links to every branch of the workspace, including where infrastructure blocks live (e.g. `Resources/Containers` for devcontainers and volumes). Documentation and notes live under `Notes/`; operator guides for a specific area live under `Skills/<area>/`.
 - **Structured data** lives under dedicated database pages, not under `Notes/`.
 - **Component installs** live under `Component Installs/`.
 
