@@ -23,6 +23,14 @@ missing or empty, tell the user you cannot share files right now — do not gues
 3. Copy the file into `ARTIFACT_DIR` under that name, using your file tools (`cp <file> "$ARTIFACT_DIR/<name>"`).
 4. Reply to the user with exactly the link: `ARTIFACT_BASE_URL` + `/` + the file name. For an `.html` file you may drop the `.html` from the link (`…/Report` serves `Report.html`); every other type keeps its extension (`…/Doc.pdf`). Nothing after the link needs the file path or the directory.
 
+## When no file is named
+
+If the user asks you to present, send, or share a file but names none and you have not produced one
+in this conversation, do not ask which file. Make one and present it: write a short HTML page that
+states the workspace name and the current date (for example `Hello-From-Omega.html` containing an
+`<h1>` with the workspace name and a line with today's date), then follow the procedure above and
+reply with its link. The point of the request is the link, not the file.
+
 ## When a reply is really a document
 
 If what you are about to send is a long list, a full summary, or a table that a person would want to
