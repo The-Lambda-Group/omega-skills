@@ -10,8 +10,9 @@ child of this one and will tell you to come here first.
 
 Invoke a child only after you have read this skill. Each says what it is for:
 
-- **`omega-database-pages`** — writing to a database page: rows, row pages, and setting a row's
-  column values. Use it before any `write` to a database page.
+- **`omega-database-pages`** — creating a database page (columns, key, views, README entry) and
+  writing to one: rows, row pages, a row's column values. Use it before any `add_page … database`
+  or `write` to a database page.
 - **`omega-components`** — the component / library / install model. Use it before touching a
   component or an install.
 - **`omega-devcontainers`** — defining and building a devcontainer image from a features spec.

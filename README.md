@@ -19,8 +19,8 @@ Invoke the parent before a child — the parent establishes the context the chil
 
 - **`omega-navigation`** (ROOT) — orientation: list workspaces, `ls` the root, read the README,
   `describe` an unfamiliar page.
-  - **`omega-database-pages`** — writing to a database page: rows, row pages, setting a row's
-    column values.
+  - **`omega-database-pages`** — creating a database page (columns, key, views, README entry) and
+    writing to one: rows, row pages, a row's column values.
   - **`omega-components`** — the component / library / install model.
   - **`omega-devcontainers`** — defining and building a devcontainer image.
   - **`omega-packages`** — discovering and installing packages.

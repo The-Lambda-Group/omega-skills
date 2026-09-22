@@ -1,6 +1,6 @@
 ---
 name: omega-database-pages
-description: Use when writing to an OmegaAI database page — adding a row, setting a row's column values, or creating an entry that has both content and column data. Covers why a plain write can silently create a second, uuid-named page instead of updating the one you just made, and the primary-key rule that decides which happens.
+description: Use when creating or writing to an OmegaAI database page — new page (columns, key, views, README entry), adding a row, setting a row's column values, or an entry with both content and column data. Covers why a plain write can silently create a second, uuid-named page instead of updating the one you just made, and the primary-key rule that decides which happens.
 ---
 
 **Parent skill: `omega-navigation`.** If you have not invoked `omega-navigation` yet, invoke it
@@ -12,6 +12,37 @@ first — it establishes how to find your bearings in a workspace — then come 
 
 Any time you are about to `write` to a database page, or to create an entry that needs BOTH page
 content (an HTML block) and column values. Read this before the write, not after.
+
+## Creating a database page
+
+A database page is not finished when `add_page … database: true` returns. Measured 2026-09-21: an
+agent asked for "a project tracker board" created the page and its columns and stopped — no view,
+so the page rendered as a bare table, and nothing in `Notes/README` pointed at it. Do all of this,
+in this order, and read each result back:
+
+1. **`add_page`** with `database: true` under the folder the user named (never the workspace root
+   unless they said so). `describe` it: `is-database "true"`, `primary-key []`.
+2. **Columns, one `set_column` per select.** Declare text columns together with `set_db_columns`
+   if you like, but declare EVERY `select` column on its own with
+   `set_column <page> <Name> {"prop-type": "select", "options": [{"label": "…"}, …]}` — passing
+   two select columns in one `set_db_columns` call gives BOTH the union of all their options
+   (engine defect, 2026-09-21). Then `get_db_props` and check each select's `options` is exactly
+   its own list. Column types are `text` and `select` only — there is no date type; store dates as
+   text `YYYY-MM-DD`.
+3. **`set_primary_key`** on the column that names a row (the title). Rows are pages named by it.
+4. **Views — at least one, or the page is unusable in the UI.** `add_view <page> {"view-type":
+   "table", "name": "All", "sort-by": "<key column>", "sort-direction": "asc"}`; when the page has a
+   status-like select (`Status`, `Stage`, `State`), also `add_view <page> {"view-type": "board",
+   "name": "Board by <Column>", "group-by": "<Column>"}`. `list_views` and confirm both are there.
+5. **The row(s)** the user asked for — `write {header, rows}` (the rest of this skill).
+6. **The site map.** `read "Notes/README"`; if the README does not already name the page, add ONE
+   line under its `Notes/` section in the README's own style (`<li><p><strong>Notes/<Name></strong>
+   — <what it is>.</p></li>`) with `set_html` on the README's existing block, keeping every other
+   line byte-identical; `read` it back. A page the README does not name is a page the next agent
+   cannot find (`omega-navigation`: the README is the entry point).
+
+Tell the user the page path, the columns, the view names, and what you could not do (a date
+column, for instance). Never silently downgrade.
 
 ## The one thing that goes wrong
 
