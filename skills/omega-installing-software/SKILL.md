@@ -78,6 +78,12 @@ and do not build.
    pass `sort`). The worker starts by orienting itself (listing workspaces, reading skills) — that
    is normal; keep waiting and send it nothing while it works. It is done when its newest assistant
    message is completed with `finish` = `stop`; that message's text is the result.
+
+   The worker runs in its own container: files it writes stay there, and you cannot read, list or
+   copy them from your sandbox. So write the job so that everything you need comes back in the
+   worker's reply text (the measured numbers, the command output), and report that to the user —
+   say the file was made in the worker's container.
+
 4. For a later job, reuse the same worker: send the new job to its existing session, or open a new
    session exactly as in 1.
 
