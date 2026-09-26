@@ -89,7 +89,10 @@ and do not build.
 
 ## 5. Record it in your notes
 
-Before you answer the user, write the container into your notes with `set_html`:
+Before you answer the user, write the container into your notes. Notes are **pages**: `<root>/Notes`
+is a page, and `README` and `Containers` are pages under it. Create each missing one with `add_page`
+(`parent_path` `<root>` name `Notes`, then `parent_path` `<root>/Notes` names `README` and
+`Containers`), then write each page's content with `set_html` into the block named `Content`:
 
 - `<root>/Notes/Containers` (create the page with `add_page` under `<root>/Notes` if needed), block
   `Content`. Keep every existing entry and add or update this one:
