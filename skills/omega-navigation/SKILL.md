@@ -16,6 +16,9 @@ Invoke a child only after you have read this skill. Each says what it is for:
 - **`omega-components`** — the component / library / install model. Use it before touching a
   component or an install.
 - **`omega-devcontainers`** — defining and building a devcontainer image from a features spec.
+- **`omega-installing-software`** — you need a program or library you don't have (`command not
+  found`, no `ffmpeg`). You never install into yourself: build a container with it and hand the
+  work to a worker running in that container, and record the container in Notes.
 - **`omega-packages`** — discovering, installing, and using OmegaAI packages.
 - **`omega-present-file`** — handing the user a public link to a file you have or produced (a
   report, an export, an image). Use it whenever the answer is a file, not chat text.
@@ -32,6 +35,10 @@ Whenever you have the `query-omega` MCP tools (`list_workspaces`, `ls`, `get`, `
 2. **Pick the active workspace**, unless the user has clearly asked you to work in a different one.
 3. **List the root.** Call `ls` with no `page_path` (i.e. at the workspace root) to see the top-level pages.
 4. **Read the site map: `Notes/README`.** Open it with `read "Notes/README"`. This is the canonical operator entry point — the workspace's site map. It is a tree, and you navigate it **one branch at a time, one leaf at a time**: read the README, pick the one branch relevant to your task, `ls` that branch, `read` the one leaf you need. Do not sweep the whole workspace. If there is genuinely no `Notes/README`, fall back to a root `README` or the first child under `Notes`.
+If the user tells you to work inside a folder (for example "work in `Test Installs/x`"), that
+folder is your **working root**: its `Notes/README` is your site map, and everything you create
+for the task goes under it.
+
 5. **Follow its links.** From `Notes/README`, follow the branch it points you to, using `ls` and `read` to reach guides, `Skills/…` pages, and data. Blocks (devcontainers, volumes, service accounts, push connectors) do not appear in `ls` — the README names the page they live on, and `read` on that page shows them.
 6. **When you land on a page you don't recognize, `describe` it rather than guessing from its name or path.** See "Finding out what a page is" below.
 

@@ -81,3 +81,9 @@ A typical build takes from tens of seconds up to a couple of minutes, longer if 
 4. `image-tag` now names your image; pods for this devcontainer boot from it.
 
 If it comes back `failed`, read `build-error`, fix the spec, and write again.
+
+## Using the image
+
+A built image does nothing until something runs in it. To run work with the installed software,
+open a session on a **worker** (a service account) bound to this devcontainer and send it the job —
+see `omega-installing-software`. Your own session cannot switch to it.
