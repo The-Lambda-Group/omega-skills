@@ -69,10 +69,16 @@ and do not build.
    Only open the session once `build-status` is `ready` — before that the worker would start
    without your software.
 2. `block_service_account_send_message` with `block_path`, `session_id`, `async: true`, and a
-   `message` that is the whole job — no `base_url`. The worker has no other context, so say what to
-   run, where to write files, and exactly what to report back. Example: "Use ffmpeg to create a
-   5-second test video at /workspace/test.mp4, then run ffprobe on it and reply with its exact
-   duration in seconds."
+   `message` that is the whole job — no `base_url`. Start the message with these two sentences,
+   word for word, then the job:
+
+   > You are a worker running in a container built for this job. Do not use Omega tools and do
+   > not orient yourself in the workspace — use your shell, do the job below, and reply with the
+   > results.
+
+   Then say what to run, where to write files, and exactly what to report back. Example job:
+   "Use ffmpeg to create a 5-second test video at /workspace/test.mp4, then run ffprobe on it and
+   reply with its exact duration in seconds."
 3. Wait for the answer. Each round: `sleep 30` in bash, then `block_service_account_get_messages`
    with `limit` = 1 to read `total`, then again with `skip` = total − 5 and `limit` = 5 (do not
    pass `sort`). The worker starts by orienting itself (listing workspaces, reading skills) — that
