@@ -27,6 +27,10 @@ Everything lives under your **working root**: the workspace root, or the folder 
 to work in. Below, `<root>` means that folder (for example
 `Test Installs/omega-ai-agent-service/devcontainer-installs`).
 
+This skill is the complete recipe. Read and create only under your working root — do not open
+other folders to look for examples. Use only the steps below: no `mounts` and no volumes, because
+a job whose results come back as text in the worker's reply needs neither.
+
 ## 1. Check your notes first
 
 Read `<root>/Notes/README`, then `<root>/Notes/Containers` if the README links it. Each container
