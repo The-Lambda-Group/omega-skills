@@ -62,19 +62,24 @@ and do not build.
 
 ## 4. Send the worker the job
 
-1. `block_service_account_create_session` with `block_path` =
-   `<root>/Resources/Containers@<name>-worker` and `devcontainer` =
-   `<root>/Resources/Containers@<name>`. The result carries the new `sessionId`.
+1. `block_service_account_create_session` with exactly two arguments besides `app_id`:
+   `block_path` = `<root>/Resources/Containers@<name>-worker` and `devcontainer` =
+   `<root>/Resources/Containers@<name>`. Leave `base_url`, `model` and `sandbox` out — the tools
+   already point at the right agent service and model. The result carries the new `sessionId`.
    Only open the session once `build-status` is `ready` — before that the worker would start
    without your software.
-2. `block_service_account_send_message` with that `block_path`, the `session_id`, `async: true`,
-   and a `message` that is the whole job: what to run, where to put files, and exactly what to
-   report back. The worker has no other context. Example: "Use ffmpeg to create a 5-second test
-   video at /workspace/out/test.mp4, then run ffprobe on it and reply with its exact duration in
-   seconds."
-3. Every 30 seconds (`sleep 30` in bash between reads), read `block_service_account_get_messages`
-   for that session with `skip` = total − 5 and `limit` = 5. The worker is done when its newest
-   assistant message is completed with `finish` = `stop`. Its text is the result.
+2. `block_service_account_send_message` with `block_path`, `session_id`, `async: true`, and a
+   `message` that is the whole job — no `base_url`. The worker has no other context, so say what to
+   run, where to write files, and exactly what to report back. Example: "Use ffmpeg to create a
+   5-second test video at /workspace/test.mp4, then run ffprobe on it and reply with its exact
+   duration in seconds."
+3. Wait for the answer. Each round: `sleep 30` in bash, then `block_service_account_get_messages`
+   with `limit` = 1 to read `total`, then again with `skip` = total − 5 and `limit` = 5 (do not
+   pass `sort`). The worker starts by orienting itself (listing workspaces, reading skills) — that
+   is normal; keep waiting and send it nothing while it works. It is done when its newest assistant
+   message is completed with `finish` = `stop`; that message's text is the result.
+4. For a later job, reuse the same worker: send the new job to its existing session, or open a new
+   session exactly as in 1.
 
 ## 5. Record it in your notes
 
