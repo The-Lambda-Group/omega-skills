@@ -27,6 +27,10 @@ Everything lives under your **working root**: the workspace root, or the folder 
 to work in. Below, `<root>` means that folder, `<name>` the short name you give a container, and
 `<package>` a package the job needs.
 
+Your working root is a folder of OmegaAI pages, not a directory on disk. Nothing you or a worker
+runs writes files into it: a worker's files stay in the worker's container, and what you want to
+keep goes into your notes as text.
+
 This skill is the complete recipe. Read and create only under your working root — do not open
 other folders to look for examples. Use only the steps below: no `mounts` and no volumes, because
 a job whose results come back as text in the worker's reply needs neither.
