@@ -103,19 +103,22 @@ build.
 4. For a later job, reuse the same worker: send the new job to its existing session, or open a new
    session exactly as in 1.
 
-## 5. Record it in your notes
+## 5. Record it in your notes — before you answer
 
-Your notes are pages. `<root>/Notes/README` is the index: one line per note page, each linking to
-it and saying in a few words what it holds. Every note is its own page under `<root>/Notes`.
-Create missing pages with `add_page` (`parent_path` `<root>` name `Notes`; `parent_path`
-`<root>/Notes` name `README`; `parent_path` `<root>/Notes` for each note page), and write each
-page's content with `set_html` into the block named `Content`.
+Your answer is not finished until both of these are done. Notes are pages: `<root>/Notes/README`
+is the index (one line per note page, linking it), and every note is its own page under
+`<root>/Notes`. Create each missing page with `add_page`, and write each page's content with
+`set_html` into the block named `Content`.
 
-Record the container on a note page about installed software — keep the entries already there
-and add or update one entry with: the devcontainer's full block path, what it installs (its
-`features`), the worker's full block path and how to use it (open a session with the
-devcontainer, send the job async, read its newest message), the date, and the `build-status`.
-Then make sure `<root>/Notes/README` keeps its existing lines and has a line linking that page.
+1. **The note page.** `add_page` with `parent_path` `<root>` and name `Notes` if it is missing,
+   then `add_page` with `parent_path` `<root>/Notes` and a name for installed software (for
+   example `Containers`). Write one entry per container — keep the entries already there — with:
+   the devcontainer's full block path, what it installs (its `features`), the worker's full block
+   path and how to use it (open a session with the devcontainer, send the job async, read its
+   newest message), the date, and the `build-status`.
+2. **The index.** `add_page` with `parent_path` `<root>/Notes` and name `README` if it is missing.
+   Keep its existing lines and make sure one line links the note page, e.g.
+   `<li><a href="Containers">Containers</a> — software installed here, with its workers</li>`.
 
 Write full block paths in notes, never paths relative to a guess.
 
