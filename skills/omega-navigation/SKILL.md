@@ -17,8 +17,8 @@ Invoke a child only after you have read this skill. Each says what it is for:
   component or an install.
 - **`omega-devcontainers`** — defining and building a devcontainer image from a features spec.
 - **`omega-installing-software`** — you need a program or library you don't have (`command not
-  found`, no `ffmpeg`). You never install into yourself: build a container with it and hand the
-  work to a worker running in that container, and record the container in Notes.
+  found`). You never install into yourself: build a container with it, hand the work to a worker
+  running in that container, and record the container in your notes.
 - **`omega-packages`** — discovering, installing, and using OmegaAI packages.
 - **`omega-present-file`** — handing the user a public link to a file you have or produced (a
   report, an export, an image). Use it whenever the answer is a file, not chat text.

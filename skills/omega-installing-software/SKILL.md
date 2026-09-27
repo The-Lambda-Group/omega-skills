@@ -1,6 +1,6 @@
 ---
 name: omega-installing-software
-description: Use when a task needs a program, library, or tool that is not installed in your own sandbox — a `command not found`, no `ffmpeg`, no `python3`, no `pandoc` — or when the user asks you to install software. You cannot install into your own container; software gets installed by building a devcontainer with it and handing the work to a worker agent that runs in that container. Covers checking your notes for a container you already built, building one, creating its worker, sending it the job, waiting for the answer, and recording the container in Notes so a later session reuses it.
+description: Use when a task needs a program, library, or tool that is not installed in your own sandbox (a `command not found`, a missing interpreter or library), or when the user asks you to install software. You cannot install into your own container — software is installed by building a devcontainer that has it and handing the work to a worker agent that runs in that container. Covers checking your notes for a container you already built, building one, creating its worker, sending it a job, waiting for the answer, and recording the container in your notes so a later session reuses it.
 ---
 
 **Parent skill: `omega-navigation`.** If you have not invoked `omega-navigation` yet, invoke it
@@ -24,8 +24,8 @@ Software is installed by **building a container** and **running the work in it**
    later session reuses them instead of building again.
 
 Everything lives under your **working root**: the workspace root, or the folder the user told you
-to work in. Below, `<root>` means that folder (for example
-`Test Installs/omega-ai-agent-service/devcontainer-installs`).
+to work in. Below, `<root>` means that folder, `<name>` the short name you give a container, and
+`<package>` a package the job needs.
 
 This skill is the complete recipe. Read and create only under your working root — do not open
 other folders to look for examples. Use only the steps below: no `mounts` and no volumes, because
@@ -33,8 +33,9 @@ a job whose results come back as text in the worker's reply needs neither.
 
 ## 1. Check your notes first
 
-Read `<root>/Notes/README`, then `<root>/Notes/Containers` if the README links it. Each container
-entry names its devcontainer block, what it installs, and its worker.
+Read `<root>/Notes/README` — the index of your notes — and open the pages it links that could be
+about installed software. A container entry names its devcontainer block, what it installs, and
+its worker.
 
 - **A container already has the software:** read its devcontainer with `block_devcontainer_get`.
   If `build-status` is `ready`, skip to step 4 and reuse its worker.
@@ -44,85 +45,77 @@ entry names its devcontainer block, what it installs, and its worker.
 
 ## 2. Build the container
 
-Say what you are doing in one sentence (for example: "ffmpeg isn't installed here, so I'm building
-a container with it — that takes a few minutes."). If the user only asked a question, answer it
-and do not build.
+Say what you are doing in one sentence: what is missing, that you are building a container with
+it, and that this takes a few minutes. If the user only asked a question, answer it and do not
+build.
 
-1. `block_devcontainer_create` with `page` = `<root>/Resources/Containers` and `name` = the software
-   (e.g. `ffmpeg`). Create the pages `<root>/Resources` and `<root>/Resources/Containers` first with
-   `add_page` if they do not exist.
-2. `write_data` on `<root>/Resources/Containers@<name>` with the patch
-   `{"devcontainer-json": "{\"features\":{\"apt\":[\"ffmpeg\"]}}"}` — the value is a JSON **string**.
-   Use `apt` for system packages, `pip` for Python packages (add `python3-pip` to `apt`), and `run`
-   for any other shell step.
-3. Every 30 seconds (`sleep 30` in bash between reads), read `block_devcontainer_get` on the same
+1. Work out which packages provide what the job needs. The base image is Debian-based: system
+   programs come from `apt`, Python libraries from `pip` (add `python3-pip` to `apt`), and anything
+   else from `run` shell steps.
+2. `block_devcontainer_create` with `page` = `<root>/Resources/Containers` and `name` = `<name>`.
+   Create the pages `<root>/Resources` and `<root>/Resources/Containers` first with `add_page` if
+   they do not exist.
+3. `write_data` on `<root>/Resources/Containers@<name>` with the patch
+   `{"devcontainer-json": "{\"features\":{\"apt\":[\"<package>\"]}}"}` — the value is a JSON
+   **string**; list every package the job needs.
+4. Every 30 seconds (`sleep 30` in bash between reads), read `block_devcontainer_get` on the same
    path until `build-status` is `ready` or `failed`. A build takes from under a minute to about ten.
    On `failed`, stop and tell the user the `build-error`.
 
 ## 3. Create the worker
 
 `block_service_account_create` with `page` = `<root>/Resources/Containers` and
-`name` = `<name>-worker` (e.g. `ffmpeg-worker`). One worker per container.
+`name` = `<name>-worker`. One worker per container.
 
 ## 4. Send the worker the job
 
 1. `block_service_account_create_session` with exactly two arguments besides `app_id`:
    `block_path` = `<root>/Resources/Containers@<name>-worker` and `devcontainer` =
-   `<root>/Resources/Containers@<name>`. Leave `base_url`, `model` and `sandbox` out — the tools
-   already point at the right agent service and model. The result carries the new `sessionId`.
-   Only open the session once `build-status` is `ready` — before that the worker would start
-   without your software.
+   `<root>/Resources/Containers@<name>`. Leave `model` and `sandbox` out — the tools already point
+   at the right agent service and model. The result carries the new `sessionId`. Only open the
+   session once `build-status` is `ready` — before that the worker would start without your
+   software.
 2. `block_service_account_send_message` with `block_path`, `session_id`, `async: true`, and a
-   `message` that is the whole job — no `base_url`. Start the message with these two sentences,
-   word for word, then the job:
+   `message` that is the whole job. Start the message with these two sentences, word for word,
+   then the job:
 
    > You are a worker running in a container built for this job. Do not use Omega tools and do
    > not orient yourself in the workspace — use your shell, do the job below, and reply with the
    > results.
 
-   Then say what to run, where to write files, and exactly what to report back. Example job:
-   "Use ffmpeg to create a 5-second test video at /workspace/test.mp4, then run ffprobe on it and
-   reply with its exact duration in seconds."
+   Then say what to run, where to write files, and exactly what to report back — the measured
+   values and the command output, not a summary.
 3. Wait for the answer. Each round: `sleep 30` in bash, then `block_service_account_get_messages`
-   with `limit` = 1 to read `total`, then again with `skip` = total − 5 and `limit` = 5 (do not
-   pass `sort`). The worker starts by orienting itself (listing workspaces, reading skills) — that
-   is normal; keep waiting and send it nothing while it works. It is done when its newest assistant
-   message is completed with `finish` = `stop`; that message's text is the result.
+   with `limit` = 1 to read `total`, then again with `skip` = total − 1 and `limit` = 1 to read the
+   newest message (do not pass `sort`). Send the worker nothing while it works. It is done when
+   that newest message is from the assistant, completed, with `finish` = `stop`; its text is the
+   result.
 
    The worker runs in its own container: files it writes stay there, and you cannot read, list or
    copy them from your sandbox. So write the job so that everything you need comes back in the
-   worker's reply text (the measured numbers, the command output), and report that to the user —
-   say the file was made in the worker's container.
+   worker's reply text, and report that to the user — say the file was made in the worker's
+   container.
 
 4. For a later job, reuse the same worker: send the new job to its existing session, or open a new
    session exactly as in 1.
 
 ## 5. Record it in your notes
 
-Before you answer the user, write the container into your notes. Notes are **pages**: `<root>/Notes`
-is a page, and `README` and `Containers` are pages under it. Create each missing one with `add_page`
-(`parent_path` `<root>` name `Notes`, then `parent_path` `<root>/Notes` names `README` and
-`Containers`), then write each page's content with `set_html` into the block named `Content`:
+Your notes are pages. `<root>/Notes/README` is the index: one line per note page, each linking to
+it and saying in a few words what it holds. Every note is its own page under `<root>/Notes`.
+Create missing pages with `add_page` (`parent_path` `<root>` name `Notes`; `parent_path`
+`<root>/Notes` name `README`; `parent_path` `<root>/Notes` for each note page), and write each
+page's content with `set_html` into the block named `Content`.
 
-- `<root>/Notes/Containers` (create the page with `add_page` under `<root>/Notes` if needed), block
-  `Content`. Keep every existing entry and add or update this one:
-
-  ```html
-  <h2>ffmpeg</h2>
-  <ul>
-    <li>Devcontainer: <code>Test Installs/omega-ai-agent-service/devcontainer-installs/Resources/Containers@ffmpeg</code></li>
-    <li>Installs: apt ffmpeg</li>
-    <li>Worker: <code>Test Installs/omega-ai-agent-service/devcontainer-installs/Resources/Containers@ffmpeg-worker</code> — open a session with the devcontainer above, send the job async, read its messages</li>
-    <li>Built: 2026-09-26, build-status ready</li>
-  </ul>
-  ```
-
-- `<root>/Notes/README`, block `Content`: keep what is there and make sure it links the notes page,
-  e.g. `<li><a href="Containers">Containers</a> — software installed here: one container per entry, with its worker</li>`.
+Record the container on a note page about installed software — keep the entries already there
+and add or update one entry with: the devcontainer's full block path, what it installs (its
+`features`), the worker's full block path and how to use it (open a session with the
+devcontainer, send the job async, read its newest message), the date, and the `build-status`.
+Then make sure `<root>/Notes/README` keeps its existing lines and has a line linking that page.
 
 Write full block paths in notes, never paths relative to a guess.
 
 ## 6. Answer the user
 
-Give the result the worker reported. Mention that the software now lives in a container recorded
-in `<root>/Notes/Containers`, so next time it is reused.
+Give the result the worker reported, and say which note page records the container so the next
+session reuses it.
