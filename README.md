@@ -11,6 +11,7 @@ Drop a skill's folder into your agent's skills directory.
 - [`skills/omega-packages`](skills/omega-packages) — the consumer journey: discover, install, set-component, describe, and run a package.
 - [`skills/omega-devcontainers`](skills/omega-devcontainers) — define and build a devcontainer: the features spec (apt/pip/run + mounts), the build-status lifecycle, and reading the built image.
 - [`skills/omega-present-file`](skills/omega-present-file) — hand the user a public link to a file: copy it into `ARTIFACT_DIR`, reply with `ARTIFACT_BASE_URL/<name>`.
+- [`skills/omega-installing-software`](skills/omega-installing-software) — install software the only way an agent can: build a devcontainer with it, run the work on a worker agent in that container, and record the container in Notes for reuse.
 
 ## The skills tree
 
@@ -25,3 +26,4 @@ Invoke the parent before a child — the parent establishes the context the chil
   - **`omega-devcontainers`** — defining and building a devcontainer image.
   - **`omega-packages`** — discovering and installing packages.
   - **`omega-present-file`** — handing the user a public link to a file.
+    - **`omega-installing-software`** — installing software: a devcontainer plus a worker, recorded in Notes.
