@@ -97,8 +97,13 @@ build.
 
    The worker runs in its own container: files it writes stay there, and you cannot read, list or
    copy them from your sandbox. So write the job so that everything you need comes back in the
-   worker's reply text, and report that to the user — say the file was made in the worker's
-   container.
+   worker's reply text.
+
+   When the job produces a file the user should open (a document, an image, a video, a page),
+   tell the worker, in the job message, to publish that file with its `omega-present-file` skill
+   and to put the link it gets in its reply. Give the user that link. The link is public and
+   stays valid after the worker's session ends. Otherwise report what the worker replied, and say
+   the file was made in the worker's container.
 
 4. For a later job, reuse the same worker: send the new job to its existing session, or open a new
    session exactly as in 1.
