@@ -77,7 +77,7 @@ write "Path/To/Table/Row#prop-vals" --data '{"prop-vals":{"ColumnName":"value"}}
 ```
 
 `Path/To/Table/Row#prop-vals` addresses THAT ROW PAGE's column values — you name the row, and
-resolution supplies the table. It is an upsert: it works whether or not the page already has values.
+resolution supplies the table. It REPLACES the row's whole value set: send every column you want kept, and always the primary-key column(s), or it fails with MISSING_KEY_ERROR. To change only SOME columns, use the table write instead (see "To change SOME columns" below).
 You do not need a page-id.
 
 The older form `Path/To/Table#prop-vals:<row-page-id>` still works, but prefer the row path — it
@@ -146,7 +146,7 @@ not yours.
 - **`describe` before you write.** The `primary-key` field decides everything.
 - **`write {header, rows}` CREATES a row.** Reach for it when you want a new row, not when you want
   to modify one you already made.
-- **`write "<table>/<row>#prop-vals"` SETS values on an existing row page.** Reach for it when the
-  row page already exists. Name the ROW, not the table — the table is inferred.
+- **To change SOME columns of an existing row, use the table write:** `write "<table>" --data '{"header":["<key col>","<col>"],"rows":[["<key>","<value>"]]}'` (MCP: `write`). It finds the row by its key and changes only the named columns.
+- **`write "<table>/<row>#prop-vals"` replaces the row's WHOLE value set.** Use it only with every column, primary key included. Name the ROW, not the table — the table is inferred.
 - **A uuid-named page is a symptom.** If `ls` shows a child whose name is a uuid, a write created it
   by accident — the values landed there instead of on the page you meant.
