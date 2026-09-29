@@ -106,7 +106,9 @@ build.
    the file was made in the worker's container.
 
 4. For a later job, reuse the same worker: send the new job to its existing session, or open a new
-   session exactly as in 1.
+   session exactly as in 1. Every job message — including one to a worker you are reusing — starts
+   with the two worker sentences from 2, word for word; without them the worker orients itself in
+   the workspace instead of doing the job.
 
 ## 5. Record it in your notes — before you answer
 
