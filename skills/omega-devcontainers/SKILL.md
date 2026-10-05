@@ -87,3 +87,14 @@ If it comes back `failed`, read `build-error`, fix the spec, and write again.
 A built image does nothing until something runs in it. To run work with the installed software,
 open a session on a **worker** (a service account) bound to this devcontainer and send it the job —
 see `omega-installing-software`. Your own session cannot switch to it.
+
+## Git with GitHub (OAuth sign-in)
+
+To clone or push GitHub repositories from a devcontainer, never ask the user for a password, an SSH key or a token, and never store one in the container. Use the OmegaAI **OAuth** package instead: the user signs in to GitHub once, from any browser (a phone works), and git asks for a fresh token each time.
+
+1. Read the package docs. They are public, so this works from any workspace:
+   `qo page read "Public/OAuth/README" --app-id 3b12bbed-213d-4945-a7e7-078f47c90ced`
+2. Follow its **Connect** section: install an OAuth Client in your workspace (for example at `Connections/GitHub`) from the `github` entry of `Public/OAuth Servers`, then send the user the link `get-auth-url` answers. Page props need the `qo` CLI; there is no MCP verb for them.
+3. Follow `qo page read "Public/OAuth/devcontainer-git" --app-id 3b12bbed-213d-4945-a7e7-078f47c90ced`: it installs a git credential helper that asks the OAuth Client for the token on every HTTPS git operation. Use `https://github.com/...` remotes, not `git@github.com:...`.
+
+If the helper prints `oauth/NotConnected`, `oauth/TokenExpired` or `oauth/BadState`, the user needs a new sign-in link: run `get-auth-url` again and send it.
