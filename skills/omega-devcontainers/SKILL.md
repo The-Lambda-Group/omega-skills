@@ -94,7 +94,7 @@ To clone or push GitHub repositories — from your own session's container or an
 
 1. Read the package docs. They are public, so this works from any workspace:
    `qo page read "Public/OAuth/README" --app-id 3b12bbed-213d-4945-a7e7-078f47c90ced`
-2. Follow its **Connect** section: install an OAuth Client in your workspace (for example at `Connections/GitHub`) from the `github` entry of `Public/OAuth Servers`, then send the user the link `get-auth-url` answers. Page props need the `qo` CLI; there is no MCP verb for them.
+2. Follow its **Connect** section: install an OAuth Client in your workspace (at `Component Installs/OAuth/GitHub`, a row of the table `Component Installs/OAuth`) from the `github` entry of `Public/OAuth Servers`, then send the user the link `get-auth-url` answers. Page props need the `qo` CLI; there is no MCP verb for them.
 3. Follow `qo page read "Public/OAuth/devcontainer-git" --app-id 3b12bbed-213d-4945-a7e7-078f47c90ced`: it installs a git credential helper that asks the OAuth Client for the token on every HTTPS git operation. Use `https://github.com/...` remotes, not `git@github.com:...`.
 
 If the helper prints `oauth/NotConnected`, `oauth/TokenExpired` or `oauth/BadState`, the user needs a new sign-in link: run `get-auth-url` again and send it.
