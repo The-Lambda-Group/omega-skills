@@ -83,6 +83,13 @@ build.
    at the right agent service and model. The result carries the new `sessionId`. Only open the
    session once `build-status` is `ready` — before that the worker would start without your
    software.
+
+   The first session on a new or rebuilt container can take ten minutes or more: its machine may
+   still be starting, and the image is pulled the first time. If `block_service_account_create_session`
+   times out, do not try another way. Wait (`sleep 300` in one bash call), then
+   `block_service_account_list_sessions` on the worker: if it lists a session, use that one;
+   otherwise call `block_service_account_create_session` once more. If that times out too, stop and
+   tell the user.
 2. `block_service_account_send_message` with `block_path`, `session_id`, `async: true`, and a
    `message` that is the whole job. Start the message with these two sentences, word for word,
    then the job:

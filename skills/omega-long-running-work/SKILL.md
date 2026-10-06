@@ -29,7 +29,10 @@ Create the log file's directory first, then start the job in one bash call, exac
 cd <job directory> && mkdir -p <log directory> && setsid nohup <command> > <log file> 2>&1 < /dev/null &
 ```
 
-`setsid nohup … &` keeps the job running after the bash call returns. If the job writes its own
+`setsid nohup … &` keeps the job running after the bash call returns. Give that call `timeout`
+`30000`: the shell can wait on the started job and end the call only at its timeout, with a
+"terminated command after exceeding timeout" note. That is expected — the job runs on in its own
+session. Your first check (step 3) confirms it started; do not start it a second time. If the job writes its own
 progress file, read that; otherwise read the log file.
 
 ## 3. Check on it until it finishes
