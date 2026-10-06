@@ -75,3 +75,4 @@ The sequence when you find an unfamiliar page:
 - **Read before you write.** Never write to or modify a page you have not first read or listed.
 - **Never fabricate a page path.** If you don't know whether a path exists, `ls` the parent to discover it — don't guess.
 - **One workspace at a time**, unless the user explicitly tells you to work across multiple workspaces.
+- **Delete only pages you created yourself in this task.** Deleting a page deletes every page and block under it, and a parent such as `Component Installs`, `Notes` or `Resources` holds other people's work. If something you made is in the wrong place, stop and tell the user; they decide what to remove.
