@@ -90,7 +90,7 @@ see `omega-installing-software`. Your own session cannot switch to it.
 
 ## Git with GitHub (OAuth sign-in)
 
-To clone or push GitHub repositories from a devcontainer, never ask the user for a password, an SSH key or a token, and never store one in the container. Use the OmegaAI **OAuth** package instead: the user signs in to GitHub once, from any browser (a phone works), and git asks for a fresh token each time.
+To clone or push GitHub repositories — from your own session's container or any devcontainer — never ask the user for a password, an SSH key or a token, and never store one. Use the OmegaAI **OAuth** package instead: the user signs in to GitHub once, from any browser (a phone works), and git asks for a fresh token each time. **You do not need a devcontainer or a worker for this:** git, qo and node are already in every OmegaAI container, so set it up in the shell you are in.
 
 1. Read the package docs. They are public, so this works from any workspace:
    `qo page read "Public/OAuth/README" --app-id 3b12bbed-213d-4945-a7e7-078f47c90ced`
