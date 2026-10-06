@@ -47,6 +47,8 @@ its worker.
 - **A container exists but lacks a package you need:** add the package to its `features` (step 2's
   write, with the full new spec — its existing `features` and `mounts` plus the new package) and wait
   for `ready` again. Its worker stays the same.
+- **A container's volume is too small for the job:** grow it (`omega-devcontainers`, "Volumes")
+  before you open the worker's session; it grows when the worker's container starts.
 - **No container has it:** continue with step 2.
 
 ## 2. Build the container

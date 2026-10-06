@@ -82,6 +82,19 @@ A typical build takes from tens of seconds up to a couple of minutes, longer if 
 
 If it comes back `failed`, read `build-error`, fix the spec, and write again.
 
+## Volumes
+
+A devcontainer's `mounts` attach volume blocks: each entry is `{"source": "<Page>@<volume name>", "target": "<path in the container>"}`. A volume is persistent disk — files under its `target` outlive every container that mounts it.
+
+- **Read a volume:** `block_volume_get` on its `Page@Name` (or `qo get "<Page>@<Name>"`). Its `volume-spec` holds `name`, `description` and `size`, an integer number of bytes (1 GiB is `1073741824`; 20 GiB is `21474836480`).
+- **Grow a volume:** `write_data` on its `Page@Name` with the whole `volume-spec`, changing only `size`. The write replaces `volume-spec` as a whole, so copy `name` and `description` from what you read: `{"volume-spec": {"name": "<its name>", "description": "<its description>", "size": <new size in bytes>}}`. A volume only grows: a smaller size is rejected with `QO_VOL_SHRINK_FORBIDDEN`.
+- **When it takes effect:** the disk grows the next time a container that mounts the volume starts, not at the write. Check it from inside that container with `df -BG <target>`.
+- **Rename a volume:** the same write with a new `name` (and its `size` unchanged). Its path becomes `<Page>@<new name>`; its files stay. A container finds a volume by that path, so then write every devcontainer that mounts it with the new `source` in its `mounts`.
+
+## Renaming a devcontainer
+
+`write_data` on its `Page@Name` with the whole `devcontainer-spec` as you read it, changing only `name`: `{"devcontainer-spec": {…every field as read…, "name": "<new name>"}}`. A patch without a top-level `devcontainer-json` rebuilds nothing — the image belongs to the devcontainer's id, not its name. Its path becomes `<Page>@<new name>`; use the new path from then on, including for a worker's sessions. Rename before you change its spec, not while it is `building`.
+
 ## Using the image
 
 A built image does nothing until something runs in it. To run work with the installed software,
