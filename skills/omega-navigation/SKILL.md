@@ -19,6 +19,8 @@ Invoke a child only after you have read this skill. Each says what it is for:
 - **`omega-installing-software`** — you need a program or library you don't have (`command not
   found`). You never install into yourself: build a container with it, hand the work to a worker
   running in that container, and record the container in your notes.
+- **`omega-long-running-work`** — a shell job that takes longer than ten minutes: start it in the
+  background, keep its files on a volume, and check on it every nine minutes without ending your turn.
 - **`omega-packages`** — discovering, installing, and using OmegaAI packages.
 - **`omega-present-file`** — handing the user a public link to a file you have or produced (a
   report, an export, an image). Use it whenever the answer is a file, not chat text.
