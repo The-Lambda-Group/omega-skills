@@ -41,6 +41,7 @@ read, scroll, or keep, write it to a file with a real extension (`.md`, `.html`,
 
 - Never expose `ARTIFACT_DIR` or any local path to the user — only the `ARTIFACT_BASE_URL` link.
 - One file, one clear human-readable name, one link. Do not list the directory. Reuse of the exact same name overwrites the previous file — keep names distinctive.
+- A new version of a file you already shared (a re-render, an edited PDF) gets a new name, such as adding `-v2`: the link is served through a cache, and the old link can keep showing the old version for up to an hour. HTML pages are not cached.
 - The link is public to anyone who has it: never place a secret (a key, a token, a credential file) in `ARTIFACT_DIR`.
 - If the user already gave you a URL, return that URL unchanged instead of re-hosting.
 - Files under `ARTIFACT_DIR` belong to your account and are shared by every session of this account; do not delete files you did not create in this conversation.
