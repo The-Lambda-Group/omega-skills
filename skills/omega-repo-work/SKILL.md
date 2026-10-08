@@ -38,6 +38,12 @@ command, with its `--app-id`, of a page it must follow).
 Follow `omega-devcontainers`, "Git with GitHub (OAuth sign-in)", in the container that will run git.
 Use `https://github.com/...` remotes only. Never ask for, store or print a token.
 
+Do it at the start of **every** session, before the first `git fetch`, `clone` or `push`: the
+credential helper is installed in the container's home directory, and a new session starts in a new
+container where only the volume is kept. A clone that is already on the volume still needs it. If git
+answers `could not read Username for 'https://github.com'`, the helper is missing in this container:
+set it up as that section says, then run the git command again once.
+
 ## 2. Clone onto the volume, or continue the clone that is there
 
 ```bash
@@ -97,7 +103,10 @@ once and push again; if it is rejected a second time, stop and report the exact 
 
 Run the repo's build or render command as its docs say. If it will take longer than ten minutes,
 follow `omega-long-running-work`. Check the output the way the job's notes say done is measured,
-then hand it over with `omega-present-file`.
+then hand it over with `omega-present-file`. That skill is a shell copy (`cp` into `$ARTIFACT_DIR`,
+link `$ARTIFACT_BASE_URL/<name>`), not an OmegaAI tool, so a worker uses it too and puts the link in
+its reply. A page that shows other files (an `index.html` of images) goes over with those files, under
+names that keep its links working.
 
 ## 9. Record where the work is
 
