@@ -1,6 +1,6 @@
 ---
 name: omega-navigation
-description: Use when you have the query-omega OmegaAI MCP tools and need to find your bearings in a workspace — establishes the standard entry convention (know your Home and Session workspaces, read your memory in the Home workspace's Notes/README, ls the Session workspace's root, read its Notes/README and follow its links) and how to find out what an unfamiliar page is and what can be called on it (describe, then run).
+description: Use when you have the query-omega OmegaAI MCP tools and need to find your bearings in a workspace — establishes the standard entry convention (know your Home and Session workspaces, read your memory in the Home workspace's Notes/README, ls the Session workspace's root, read its Notes/README and follow its links), how to create a missing Notes/README, and how to find out what an unfamiliar page is and what can be called on it (describe, then run).
 ---
 
 **This is the ROOT skill of the Omega skills tree.** It has no parent. Every other Omega skill is a
@@ -27,6 +27,9 @@ Invoke a child only after you have read this skill. Each says what it is for:
 - **`omega-present-file`** — handing the user a public link to a file you have or produced (a
   report, an export, an image). Use it whenever the answer is a file, not chat text.
 
+Creating a missing `Notes/README` is not a child skill: it is the section "Creating a Notes/README"
+below, in this skill.
+
 # Omega Navigation
 
 ## When to use
@@ -42,11 +45,12 @@ Whenever you have the `query-omega` MCP tools (`list_workspaces`, `ls`, `get`, `
    its `home-app-id` is your Home workspace, and you work in the workspace the user names, else the
    Home workspace. Never choose a workspace by `active-app-id` — it is only whatever was last
    selected in the app.
-2. **Read your memory: the Home workspace's `Notes/README`.** `read "Notes/README"` with the Home
-   workspace's `app_id`, and open the note pages it links that matter for the task. If it does not
-   exist yet, you have no memory yet; carry on.
+2. **Read your memory: the Home workspace's `Notes/README`.** In the OmegaAI agent its content is
+   already in your system prompt, inside `<notes-readme>`: use it and do not read the page again.
+   Otherwise `read "Notes/README"` with the Home workspace's `app_id`. Open the note pages it links
+   that matter for the task. If it does not exist yet, create it ("Creating a Notes/README" below).
 3. **List the root.** Call `ls` with no `page_path` (i.e. at the workspace root) and the Session workspace's `app_id` to see the top-level pages.
-4. **Read the site map: the Session workspace's `Notes/README`.** Open it with `read "Notes/README"` and the Session workspace's `app_id` (when the Session workspace is the Home workspace, step 2 already read it). This is the canonical operator entry point — the workspace's site map. It is a tree, and you navigate it **one branch at a time, one leaf at a time**: read the README, pick the one branch relevant to your task, `ls` that branch, `read` the one leaf you need. Do not sweep the whole workspace. If there is genuinely no `Notes/README`, fall back to a root `README` or the first child under `Notes`.
+4. **Read the site map: the Session workspace's `Notes/README`.** When your system prompt carries it (inside `<notes-readme>`), use that; otherwise open it with `read "Notes/README"` and the Session workspace's `app_id` (when the Session workspace is the Home workspace, step 2 already has it). This is the canonical operator entry point — the workspace's site map. It is a tree, and you navigate it **one branch at a time, one leaf at a time**: read the README, pick the one branch relevant to your task, `ls` that branch, `read` the one leaf you need. Do not sweep the whole workspace. If there is genuinely no `Notes/README`, create one ("Creating a Notes/README" below); until it exists, fall back to a root `README` or the first child under `Notes`.
 If the user tells you to work inside a folder (for example "work in `Test Installs/x`"), that
 folder is your **working root**: its `Notes/README` is your site map, and everything you create
 for the task goes under it.
@@ -66,6 +70,32 @@ OmegaAI workspaces are trees of pages addressed by slash-delimited paths (e.g. `
 - **Component installs** live under `Component Installs/`.
 
 These are conventions, not guarantees — always confirm with `ls`/`get` rather than assuming a path exists.
+
+## Creating a Notes/README
+
+A workspace with no `Notes/README` gets one before you finish the task, so the next session starts
+with a map. You know it is missing when your system prompt says the workspace "has no Notes/README
+yet", or `read "Notes/README"` fails with `PageNotFoundException`. A `Notes/README` with no content
+("a Notes/README page with no content") is written the same way, from step 3.
+
+1. **Look first.** `ls` the workspace root, and `ls "Notes"` if it exists. Write only what you saw:
+   a README that guesses is worse than a short one.
+2. **Create the pages that are missing.** `add_page` with `parent_path` `.` and name `Notes` if
+   there is no `Notes`; then `add_page` with `parent_path` `Notes` and name `README`. `add_page`
+   returns an existing page instead of making a second one.
+3. **Write it** with `set_html` on `Notes/README`, block name `Content`:
+   - an `<h1>` naming the workspace, and one sentence saying this is its site map;
+   - one `<h2>` per top-level branch you saw, with one `<li>` per page that matters: its full path
+     and what it is for. Say on which page infrastructure blocks live (devcontainers, volumes,
+     service accounts), because `ls` does not show blocks;
+   - in the Home workspace, also a `<h2>Notes</h2>` list linking each note page, and, when you know
+     other workspaces, a `<h2>Other workspaces</h2>` list with each one's name, app id and the full
+     path of its `Notes/README`.
+4. **Check it landed:** `read "Notes/README"` and confirm the block holds what you wrote.
+5. **Tell the user** in one sentence that you created the workspace's `Notes/README`.
+
+Keep it a map, not a manual: names and one-line purposes. Whenever you create something or learn
+where something lives, add its line and keep every other line.
 
 ## Finding out what a page is
 
