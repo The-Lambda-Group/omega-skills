@@ -12,6 +12,7 @@ Drop a skill's folder into your agent's skills directory.
 - [`skills/omega-devcontainers`](skills/omega-devcontainers) — define and build a devcontainer: the features spec (apt/pip/run + mounts), the build-status lifecycle, reading the built image, and git with GitHub through an OAuth sign-in.
 - [`skills/omega-present-file`](skills/omega-present-file) — hand the user a public link to a file: copy it into `ARTIFACT_DIR`, reply with `ARTIFACT_BASE_URL/<name>`.
 - [`skills/omega-installing-software`](skills/omega-installing-software) — install software the only way an agent can: build a devcontainer with it, run the work on a worker agent in that container, and record the container in Notes for reuse.
+- [`skills/omega-repo-work`](skills/omega-repo-work) — write code in a git repository from a container: clone on a volume, branch, test, commit, push only the branch, build or render.
 
 ## The skills tree
 
@@ -27,3 +28,4 @@ Invoke the parent before a child — the parent establishes the context the chil
   - **`omega-packages`** — discovering and installing packages.
   - **`omega-present-file`** — handing the user a public link to a file.
     - **`omega-installing-software`** — installing software: a devcontainer plus a worker, recorded in Notes.
+  - **`omega-repo-work`** — writing code in a git repository: clone on a volume, branch, commit, push, build.

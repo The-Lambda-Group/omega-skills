@@ -19,6 +19,8 @@ Prerequisite vocabulary (block, page, `@path`): see `omega-skills:omega-navigati
 - A **devcontainer** is a block on a page (`Page@Name`, e.g. `Resources/Containers@my-env`). It holds a spec and, after a build, a pointer to a built image.
 - Writing a spec **triggers a build**. A builder renders your features into an image layered on the locked base sandbox image, builds it, and stores it. You never manage the build yourself — you write the spec and read the status.
 - The build is **idempotent**: an unchanged spec reuses the existing image (no rebuild). Change the spec and it builds again.
+  Writing the same `devcontainer-json` again builds again when OmegaAI has been updated since the last build (the image
+  is keyed by your spec and OmegaAI's base image): that is how a container picks up updated skills.
 - Once the status is `ready`, pods for that devcontainer boot from **your** image, with your tools baked in.
 
 ## The spec
