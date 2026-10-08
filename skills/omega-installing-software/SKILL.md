@@ -38,8 +38,8 @@ reuse may already mount a volume; keep its `mounts` exactly as they are.
 
 ## 1. Check your notes first
 
-Read `<root>/Notes/README` — the index of your notes — and open the pages it links that could be
-about installed software. A container entry names its devcontainer block, what it installs, and
+Read your Home workspace's `Notes/README` — your memory — and then `<root>/Notes/README`, the index
+of this workspace's notes, and open the pages they link that could be about installed software. A container entry names its devcontainer block, what it installs, and
 its worker.
 
 - **A container already has the software:** read its devcontainer with `block_devcontainer_get`.
@@ -129,7 +129,7 @@ build.
 
 ## 5. Record it in your notes — before you answer
 
-Your answer is not finished until both of these are done. Notes are pages: `<root>/Notes/README`
+Your answer is not finished until all of these are done. Notes are pages: `<root>/Notes/README`
 is the index (one line per note page, linking it), and every note is its own page under
 `<root>/Notes`. Create each missing page with `add_page`, and write each page's content with
 `set_html` into the block named `Content`.
@@ -143,6 +143,11 @@ is the index (one line per note page, linking it), and every note is its own pag
 2. **The index.** `add_page` with `parent_path` `<root>/Notes` and name `README` if it is missing.
    Keep its existing lines and make sure one line links the note page, e.g.
    `<li><a href="Containers">Containers</a> — software installed here, with its workers</li>`.
+3. **The link from Home.** If `<root>` is not in your Home workspace, `read` the Home workspace's
+   `Notes/README` (create it with `add_page` there if it is missing) and keep its existing lines;
+   make sure one line links this workspace's notes by the workspace's name, its app id and the full
+   path, e.g. `<li><p><strong><workspace name></strong> (<code><app-id></code>) —
+   <code><root>/Notes/README</code>: this workspace's notes, including its containers</p></li>`.
 
 Write full block paths in notes, never paths relative to a guess.
 

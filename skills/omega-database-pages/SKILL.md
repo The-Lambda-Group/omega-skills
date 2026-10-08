@@ -35,11 +35,13 @@ in this order, and read each result back:
    status-like select (`Status`, `Stage`, `State`), also `add_view <page> {"view-type": "board",
    "name": "Board by <Column>", "group-by": "<Column>"}`. `list_views` and confirm both are there.
 5. **The row(s)** the user asked for — `write {header, rows}` (the rest of this skill).
-6. **The site map.** `read "Notes/README"`; if the README does not already name the page, add ONE
+6. **The site map.** In the workspace the page is in, `read "Notes/README"`; if the README does not already name the page, add ONE
    line under its `Notes/` section in the README's own style (`<li><p><strong>Notes/<Name></strong>
    — <what it is>.</p></li>`) with `set_html` on the README's existing block, keeping every other
-   line byte-identical; `read` it back. A page the README does not name is a page the next agent
-   cannot find (`omega-navigation`: the README is the entry point).
+   line byte-identical; `read` it back. If that workspace is not your Home workspace, also make sure
+   the Home workspace's `Notes/README` has one line linking this workspace's `Notes/README` (the
+   workspace's name, its app id and the full path), the same way. A page the README does not name is
+   a page the next agent cannot find (`omega-navigation`: the README is the entry point).
 
 Tell the user the page path, the columns, the view names, and what you could not do (a date
 column, for instance). Never silently downgrade.
