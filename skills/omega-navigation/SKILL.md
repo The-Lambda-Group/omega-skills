@@ -92,7 +92,11 @@ yet", or `read "Notes/README"` fails with `PageNotFoundException`. A `Notes/READ
      other workspaces, a `<h2>Other workspaces</h2>` list with each one's name, app id and the full
      path of its `Notes/README`.
 4. **Check it landed:** `read "Notes/README"` and confirm the block holds what you wrote.
-5. **Tell the user** in one sentence that you created the workspace's `Notes/README`.
+5. **Link it from your memory** when this is not your Home workspace: `read "Notes/README"` with the
+   Home workspace's `app_id` and, if it does not already name this workspace, add ONE line — the
+   workspace's name, its app id and the full path `Notes/README` — with `set_html` on that README's
+   existing block (its name is in the `read` result), keeping every other line.
+6. **Tell the user** in one sentence that you created the workspace's `Notes/README`.
 
 Keep it a map, not a manual: names and one-line purposes. Whenever you create something or learn
 where something lives, add its line and keep every other line.
