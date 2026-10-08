@@ -106,6 +106,9 @@ build.
    newest message (do not pass `sort`). Send the worker nothing while it works. It is done when
    that newest message is from the assistant, completed, with `finish` = `stop`; its text is the
    result.
+   Until then, everything in its messages is work in progress: a failed command in one of them (a
+   `git fetch` before it has signed in, a test it is still fixing) is the worker's to handle, not
+   your answer. Never read its whole history to judge it, and never act on an earlier message.
 
    For a job longer than ten minutes, follow `omega-long-running-work` for your own waiting: each
    round is `sleep 540` in one bash call with `timeout` `600000`, then the two reads above, then one
