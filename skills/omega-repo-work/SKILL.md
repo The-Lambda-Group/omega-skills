@@ -25,6 +25,14 @@ Everything about the job — which repository, which base branch, which branch t
 commit name and email, what to build and what done means — comes from the job's notes. Never guess
 one of them; if the notes do not say, stop and ask.
 
+Every instruction you need is in your skills, the job's notes and the repository. Before your first
+command, read the skill this one names for the step you are on: a worker reads
+`omega-devcontainers` ("Git with GitHub") before it signs in. Never search the web, call a search
+API or guess a URL to find instructions; if your skills and the notes do not say how, stop and
+report. A worker does not look around the workspace, so a job message gives it every OmegaAI path
+and command it needs exactly, as the skills and notes write them (for example the `qo page read`
+command, with its `--app-id`, of a page it must follow).
+
 ## 1. Sign in to GitHub
 
 Follow `omega-devcontainers`, "Git with GitHub (OAuth sign-in)", in the container that will run git.
