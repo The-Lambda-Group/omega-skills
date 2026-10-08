@@ -1,6 +1,6 @@
 ---
 name: omega-navigation
-description: Use when you have the query-omega OmegaAI MCP tools and need to find your bearings in a workspace — establishes the standard entry convention (list workspaces, pick the active one, ls the root, read the root README and follow its links) and how to find out what an unfamiliar page is and what can be called on it (describe, then run).
+description: Use when you have the query-omega OmegaAI MCP tools and need to find your bearings in a workspace — establishes the standard entry convention (know your Home and Session workspaces, read your memory in the Home workspace's Notes/README, ls the Session workspace's root, read its Notes/README and follow its links) and how to find out what an unfamiliar page is and what can be called on it (describe, then run).
 ---
 
 **This is the ROOT skill of the Omega skills tree.** It has no parent. Every other Omega skill is a
@@ -33,10 +33,18 @@ Whenever you have the `query-omega` MCP tools (`list_workspaces`, `ls`, `get`, `
 
 ## The entry convention
 
-1. **List workspaces.** Call `list_workspaces` to see the workspaces you have access to and which one is currently active.
-2. **Pick the active workspace**, unless the user has clearly asked you to work in a different one.
-3. **List the root.** Call `ls` with no `page_path` (i.e. at the workspace root) to see the top-level pages.
-4. **Read the site map: `Notes/README`.** Open it with `read "Notes/README"`. This is the canonical operator entry point — the workspace's site map. It is a tree, and you navigate it **one branch at a time, one leaf at a time**: read the README, pick the one branch relevant to your task, `ls` that branch, `read` the one leaf you need. Do not sweep the whole workspace. If there is genuinely no `Notes/README`, fall back to a root `README` or the first child under `Notes`.
+1. **Know your two workspaces.** Your **Home workspace** is your base: its `Notes/README` is your
+   memory. Your **Session workspace** is where this session's work happens; pass its app id as every
+   `app_id`. In the OmegaAI agent your system prompt names both (and may say there is no session
+   workspace: then work in the Home workspace). Without such a system prompt, call `list_workspaces`:
+   its `home-app-id` is your Home workspace, and you work in the workspace the user names, else the
+   Home workspace. Never choose a workspace by `active-app-id` — it is only whatever was last
+   selected in the app.
+2. **Read your memory: the Home workspace's `Notes/README`.** `read "Notes/README"` with the Home
+   workspace's `app_id`, and open the note pages it links that matter for the task. If it does not
+   exist yet, you have no memory yet; carry on.
+3. **List the root.** Call `ls` with no `page_path` (i.e. at the workspace root) and the Session workspace's `app_id` to see the top-level pages.
+4. **Read the site map: the Session workspace's `Notes/README`.** Open it with `read "Notes/README"` and the Session workspace's `app_id` (when the Session workspace is the Home workspace, step 2 already read it). This is the canonical operator entry point — the workspace's site map. It is a tree, and you navigate it **one branch at a time, one leaf at a time**: read the README, pick the one branch relevant to your task, `ls` that branch, `read` the one leaf you need. Do not sweep the whole workspace. If there is genuinely no `Notes/README`, fall back to a root `README` or the first child under `Notes`.
 If the user tells you to work inside a folder (for example "work in `Test Installs/x`"), that
 folder is your **working root**: its `Notes/README` is your site map, and everything you create
 for the task goes under it.
@@ -51,6 +59,7 @@ OmegaAI workspaces are trees of pages addressed by slash-delimited paths (e.g. `
 - **Folder pages** contain sub-pages — `ls` on a folder page lists its children.
 - **Database pages** hold rows. Before you `query` a database page, check its `primary-key` (from `describe`) so you understand how rows are identified — `query` is database-page-specific, unlike `describe`, which works on any page.
 - **The operator entry point is `Notes/README`**, the site map. It links to every branch of the workspace, including where infrastructure blocks live (e.g. `Resources/Containers` for devcontainers and volumes). Documentation and notes live under `Notes/`; operator guides for a specific area live under `Skills/<area>/`.
+- **Memory lives in the Home workspace's `Notes/`**: notes about the user, their preferences and where things live, each its own page, indexed by the Home `Notes/README`. Notes about one workspace's contents (what was built there, where its pages and containers are) live in that workspace's own `Notes/`, and the Home `Notes/README` has a line linking that workspace's `Notes/README` by the workspace's name, its app id and the full page path.
 - **Structured data** lives under dedicated database pages, not under `Notes/`.
 - **Component installs** live under `Component Installs/`.
 
@@ -76,5 +85,5 @@ The sequence when you find an unfamiliar page:
 
 - **Read before you write.** Never write to or modify a page you have not first read or listed.
 - **Never fabricate a page path.** If you don't know whether a path exists, `ls` the parent to discover it — don't guess.
-- **One workspace at a time**, unless the user explicitly tells you to work across multiple workspaces.
+- **One workspace at a time** — the Session workspace, plus your memory in the Home workspace — unless the user explicitly tells you to work across multiple workspaces.
 - **Delete only pages you created yourself in this task.** Deleting a page deletes every page and block under it, and a parent such as `Component Installs`, `Notes` or `Resources` holds other people's work. If something you made is in the wrong place, stop and tell the user; they decide what to remove.
