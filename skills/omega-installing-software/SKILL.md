@@ -102,8 +102,8 @@ build.
    values and the command output, not a summary. If the job will run longer than ten minutes, add:
    `This job takes a long time: follow your omega-long-running-work skill.`
 3. Wait for the answer. Each round: `sleep 30` in bash, then `block_service_account_get_messages`
-   with `limit` = 1 to read `total`, then again with `skip` = total − 1 and `limit` = 1 to read the
-   newest message (do not pass `sort`). Send the worker nothing while it works. It is done when
+   with `limit` = 1 and nothing else (no `skip`, no `sort`, no `before`): that returns the newest
+   message. Send the worker nothing while it works. It is done when
    that newest message is from the assistant, completed, with `finish` = `stop`; its text is the
    result.
    Until then, everything in its messages is work in progress: a failed command in one of them (a
@@ -111,7 +111,7 @@ build.
    your answer. Never read its whole history to judge it, and never act on an earlier message.
 
    For a job longer than ten minutes, follow `omega-long-running-work` for your own waiting: each
-   round is `sleep 540` in one bash call with `timeout` `600000`, then the two reads above, then one
+   round is `sleep 540` in one bash call with `timeout` `600000`, then the read above, then one
    line to the user saying where the worker is (from its newest message's text or tool output).
    Keep your turn open until the worker is done.
 
