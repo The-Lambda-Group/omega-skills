@@ -67,6 +67,8 @@ Three fields carry the result: `build-status`, `image-tag` (set on `ready`), and
 
 A typical build takes from tens of seconds up to a couple of minutes, longer if you install a lot via apt.
 
+**Waiting for `ready`.** `building` and `pending` are not failures: keep waiting. Read the block about every 30 seconds — run `sleep 30` in your shell between reads, never read it back to back — for up to 15 minutes. Only `failed` (read its `build-error`) or a block still `building` after 15 minutes is a result to report.
+
 ## Gotchas
 
 - **The base image ships minimal — no `pip3` preinstalled.** A `pip`-only spec fails with `pip3: not found`. Install it first: put `"apt": ["python3-pip"]` in the same spec, which pulls in python3 + pip3, then your `pip` entries work.
