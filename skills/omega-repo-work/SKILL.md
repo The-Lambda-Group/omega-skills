@@ -76,8 +76,10 @@ the container. Install its dependencies the way its docs say (for a Node repo wi
 Work in small steps. After each step, run the repo's tests the way its docs say. A failing test, a
 compile error or a stack trace from **code you wrote** is part of the work: read the error, fix
 your code, run it again. A failure of a **tool or the platform** — an OmegaAI tool, the container
-or its build, the worker, the GitHub sign-in, `git clone` or `git push` — is not: follow the job's
-failure rules (stop and report the exact error).
+or its build, the worker, `git clone` or `git push` — is not: follow the job's failure rules (stop
+and report the exact error). One git answer is not a failure: `could not read Username for
+'https://github.com'` means this container is not signed in yet. Sign in as step 1 says, then run
+the git command again once; stop and report only if the sign-in fails or git fails again.
 
 ## 6. Commit
 
