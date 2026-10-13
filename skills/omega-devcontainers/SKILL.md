@@ -90,6 +90,8 @@ If it comes back `failed`, read `build-error`, fix the spec, and write again.
 
 A devcontainer's `mounts` attach volume blocks: each entry is `{"source": "<Page>@<volume name>", "target": "<path in the container>"}`. A volume is persistent disk — files under its `target` outlive every container that mounts it.
 
+A volume is mounted by one container at a time. When a session needs a volume another account's container holds, it takes the volume if that container is idle — no turn running, no open chat, no method call: the idle container is stopped first, which can add up to a minute to `create-session`. While that container's turn is running, `create-session` fails with `volume <id> is in use by session <account>`: wait for that turn to finish (`block_service_account_get_messages`), then create again.
+
 - **Read a volume:** `block_volume_get` on its `Page@Name` (or `qo get "<Page>@<Name>"`). Its `volume-spec` holds `name`, `description` and `size`, an integer number of bytes (1 GiB is `1073741824`; 20 GiB is `21474836480`).
 - **Grow a volume:** `write_data` on its `Page@Name` with the whole `volume-spec`, changing only `size`. The write replaces `volume-spec` as a whole, so copy `name` and `description` from what you read: `{"volume-spec": {"name": "<its name>", "description": "<its description>", "size": <new size in bytes>}}`. A volume only grows: a smaller size is rejected with `QO_VOL_SHRINK_FORBIDDEN`.
 - **When it takes effect:** the disk grows the next time a container that mounts the volume starts, not at the write. Check it from inside that container with `df -BG <target>`.
