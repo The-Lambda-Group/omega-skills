@@ -29,8 +29,12 @@ is true now and the ledgers say why.
 1. Add ONE line at the end of the named ledger: `U.N — [YYYY-MM-DD HH:MM] <entry text>` for the
    User Feedback Ledger, `A.N — [YYYY-MM-DD HH:MM] <entry text>` for the AI Self-Revision Ledger,
    where N is one more than that ledger's last number (1 if it is empty) and the time is
-   `date -u '+%Y-%m-%d %H:%M'`. User entry text is copied exactly as the job quotes it.
+   `date -u '+%Y-%m-%d %H:%M'`. User entry text is copied exactly as the job quotes it. The square
+   brackets are part of the line, for example
+   `U.1 — [2026-10-13 09:56] In the farewell spec, make it return "Bye, <name>." instead.`
 2. Rewrite the named sections or tasks in place so they say what is true now. Keep task numbers.
+   Never change `Clarifying questions and answers`: it records what was asked and answered at the
+   time; the new ledger line records the change.
    Replace old text; do not mark it deprecated or leave both versions. Add a task only for work
    that is new.
 3. Never change, clear or reorder an existing ledger line.
