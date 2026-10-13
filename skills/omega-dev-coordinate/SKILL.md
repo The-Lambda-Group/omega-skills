@@ -31,6 +31,11 @@ talking with you, and you hand them a file only when they ask (a Dev Subagent pu
 - **`omega-dev-revise`** — change a decision in a spec or a plan.
 - **`omega-dev-develop`** — carry out a plan's tasks.
 
+Pick the child from the plan's row, not from the words alone: the user says develop, build,
+implement or carry out, and the row's Status is `planned`, `developing` or `done` → it is
+`omega-dev-develop`, never `omega-dev-plan`. Change a Plans Index row only with `write` on
+`<root>/Notes/Plans`; never `set_html` or add a block on a row's own page.
+
 ## 1. Get the Dev Machine
 
 Invoke `omega-dev-machine`. It ends with seven values from the Dev Machine Record: Workspace,
