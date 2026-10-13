@@ -23,6 +23,9 @@ Invoke a child only after you have read this skill. Each says what it is for:
   background, keep its files on a volume, and check on it every nine minutes without ending your turn.
 - **`omega-repo-work`** — writing or changing code in a git repository: the clone on a volume, a
   branch from the base, the repo's own docs first, commits, pushing only your branch, and building it.
+- **`omega-dev-coordinate`** — the user wants to brainstorm, plan, revise a plan or develop a code
+  change: you hold the conversation, and Dev Subagents on the user's Dev Machine do the file and
+  code work.
 - **`omega-packages`** — discovering, installing, and using OmegaAI packages.
 - **`omega-present-file`** — handing the user a public link to a file you have or produced (a
   report, an export, an image). Use it whenever the answer is a file, not chat text.

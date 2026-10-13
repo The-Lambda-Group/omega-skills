@@ -21,9 +21,10 @@ When you hand the work to a worker, start its job message with the two worker se
 the repository, the base branch, your branch, the commit identity and what to build, all taken from
 the job's notes.
 
-Everything about the job — which repository, which base branch, which branch to work on, the
-commit name and email, what to build and what done means — comes from the job's notes. Never guess
-one of them; if the notes do not say, stop and ask.
+Everything about the job — which repository, which base branch, which branch to work on, what to
+build and what done means — comes from the job's notes. Never guess one of them; if the notes do
+not say, stop and ask. The commit name and email come from the notes too; when the notes give
+none, they come from the GitHub account you signed in with (step 3).
 
 Every instruction you need is in your skills, the job's notes and the repository. Before your first
 command, read the skill this one names for the step you are on: a worker reads
@@ -63,6 +64,15 @@ Set the commit identity in this clone only (never `--global`), exactly as the no
 ```bash
 git config user.name "<name from the notes>" && git config user.email "<email from the notes>"
 ```
+
+When the notes give no identity, use the GitHub account you signed in with, after step 1. This
+asks GitHub who the signed-in account is and prints only its login and id, never the token:
+
+```bash
+GH_LOGIN_ID=$(printf 'protocol=https\nhost=github.com\n\n' | git credential fill | sed -n 's/^password=//p' | node -e 'let t="";process.stdin.on("data",c=>t+=c).on("end",async()=>{const r=await fetch("https://api.github.com/user",{headers:{Authorization:"Bearer "+t.trim(),"User-Agent":"omega-repo-work"}});const u=await r.json();if(!u.login){console.error("github/user: "+(u.message||r.status));process.exit(1)}console.log(u.login+" "+u.id)})') && git config user.name "${GH_LOGIN_ID% *}" && git config user.email "${GH_LOGIN_ID#* }+${GH_LOGIN_ID% *}@users.noreply.github.com"
+```
+
+A clone that already has `git config user.email` set keeps it.
 
 ## 4. Read the repo before writing code
 
