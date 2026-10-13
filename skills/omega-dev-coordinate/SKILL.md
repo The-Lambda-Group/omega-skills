@@ -111,7 +111,10 @@ a time).
    the assistant, completed, with `finish` = `stop`. A job that may run longer than ten minutes
    (a test suite, a large clone) is waited on with the nine-minute rhythm of
    `omega-long-running-work`, telling the user one line each time. Never send a working Dev Subagent
-   another message, and never act on anything but its final message.
+   another message, and never act on anything but its final message. If ten minutes after
+   `send_message` the newest message is still your job — no reply from the assistant has started —
+   the job was lost: open a new session (step 1) and send the same job once. Lost again → tell the
+   user the exact state and stop.
 4. The next job is a new session (step 1 again).
 
 ## 4. Reading the reply
