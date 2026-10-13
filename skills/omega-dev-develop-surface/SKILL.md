@@ -1,6 +1,6 @@
 ---
 name: omega-dev-develop-surface
-description: Use when a Dev Subagent carrying out a plan task replies with anything other than the task done, committed and pushed — an error, a repeated failure, an unexpected finding, a conflict with how the code works, or a stop without a clear reason — or when a Dev Subagent's job message says to follow omega-dev-develop-surface.
+description: Use when a Dev Subagent carrying out a plan task replies with anything other than a clean reply (`omega-dev-coordinate` §4) — an error, a repeated failure, an unexpected finding, a conflict with how the code works, or a stop without a clear reason — or when a Dev Subagent's job message says to follow omega-dev-develop-surface.
 ---
 
 **Parent skill: `omega-dev-develop`.** If you have not invoked `omega-dev-develop` yet, invoke it

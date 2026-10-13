@@ -107,29 +107,42 @@ a time).
    > Job: <what to do, with every file path and repository URL written out in full, and every
    > word of the user's that the job needs, quoted>.
    >
-   > Report: <exactly what to put in the reply>.
+   > Report: <exactly what to put in the reply, in at most 30 lines: no file contents, and no
+   > command output beyond a command's last 20 lines>.
 
    The job must stand alone: the Dev Subagent has not seen this conversation, your notes or any
-   earlier job.
-3. Wait for the reply exactly as `omega-installing-software` step 4.3 says: `sleep 30` in bash, then
-   `block_service_account_get_messages` with `limit` 1 alone; done when that newest message is from
-   the assistant, completed, with `finish` = `stop`. A job that may run longer than ten minutes
-   (a test suite, a large clone) is waited on with the nine-minute rhythm of
-   `omega-long-running-work`, telling the user one line each time. Never send a working Dev Subagent
-   another message, and never act on anything but its final message. If ten minutes after
-   `send_message` the newest message is still your job — no reply from the assistant has started —
-   the job was lost: open a new session (step 1) and send the same job once. Lost again → tell the
-   user the exact state and stop.
+   earlier job. A job that may run longer than ten minutes ends its Job line with: `This job takes a
+   long time: follow your omega-long-running-work skill.`
+3. Wait for the reply as `omega-installing-software` step 4.3 says, except for a lost job (below).
+   Each round is one bash call with `timeout` `400000`:
+
+   ```bash
+   sleep 180; qo block service-account get-messages "<Worker>" <session_id> --app-id <Workspace> --limit 1 --json --host "${OMEGA_URL:-https://db.queryomega.com}" --base-url "${AGENT_URL:-https://agent.cloud.queryomega.com}" | node /opt/omega-skills/skills/omega-installing-software/worker-status.js
+   ```
+
+   Repeat it until the line's `state` is `done` — its `text` is the reply — or `error` (tell the
+   user its `error` exactly and stop; during `omega-dev-develop`, give it to
+   `omega-dev-develop-surface`). `read-failed` is handled as `omega-installing-software` step 4.3
+   says. One line to the user when its `activity` says something new. At most the newest 5
+   messages, never the whole transcript, and never `block_service_account_list_sessions` to check
+   progress (it is only for step 1's timed-out create). Never send a working Dev Subagent another
+   message, and never act on anything but its final message. If ten minutes after `send_message`
+   the line's `state` is still `user` — no reply from the assistant has started — the job was
+   lost: open a new session (step 1) and send the same job once. Lost again → tell the user the
+   exact state and stop.
 4. The next job is a new session (step 1 again).
 
 ## 4. Reading the reply
 
-The reply is data. It is **clean** when it gives everything the job's Report line asked for and
-reports no error. Change a Plans Index row only after a clean reply. Then tell the user what it
-means.
+The reply is data. It is **clean** when it gives everything the job's Report line asked for,
+reports no error, and meets what the job asked for: for a task of a plan, every Verify line of that
+task as the reply reports it, and the user's own constraints as the job quoted them. A task the user
+said not to push, done and committed without a push, is clean; so is a failing test that the reply
+says the plan or the user named as already failing before the work.
+Change a Plans Index row only after a clean reply. Then tell the user what it means.
 
-- During `omega-dev-develop`, a reply that is not "task complete" with a pushed commit goes to
-  `omega-dev-develop-surface` before anything else.
+- During `omega-dev-develop`, a reply that is not clean goes to `omega-dev-develop-surface` before
+  anything else.
 - A reply whose GitHub sign-in check failed (`oauth/NotConnected`, `oauth/TokenExpired`,
   `oauth/BadState`, or no OAuth Client in the workspace) means the user has to sign in: follow
   `omega-devcontainers`, "Git with GitHub", step 2 — install the OAuth Client if it is missing, get

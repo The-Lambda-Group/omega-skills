@@ -99,21 +99,44 @@ build.
    > results.
 
    Then say what to run, where to write files, and exactly what to report back — the measured
-   values and the command output, not a summary. If the job will run longer than ten minutes, add:
+   values and the key lines of command output, not a summary, in at most 30 lines (no file
+   contents, and no command output beyond a command's last 20 lines). If the job will run longer
+   than ten minutes, add:
    `This job takes a long time: follow your omega-long-running-work skill.`
-3. Wait for the answer. Each round: `sleep 30` in bash, then `block_service_account_get_messages`
-   with `limit` = 1 and nothing else (no `skip`, no `sort`, no `before`): that returns the newest
-   message. Send the worker nothing while it works. It is done when
-   that newest message is from the assistant, completed, with `finish` = `stop`; its text is the
-   result.
-   Until then, everything in its messages is work in progress: a failed command in one of them (a
-   `git fetch` before it has signed in, a test it is still fixing) is the worker's to handle, not
-   your answer. Never read its whole history to judge it, and never act on an earlier message.
+3. Wait for the answer in rounds, whatever the job's length. Each round is ONE bash call with
+   `timeout` `400000`, using the worker block path, session id and app id of 1 and 2:
 
-   For a job longer than ten minutes, follow `omega-long-running-work` for your own waiting: each
-   round is `sleep 540` in one bash call with `timeout` `600000`, then the read above, then one
-   line to the user saying where the worker is (from its newest message's text or tool output).
-   Keep your turn open until the worker is done.
+   ```bash
+   sleep 180; qo block service-account get-messages "<root>/Resources/Containers@<name>-worker" <session_id> --app-id <app_id> --limit 1 --json --host "${OMEGA_URL:-https://db.queryomega.com}" --base-url "${AGENT_URL:-https://agent.cloud.queryomega.com}" | node /opt/omega-skills/skills/omega-installing-software/worker-status.js
+   ```
+
+   It prints one JSON line for the worker's newest message: a short summary, never the message
+   itself, which is megabytes when the worker has read images. If the line's `id` is the one you
+   noted before sending (see 4), it is an earlier job's: do one more round. Otherwise its `state`
+   says where the worker is:
+   - `done` — the worker has finished; `text` is its answer (when `truncated` is `true`, say so
+     when you pass it on).
+   - `working` — the worker is still busy. When its `activity` says something new, write the user
+     one line from it. Then the next round. Keep your turn open until `done` or `error`.
+   - `user` — the newest message is still your job: the worker has not started it yet. Do the next
+     round. Still `user` ten minutes after you sent the job → tell the user the session id and that
+     the job did not start, and stop.
+   - `error` — the worker's turn failed: tell the user its `error` exactly, and stop.
+   - `read-failed` — the shell read did not work: read that round with
+     `block_service_account_get_messages` with `limit` 1 and nothing else (no `skip`, no `sort`, no
+     `before`, no `include_reasoning`). That returns the raw newest message: it is `done` when
+     `info.role` is `assistant`, `info.time.completed` is set and `info.finish` is `stop` (its
+     `text` parts are the answer); `error` when `info.error` is set or `info.finish` is neither
+     `stop` nor `tool-calls`; `user` when `info.role` is `user`; otherwise `working`. If that read
+     fails too, tell the user its error exactly and stop.
+
+   Read only that newest message. If you need more to tell the user where the worker is, read its
+   newest 5 the same way (`--limit 5`, or `limit` 5) — never more, and never its whole transcript.
+   Send the worker nothing while it works. Until it is `done`, everything in its messages is work
+   in progress: a failed command in one of them (a `git fetch` before it has signed in, a test it
+   is still fixing) is the worker's to handle, not your answer. Never call
+   `block_service_account_list_sessions` to see how the worker is doing: it is only for 1's
+   timed-out create.
 
    The worker runs in its own container: files it writes stay there, and you cannot read, list or
    copy them from your sandbox. So write the job so that everything you need comes back in the
@@ -126,9 +149,10 @@ build.
    the file was made in the worker's container.
 
 4. For a later job, reuse the same worker: send the new job to its existing session, or open a new
-   session exactly as in 1. Every job message — including one to a worker you are reusing — starts
-   with the two worker sentences from 2, word for word; without them the worker orients itself in
-   the workspace instead of doing the job.
+   session exactly as in 1. Before you send to a session that already has messages, run the
+   command of 3 without its `sleep 180;` and note the `id` it prints. Every job message —
+   including one to a worker you are reusing — starts with the two worker sentences from 2, word
+   for word; without them the worker orients itself in the workspace instead of doing the job.
 
 ## 5. Record it in your notes — before you answer
 
