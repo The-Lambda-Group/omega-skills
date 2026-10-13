@@ -9,7 +9,15 @@
 ├── omega-packages               discovering and installing packages
 ├── omega-present-file           handing the user a public link to a file
 ├── omega-installing-software    installing software: a devcontainer plus a worker, recorded in Notes
-└── omega-repo-work              writing code in a git repository: clone on a volume, branch, commit, push, build
+├── omega-long-running-work      a shell job longer than ten minutes: background, on a volume, checked every nine minutes
+├── omega-repo-work              writing code in a git repository: clone on a volume, branch, commit, push, build
+└── omega-dev-coordinate         development: you converse, Dev Subagents on the Dev Machine do the file and code work
+    ├── omega-dev-machine        find, check, set up or repair the Dev Machine and its record
+    ├── omega-dev-brainstorm     idea → approved spec
+    ├── omega-dev-plan           approved spec → plan
+    ├── omega-dev-revise         ledgered, in-place changes to a spec or plan
+    └── omega-dev-develop        plan → commits, one task per Dev Subagent
+        └── omega-dev-develop-surface   a task that did not come back clean
 </code></pre>
 
 <h2>The parent line</h2>

@@ -13,6 +13,14 @@ Drop a skill's folder into your agent's skills directory.
 - [`skills/omega-present-file`](skills/omega-present-file) — hand the user a public link to a file: copy it into `ARTIFACT_DIR`, reply with `ARTIFACT_BASE_URL/<name>`.
 - [`skills/omega-installing-software`](skills/omega-installing-software) — install software the only way an agent can: build a devcontainer with it, run the work on a worker agent in that container, and record the container in Notes for reuse.
 - [`skills/omega-repo-work`](skills/omega-repo-work) — write code in a git repository from a container: clone on a volume, branch, test, commit, push only the branch, build or render.
+- [`skills/omega-long-running-work`](skills/omega-long-running-work) — a shell job longer than ten minutes: run it in the background on a volume and check on it every nine minutes.
+- [`skills/omega-dev-coordinate`](skills/omega-dev-coordinate) — development work: the agent talking to the user coordinates, Dev Subagents on the user's Dev Machine do the file and code work.
+- [`skills/omega-dev-machine`](skills/omega-dev-machine) — find, check, set up or repair the Dev Machine (devcontainer + volume + worker) and its Notes record.
+- [`skills/omega-dev-brainstorm`](skills/omega-dev-brainstorm) — from an idea to an approved spec.
+- [`skills/omega-dev-plan`](skills/omega-dev-plan) — from an approved spec to a plan.
+- [`skills/omega-dev-revise`](skills/omega-dev-revise) — ledgered, in-place changes to a spec or plan.
+- [`skills/omega-dev-develop`](skills/omega-dev-develop) — a plan carried out one task per Dev Subagent.
+- [`skills/omega-dev-develop-surface`](skills/omega-dev-develop-surface) — a task that did not come back clean.
 
 ## The skills tree
 
@@ -28,4 +36,12 @@ Invoke the parent before a child — the parent establishes the context the chil
   - **`omega-packages`** — discovering and installing packages.
   - **`omega-present-file`** — handing the user a public link to a file.
     - **`omega-installing-software`** — installing software: a devcontainer plus a worker, recorded in Notes.
+  - **`omega-long-running-work`** — a shell job longer than ten minutes.
   - **`omega-repo-work`** — writing code in a git repository: clone on a volume, branch, commit, push, build.
+  - **`omega-dev-coordinate`** — development work: you converse, Dev Subagents work.
+    - **`omega-dev-machine`** — the Dev Machine and its record.
+    - **`omega-dev-brainstorm`** — idea → approved spec.
+    - **`omega-dev-plan`** — spec → plan.
+    - **`omega-dev-revise`** — ledgered changes.
+    - **`omega-dev-develop`** — plan → commits.
+      - **`omega-dev-develop-surface`** — a task that did not come back clean.

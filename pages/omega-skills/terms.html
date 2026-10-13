@@ -14,4 +14,25 @@
 
   <dt>Child Skill</dt>
   <dd>A skill named in a Parent Skill's <code>## Children</code> list, with one line saying when to use it. Every skill except the Root Skill is a Child Skill.</dd>
+
+  <dt>Coordinator</dt>
+  <dd>In development work, the agent talking to the user. It holds the conversation and dispatches Dev Subagents; it never reads or writes the Dev Volume itself. See <code>omega-dev-coordinate</code>.</dd>
+
+  <dt>Dev Subagent</dt>
+  <dd>A fresh session of the Dev Machine's worker, given one self-contained job by the Coordinator — explore, write a spec, write a plan, revise, carry out one task, probe — and replying with a report.</dd>
+
+  <dt>Dev Machine</dt>
+  <dd>Three blocks in the user's workspace: a Devcontainer whose <code>mounts</code> attach the Dev Volume, and a worker service account whose sessions boot that Devcontainer. See <code>omega-dev-machine</code>.</dd>
+
+  <dt>Dev Volume</dt>
+  <dd>The Dev Machine's Volume: persistent disk holding the repositories (the Repos directory) and the specs and plans (the Plans directory, <code>&lt;mount&gt;/.omega</code>).</dd>
+
+  <dt>Dev Machine Record</dt>
+  <dd>The note page <code>&lt;root&gt;/Notes/Dev Machine</code>, linked from <code>&lt;root&gt;/Notes/README</code>, naming the Dev Machine's Workspace, Devcontainer, Devcontainer JSON, Volume, Mount, Worker, Repos and Plans.</dd>
+
+  <dt>Plans Index</dt>
+  <dd>The database page <code>&lt;root&gt;/Notes/Plans</code>: one row per plan, keyed by Plan Name, indexed by <code>Created</code>, with Status, Repository, Base, Spec, Plan and Branch, and a "Most recent" view.</dd>
+
+  <dt>Plan Name</dt>
+  <dd><code>YYYY-MM-DD-&lt;topic&gt;</code>, unique in the Plans Index; it names the spec and plan files and, without the date, the branch <code>feat/&lt;topic&gt;</code>.</dd>
 </dl>
