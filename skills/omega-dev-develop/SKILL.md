@@ -23,14 +23,15 @@ work yourself.
 2. For each task, in order, dispatch a Dev Subagent with part "Task": the plan path, the task
    number, the repository URL, base branch and branch from the plan's row, and the clone directory
    `<Repos>/<repository name>`. Report: the commit hash and subject, the last lines of the test
-   output, and the first line of `git status -sb` after the push.
+   output, the first line of `git status -sb` after the push, and the number of the plan's last
+   task. When the task you dispatched is that last task, go to step 4.
 3. A reply is **clean** when it reports the task done, a commit, and a pushed branch. Tell the user
    one line and dispatch the next task. Anything else → `omega-dev-develop-surface` before you do
    anything else.
 4. After the last task, dispatch a Dev Subagent with part "Done check": the plan path and the clone
    directory. Report: each Definition of Done item with its command's output and pass or fail.
-5. All pass → set Status `done`. Tell the user the branch, its commits and that merging it is
-   theirs. Any fail → tell the user which, and stop.
+5. All pass → set Status `done`. Tell the user the branch and its commits, and end with this
+   sentence: "Merging it is yours; I don't merge." Any fail → tell the user which, and stop.
 
 ## Dev Subagent — part "Task"
 
