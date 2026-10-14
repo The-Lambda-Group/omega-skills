@@ -82,10 +82,10 @@ If the last line starts with `MISSING:`, the pages lack a part. Research once mo
 
 This is the step that makes the reel work. The first two reels failed here.
 
-- **The reason line** (`reason`) is one `reason` candidate, word for word: a sentence that says what the customer gets (growth, conversion, revenue, sales, leads, ROI, trust). Ask of each candidate: *would one of the company's customers say this is why they bought?* Choose the one that says it most plainly. A line about what the product does ("Capture video testimonials") is a feature, not a reason: it goes in the feature lines, never here.
+- **The reason line** (`reason`) is one `reason` candidate, word for word: a sentence that says what the customer gets (growth, conversion, revenue, sales, leads, ROI, trust). Ask of each candidate: *would one of the company's customers say this is why they bought?* Choose the one that says it most plainly. A line about what the product does ("Capture video testimonials") is a feature, not a reason: it goes in the feature lines, never here. A call to action ("Talk to our sales team", "Try it free") is never a reason, even when it holds a word like sales: the finder skips such lines and the Post Check rejects them.
 - **The hook** (`hook`, at most 48 characters) is the company's promise of that outcome, in its own words, shortened. It must name an outcome and must not be an instruction to do the product's job. The second reel took the page's headline as written ("Capture, measure & showcase customer love"), which names no outcome; the Post Check now rejects such a hook.
 - **The quote** (`quote`) is the `quotes` candidate that says why a customer chose the company, and `by` is the name the pages print beside it.
-- **The headline number** (`stat`) is the `stat` candidate, split into its prefix, number, suffix and label.
+- **The headline number** (`stat`) is the `stat` candidate, split into its prefix, number, suffix and label. The label must end on a noun: the finder trims trailing words like "with", "and" and "of", and the Post Check rejects a label that ends on one.
 - **The button** (`cta`) is a `cta` candidate, as printed.
 
 ### 4. Write the spec: send job B and review what it returns
