@@ -139,9 +139,11 @@ build.
    `info.time.completed` is set and `info.finish` is `stop` (its `text` parts are the answer);
    `error` when `info.error` is set or `info.finish` is neither `stop` nor `tool-calls`; `user`
    when `info.role` is `user`; otherwise `working`. If that read fails too, tell the user its error
-   exactly and stop. The next round runs the same bash call again; after TWO rounds in a row
-   without a `"state"`, every later round is a bash call of exactly `sleep 180` (`timeout`
-   `400000`) followed by the MCP read.
+   exactly and stop. The NEXT round is again the full bash call `sleep 180; qo block
+   service-account get-messages …` — one failure does not change the recipe, so do not switch to
+   MCP reads after a single failed shell read. Only when two rounds in a row had no `"state"`,
+   every later round is a bash call of exactly `sleep 180` (`timeout` `400000`) then the MCP read.
+   Any round whose bash output has `"state"` resets the count to zero.
 
    Read only that newest message. Only after two rounds with the same `activity`, read the newest
    5 the same way (`--limit 5`, or `limit` 5) — never more, and never its whole transcript. With

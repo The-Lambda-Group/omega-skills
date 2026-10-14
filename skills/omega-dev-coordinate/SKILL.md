@@ -124,8 +124,11 @@ a time).
    (the LAST one; empty `messages` = nothing yet, same as `user`) has `state` `done` — its `text` is the reply — or
    `error` (tell the user its `error` exactly and stop; during `omega-dev-develop`, give it to
    `omega-dev-develop-surface`). Output with no `"state"` is handled as `omega-installing-software`
-   step 4.3 says (read that round with `block_service_account_get_messages`, `limit` 1; after two
-   rounds in a row without a `"state"`, every later round is `sleep 180` then that read). One line
+   step 4.3 says: read THAT round with `block_service_account_get_messages` (`limit` 1); the NEXT
+   round is again the full bash call `sleep 180; qo block service-account get-messages …` —
+   one failure does not change the recipe; only when two rounds in a row had no `"state"`, every later
+   round is a bash call of exactly `sleep 180` (`timeout` `400000`) then that read; any round whose
+   bash output has `"state"` resets the count to zero. One line
    to the user when its `activity` says something new. At most the newest 5 messages, never the
    whole transcript, and never `block_service_account_list_sessions` to check progress (it is only
    for item 3.1's timed-out create). Never send a working Dev Subagent another message, and never
