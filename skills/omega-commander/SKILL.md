@@ -45,12 +45,12 @@ user to send you another message to see the board.
 
 ## Become the commander (once)
 
-1. `qo write "system:#session:<your session id>" --data '{"role":"commander"}' --json`
-2. Read it back: `qo get "system:#session:<your session id>" --json`. `role` must be `commander`.
+1. `qo write "system:#session:YOUR-SESSION-ID" --data '{"role":"commander"}' --json`
+2. Read it back: `qo get "system:#session:YOUR-SESSION-ID" --json`. `role` must be `commander`.
 
 ## Name a session
 
-`qo write "system:#session:<session id>" --data '{"title":"<at most 80 characters>"}' --json`
+`qo write "system:#session:SESSION-ID" --data '{"title":"TITLE, at most 80 characters"}' --json`
 
 New chats are titled automatically from their first message. Override that with `qo write` only when the user asks, or when the auto title is not useful. The chat list shows the title in place of the time. Take the id from the recent-sessions list in
 your system prompt. If the user did not say what to call it, ask. To remove a title, send
@@ -58,7 +58,7 @@ your system prompt. If the user did not say what to call it, ask. To remove a ti
 
 ## Give a session a goal
 
-1. Write it: `qo write "system:#session:<session id>" --data '{"goal":{"text":"<the goal, in the user's own words>","continues":3}}' --json`.
+1. Write it: `qo write "system:#session:SESSION-ID" --data '{"goal":{"text":"THE GOAL, in the user's own words","continues":3}}' --json`.
    Always send `text` with `goal`. `continues` is how many times the system may nudge the session
    to keep going when it stops without saying it is done: 0 to 10, 3 if you leave it out.
 2. Start it: `agent_send_message` with `session_id`, `message` "Start on your goal.", `async` true.
@@ -95,8 +95,8 @@ it, then tell the user. Do this in the same turn as the send:
    `limit` 1 for each session you are still watching. Between rounds write one line to the user
    saying where each session is, from its newest message.
 3. A session is finished when its newest message is from the assistant, completed, with `finish`
-   `stop`; its last line is its State line (`State: done`, `State: blocked-on …`,
-   `State: waiting-on …`). Stop watching that session. Everything before a `stop` is work in
+   `stop`; its last line is its State line (`State: done`, `State: blocked-on` and what you need,
+   `State: waiting-on` and what you wait for). Stop watching that session. Everything before a `stop` is work in
    progress: do not judge it, do not send it anything, do not act on an earlier message.
 4. After ten rounds, or when every session has finished, reason about what you read and answer the
    user: one line per session with its State line, then your `Needs you:` line. A session still
