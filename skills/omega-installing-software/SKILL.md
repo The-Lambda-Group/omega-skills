@@ -149,8 +149,10 @@ build.
    stays valid after the worker's session ends. Otherwise report what the worker replied, and say
    the file was made in the worker's container.
 
-4. For a later job, reuse the same worker: send the new job to its existing session, or open a new
-   session exactly as in 1. Before you send to a session that already has messages, run the
+4. For a later job, reuse the same worker: send the new job to the session id kept in your
+   notes, or open a new session exactly as in 1; never look for a session with
+   `block_service_account_list_sessions` (each row carries a whole system prompt, so one call is tens
+   of thousands of tokens). Before you send to a session that already has messages, run the
    command of 3 without its `sleep 180;` and note the `id` it prints. Every job message —
    including one to a worker you are reusing — starts with the two worker sentences from 2, word
    for word; without them the worker orients itself in the workspace instead of doing the job.
