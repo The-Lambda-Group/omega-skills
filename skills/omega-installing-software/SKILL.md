@@ -110,6 +110,7 @@ build.
    sleep 180; qo block service-account get-messages "<root>/Resources/Containers@<name>-worker" <session_id> --app-id <app_id> --limit 1 --json --host "${OMEGA_URL:-https://db.queryomega.com}" --base-url "${AGENT_URL:-https://agent.cloud.queryomega.com}" | node /opt/omega-skills/skills/omega-installing-software/worker-status.js
    ```
 
+   Every round sleeps 180 seconds: not less because the worker looks nearly done, and not more.
    It prints one JSON line for the worker's newest message: a short summary, never the message
    itself, which is megabytes when the worker has read images. If the line's `id` is the one you
    noted before sending (see 4), it is an earlier job's: do one more round. Otherwise its `state`
