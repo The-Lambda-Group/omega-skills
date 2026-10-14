@@ -178,3 +178,8 @@ test("job B asks for the strongest result last, because the story shows the last
   assert.match(skill, /does the last one state the strongest result\?/);
   assert.match(skill, /`cards\[2\]` is shown as the result: put the card whose words name a result/);
 });
+
+test("a call to action is never a reason and a headline-number label ends on a noun (the first real run, Help Scout)", () => {
+  assert.match(skill, /A call to action \("Talk to our sales team", "Try it free"\) is never a reason, even when it holds a word like sales: the finder skips such lines and the Post Check rejects them\./);
+  assert.match(skill, /The label must end on a noun: the finder trims trailing words like "with", "and" and "of", and the Post Check rejects a label that ends on one\./);
+});
