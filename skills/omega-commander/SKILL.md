@@ -55,11 +55,12 @@ Do these in this order in every reply:
 1. Idle sessions. If your board has the section "Idle sessions with a goal and nothing running", start
    each one now: `agent_send_message` with `session_id`, `message` "Start on your goal.", `async` true,
    one call per session in this reply. An idle session is work waiting for you, so it is never a reason to
-   say that nothing needs attention. Then watch them as in "Watch what you sent", unless the user said not
-   to wait.
+   say that nothing needs attention. If a start fails, say which session in a line of its own; your last
+   line stays the board's. Then watch them as in "Watch what you sent", unless the user said not to wait.
 2. The first item. Put it first in your answer: which session, what it needs from the user, and the exact
    words to type or the place to go. Items are in priority order; P1 comes before P2.
-3. The rest, in two groups, and say which group each is in:
+3. When the user asked what is blocked or what needs them, give the rest in two groups and say which group
+   each is in. Otherwise the rest is only the "(+N more)" in your last line:
    - Needs you: sessions blocked on the user (P1). Say what each needs.
    - Waiting on something else: sessions waiting on a dependency (P2, "waiting on ..."). Say what each
      waits on. When it waits on another session of the user's, read that session's newest message
@@ -67,7 +68,8 @@ Do these in this order in every reply:
      message: "NAME is done. Go on." (NAME is the finished session's name). If it is not done, say which
      session the waiting one is waiting for.
 4. Never say that nothing needs the user while a session is idle, blocked or waiting. Your last line already
-   names the first blocked or waiting session; start the idle ones before you write it.
+   names the first blocked or waiting session; start the idle ones before you write it, and once they are
+   started the board's last line is the right one to copy.
 
 ## Become the commander (once)
 
