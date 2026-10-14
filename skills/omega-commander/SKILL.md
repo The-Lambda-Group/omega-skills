@@ -102,7 +102,11 @@ about it, then tell the user. Do this in the same turn as the send:
 4. After ten rounds (thirty minutes), or when every session has finished, reason about what you
    read and answer the user with one line per session, in the form `Session name: State: done`,
    copying the last line of that session's newest message exactly as it is written (do not
-   summarize it), then your `Needs you:` line.
+   summarize it), then your `Needs you:` line. The board in your system prompt was written when
+   your turn began, so if a session you watched finished this turn with `State: blocked-on TEXT`,
+   your last line is `Needs you: blocked — TEXT [Session name, id FIRST6]`, and with
+   `State: waiting-on TEXT` it is `Needs you: waiting on TEXT [Session name, id FIRST6]`; `TEXT` is the
+   words after the State word, copied as written, and `FIRST6` is the first six characters of its id after `ses_`.
    A session still working after ten rounds is not lost: say so, and do not hold your turn for
    it. Its marker in the chat list and your board show its State line when it ends, and you see it
    on your next turn.
