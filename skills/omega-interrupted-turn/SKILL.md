@@ -17,8 +17,8 @@ and the tool call in it reads `running` forever. The agent service tells that ap
 that is still going: a read of the session says `turn-state` `interrupted` (with a `turn-reason`:
 `pod-gone`, `not-running`, or `compaction-stalled` when the newest message is a context compaction
 that was left empty and never finished). In the output of `qo block service-account get-messages
-… --summary` it is `data.result[0]["turn-state"]`, beside `messages`; the newest message's `state`
-in that output reads `working`, because the message never completed. The session and its history
+…` it is `data.result[0]["turn-state"]`, beside `messages`; the newest message in that output
+reads WORKING (the rules of `omega-installing-software` step 4.3), because it never completed. The session and its history
 are intact. For a stalled compaction the agent service aborts the stuck compaction as your message
 arrives, and the message then re-runs the compaction first (on 2026-10-14 a plain message restarted
 three hung compactions, each finished in about a minute). On 2026-10-13 one plain message to a cut-off session made
@@ -32,7 +32,7 @@ the agent service; I am telling it to continue."
 ## 2. Send one message that continues it
 
 Before you send, run the command of `omega-installing-software` step 4.3 without its
-`sleep 180;` and note the `message-id` of the last message in `data.result[0].messages`. Then
+`sleep 180;` and note the `info.id` of the last message in `data.result[0].messages`. Then
 `block_service_account_send_message` with the same `block_path`, the same `session_id`,
 `async: true` and this `message`, word for word:
 
@@ -48,8 +48,8 @@ skill says in step 4, after a restart: it continues where it stopped.`
 ## 3. Wait as before
 
 Go back to waiting in rounds (`omega-installing-software` step 4.3). The output says `interrupted`
-until the agent's new reply starts; when the last message's `message-id` differs from the one you
-noted, read its `state` as usual.
+until the agent's new reply starts; when the last message's `info.id` differs from the one you
+noted, read it with the rules of `omega-installing-software` step 4.3 as usual.
 
 ## 4. Stop after two
 
