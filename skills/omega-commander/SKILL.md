@@ -84,7 +84,7 @@ point. If a point is missing, message the session with the exact missing point. 
 - Read with `qo agent get-messages` in bash: `qo agent get-messages SESSION_ID --limit 1 --summary --json --host "${OMEGA_URL:-https://db.queryomega.com}" --base-url "${AGENT_URL:-https://agent.cloud.queryomega.com}"`
   prints the newest message as one small line: `state` (`user`, `working`, `done` or `error`), `finish`,
   `completed` and one of `text`, `activity` or `error`. Never read a whole message by default: a session that
-  read images has messages of megabytes, and `agent_get_messages` has no way to shrink them. Read more than
+  read images has messages of megabytes, and the MCP `agent_get_messages` has no way to shrink them (only the CLI's `--summary` does). Read more than
   the newest message (never more than 5, still with `--summary`) only to understand a failure.
 
 ## Watch what you sent
@@ -99,7 +99,9 @@ about it, then tell the user. Do this in the same turn as the send:
    `sleep 180; qo agent get-messages SESSION_1 --limit 1 --summary --json --host "${OMEGA_URL:-https://db.queryomega.com}" --base-url "${AGENT_URL:-https://agent.cloud.queryomega.com}"; qo agent get-messages SESSION_2 --limit 1 --summary --json --host "${OMEGA_URL:-https://db.queryomega.com}" --base-url "${AGENT_URL:-https://agent.cloud.queryomega.com}"`.
    If the output has no `"state"` for a session (an error, or an old `qo` without `--summary`), read that
    session that round with `agent_get_messages` (`session_id` and `limit` 1, nothing else) and run the
-   shell read again next round. Between rounds write one line to the user saying where each session is,
+   shell read again next round. When several watched sessions return no `"state"` in one round, read each
+   of them through `agent_get_messages` with `limit` 1 for that round only; the next round runs the CLI again.
+   Between rounds write one line to the user saying where each session is,
    from its newest message.
 3. A session is finished when its newest message has `state` `done` (from the assistant, completed, with
    `finish` `stop`); its last line is its State line (`State: done`, `State: blocked-on` and what you need,
@@ -107,7 +109,7 @@ about it, then tell the user. Do this in the same turn as the send:
    progress: do not judge it, do not send it anything, do not act on an earlier message. A `state`
    `error` (a `finish` other than `stop` or `tool-calls`) means that session's turn died: tell the user so.
    A `done` text with `"truncated": true` lost its end, which is where the State line is: read that one
-   message with `agent_get_messages` (`session_id` and `limit` 1) and take the last line from it.
+   message with `qo agent get-messages SESSION_ID --limit 1 --json --host "${OMEGA_URL:-https://db.queryomega.com}" --base-url "${AGENT_URL:-https://agent.cloud.queryomega.com}"` (no `--summary`) and take the last line from it.
 4. After ten rounds (thirty minutes), or when every session has finished, reason about what you
    read and answer the user with one line per session, in the form `Session name: State: done`,
    copying the last line of that session's newest message exactly as it is written (do not
