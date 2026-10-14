@@ -80,17 +80,28 @@ build.
 1. `block_service_account_create_session` with exactly two arguments besides `app_id`:
    `block_path` = `<root>/Resources/Containers@<name>-worker` and `devcontainer` =
    `<root>/Resources/Containers@<name>`. Leave `model` and `sandbox` out — the tools already point
-   at the right agent service and model. The result carries the new `sessionId`. Only open the
+   at the right agent service and model. The result carries the new `sessionId`. Below, `<app_id>` is the same `app_id` you passed to
+   `block_service_account_create_session`, and `<session_id>` the `session_id` it returned (the
+   result's `sessionId`). Only open the
    session once `build-status` is `ready` — before that the worker would start without your
    software.
 
    The first session on a new or rebuilt container can take ten minutes or more: its machine may
    still be starting, and the image is pulled the first time. If `block_service_account_create_session`
-   times out, do not try another way. Wait (`sleep 300` in one bash call), then
-   `block_service_account_list_sessions` on the worker: if it lists a session, use that one;
-   otherwise call `block_service_account_create_session` once more. If that times out too, stop and
+   times out, do not try another way. Wait (`sleep 300` in one bash call), then run this in bash:
+
+   ```bash
+   qo block service-account list-sessions "<root>/Resources/Containers@<name>-worker" --app-id <app_id> --limit 1 --json --host "${OMEGA_URL:-https://db.queryomega.com}"
+   ```
+
+   (the CLI drops each row's whole system prompt; the MCP `list_sessions` returns it and costs
+   tens of thousands of tokens). If it lists a session, use that one; otherwise call `block_service_account_create_session` once more. If that times out too, stop and
    tell the user.
-2. `block_service_account_send_message` with `block_path`, `session_id`, `async: true`, and a
+2. If the session already has messages, first run the step 4.3 command without `sleep 180;` and
+   write down the newest `message-id` (or `none` if `messages` is empty; if the output has no
+   `"state"`, use MCP `limit` 1 and write down `info.id`).
+
+   Then `block_service_account_send_message` with `block_path`, `session_id`, `async: true`, and a
    `message` that is the whole job. Start the message with these two sentences, word for word,
    then the job:
 
@@ -104,7 +115,7 @@ build.
    than ten minutes, add:
    `This job takes a long time: follow your omega-long-running-work skill.`
 3. Wait for the answer in rounds, whatever the job's length. Each round is ONE bash call with
-   `timeout` `400000`, using the worker block path, session id and app id of sub-steps 4.1 and 4.2:
+   `timeout` `400000`, using the worker block path, session id and app id of steps 4.1 and 4.2:
 
    ```bash
    sleep 180; qo block service-account get-messages "<root>/Resources/Containers@<name>-worker" <session_id> --app-id <app_id> --limit 1 --summary --json --host "${OMEGA_URL:-https://db.queryomega.com}" --base-url "${AGENT_URL:-https://agent.cloud.queryomega.com}"
@@ -115,16 +126,17 @@ build.
    summary, never the message itself, which is megabytes when the worker has read images. The
    summaries are in `data.result[0].messages`, oldest first, so the LAST one is the newest. Each has
    `message-id`, `role`, `finish`, `completed` and a `state`. If `messages` is empty, the worker has
-   no message yet: treat it as `user`. If the newest `message-id` is the one you noted before
-   sending (see sub-step 4.4), it is an earlier job's: do one more round; if it is still that id
+   no message yet: treat it as `user`. If the newest `message-id` is the `message-id` you wrote
+   down in step 4.2, it is an earlier job's: do one more round; if it is still that id
    after 4 rounds, the job did not start: tell the user the session id and stop. Otherwise its
    `state` says where the worker is:
    - `done` — the worker has finished; `text` is its answer (when `truncated` is `true`, say so
      when you pass it on).
    - `working` — the worker is still busy. When its `activity` says something new, write the user
-     one line from it. Then the next round. If `activity` is the same for 20 rounds in a row (an
-     hour), tell the user the session id and that `activity`, and stop. Keep your turn open until
-     `done` or `error`.
+     one line from it. Then the next round. If `activity` is the same for 20 rounds in a row and the
+     job message did not carry the omega-long-running-work sentence, tell the user the session id
+     and that `activity`, and stop. If it did carry it, the limit is 60 rounds (three hours). Keep
+     your turn open until `done` or `error`.
    - `user` — the newest message is still your job (`text` is its first 200 characters): the worker
      has not started it yet. Do the next round. Still `user` (or `messages` empty) after 4 rounds in
      a row (about 12 minutes) → tell the user the session id and that the job did not start, and
@@ -143,16 +155,20 @@ build.
    service-account get-messages …` — one failure does not change the recipe, so do not switch to
    MCP reads after a single failed shell read. Only when two rounds in a row had no `"state"`,
    every later round is a bash call of exactly `sleep 180` (`timeout` `400000`) then the MCP read.
-   Any round whose bash output has `"state"` resets the count to zero.
+   Any round whose bash output has `"state"` resets the count to zero. In MCP mode the activity is
+   the newest part's tool name plus status, or its text's first 200 characters; apply the 4-round
+   `user` limit and the same-activity limits using that.
 
-   Read only that newest message. Only after two rounds with the same `activity`, read the newest
-   5 the same way (`--limit 5`, or `limit` 5) — never more, and never its whole transcript. With
-   `--limit 5` the LAST message in `messages` is the newest; its `state` is the worker's state.
+   Read only the newest message. If `activity` is the same for 5 rounds in a row, make ONE extra
+   shell call with `--limit 5` in place of that round's call (never MCP `limit` above 1, never more
+   than 5 messages, never the whole transcript), read each `activity`, and go on. Do this at most
+   once per job. With `--limit 5` the LAST message in `messages` is the newest and its `state` is
+   the worker's state.
    Send the worker nothing while it works. Until it is `done`, everything in its messages is work
    in progress: a failed command in one of them (a `git fetch` before it has signed in, a test it
    is still fixing) is the worker's to handle, not your answer. Never call
-   `block_service_account_list_sessions` to see how the worker is doing: it is only for step 4.1's
-   timed-out create.
+   `block_service_account_list_sessions` or `qo block service-account list-sessions` to see how the
+   worker is doing: the CLI one is only for step 4.1's timed-out create.
 
    The worker runs in its own container: files it writes stay there, and you cannot read, list or
    copy them from your sandbox. So write the job so that everything you need comes back in the
@@ -165,12 +181,11 @@ build.
    the file was made in the worker's container.
 
 4. For a later job, reuse the same worker: send the new job to the session id kept in your
-   notes, or open a new session exactly as in sub-step 4.1; never look for a session with
-   `block_service_account_list_sessions` (except step 4.1's timed-out create; each row carries a whole system prompt, so one call is tens
-   of thousands of tokens). Before you send to a session that already has messages, run the
-   command of sub-step 4.3 without its `sleep 180;` and note the `message-id` of the newest message it prints (none, if `messages` is empty). Every job message —
-   including one to a worker you are reusing — starts with the two worker sentences from sub-step 4.2, word
-   for word; without them the worker orients itself in the workspace instead of doing the job.
+   notes, or open a new session exactly as in step 4.1; never look for a session with
+   `block_service_account_list_sessions`. Note the newest `message-id` first, as step 4.2 says.
+   Every job message — including one to a worker you are reusing — starts with the two worker
+   sentences from step 4.2, word for word; without them the worker orients itself in the
+   workspace instead of doing the job.
 
 ## 5. Record it in your notes — before you answer
 
