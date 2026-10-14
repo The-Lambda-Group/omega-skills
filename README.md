@@ -13,6 +13,7 @@ Drop a skill's folder into your agent's skills directory.
 - [`skills/omega-present-file`](skills/omega-present-file) — hand the user a public link to a file: copy it into `ARTIFACT_DIR`, reply with `ARTIFACT_BASE_URL/<name>`.
 - [`skills/omega-installing-software`](skills/omega-installing-software) — install software the only way an agent can: build a devcontainer with it, run the work on a worker agent in that container, and record the container in Notes for reuse.
 - [`skills/omega-repo-work`](skills/omega-repo-work) — write code in a git repository from a container: clone on a volume, branch, test, commit, push only the branch, build or render.
+- [`skills/omega-interrupted-turn`](skills/omega-interrupted-turn) — a worker's turn was cut off (the service was restarted, a node was lost): tell the user, send the one message that continues it, stop after two.
 - [`skills/omega-long-running-work`](skills/omega-long-running-work) — a shell job longer than ten minutes: run it in the background on a volume and check on it every nine minutes.
 - [`skills/omega-dev-coordinate`](skills/omega-dev-coordinate) — development work: the agent talking to the user coordinates, Dev Subagents on the user's Dev Machine do the file and code work.
 - [`skills/omega-dev-machine`](skills/omega-dev-machine) — find, check, set up or repair the Dev Machine (devcontainer + volume + worker) and its Notes record.

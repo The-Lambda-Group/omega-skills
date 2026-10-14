@@ -143,6 +143,13 @@ build.
      stop.
    - `error` — the worker's turn failed: tell the user its `error` exactly, and stop.
 
+   **`turn-state`.** The same output has `data.result[0]["turn-state"]` beside `messages`: `running`,
+   `idle` or `interrupted` (absent when the agent service cannot tell: treat it as `running`). When
+   it is `interrupted` and the newest `state` is not `done`, the worker's turn was cut off (the
+   service was restarted, a node was lost): its newest message reads `working` and never changes.
+   Stop the rounds and follow `omega-interrupted-turn`. When the newest `state` is `done` or
+   `error`, ignore `turn-state`.
+
    **No `"state"` in the output** (an error message, `error: unknown option '--summary'` from an
    old `qo`, not logged in, anything else): the shell read did not work. Read THAT round
    immediately with `block_service_account_get_messages` with `limit` 1 and nothing else (no
