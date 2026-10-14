@@ -66,7 +66,7 @@ Do these in this order in every reply:
    - Needs you: sessions blocked on the user (P1). Say what each needs.
    - Waiting on something else: sessions waiting on a dependency (P2, "waiting on ..."). Say what each
      waits on. When it waits on another session of the user's, read that session's newest message
-     (`--summary`, as in "Message and read a session"). If that session is done, send the waiting session one
+     (`--limit 1`, read by the rules in "Message and read a session"). If that session is done, send the waiting session one
      message: "NAME is done. Go on." (NAME is the finished session's name). If it is not done, say which
      session the waiting one is waiting for.
 4. Never say that nothing needs the user while a session is idle, blocked or waiting. Your last line already
