@@ -123,7 +123,8 @@ build.
      round. Still `user` ten minutes after you sent the job → tell the user the session id and that
      the job did not start, and stop.
    - `error` — the worker's turn failed: tell the user its `error` exactly, and stop.
-   - `read-failed` — the shell read did not work: read that round with
+   - `read-failed` — the shell read did not work: for that round and every later one, run a bash
+     call of exactly `sleep 180` (`timeout` `400000`), then read with
      `block_service_account_get_messages` with `limit` 1 and nothing else (no `skip`, no `sort`, no
      `before`, no `include_reasoning`). That returns the raw newest message: it is `done` when
      `info.role` is `assistant`, `info.time.completed` is set and `info.finish` is `stop` (its
