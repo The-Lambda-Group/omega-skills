@@ -151,7 +151,7 @@ build.
 
 4. For a later job, reuse the same worker: send the new job to the session id kept in your
    notes, or open a new session exactly as in 1; never look for a session with
-   `block_service_account_list_sessions` (each row carries a whole system prompt, so one call is tens
+   `block_service_account_list_sessions` (except 1's timed-out create; each row carries a whole system prompt, so one call is tens
    of thousands of tokens). Before you send to a session that already has messages, run the
    command of 3 without its `sleep 180;` and note the `id` it prints. Every job message —
    including one to a worker you are reusing — starts with the two worker sentences from 2, word
@@ -168,8 +168,9 @@ is the index (one line per note page, linking it), and every note is its own pag
    then `add_page` with `parent_path` `<root>/Notes` and a name for installed software (for
    example `Containers`). Write one entry per container — keep the entries already there — with:
    the devcontainer's full block path, what it installs (its `features`), the worker's full block
-   path and how to use it (open a session with the devcontainer, send the job async, read its
-   newest message), the date, and the `build-status`.
+   path, the worker session id you used (so a later job reuses it), and how to use it (open a
+   session with the devcontainer, send the job async, read its newest message), the date, and the
+   `build-status`.
 2. **The index.** `add_page` with `parent_path` `<root>/Notes` and name `README` if it is missing.
    Keep its existing lines and make sure one line links the note page, e.g.
    `<li><a href="Containers">Containers</a> — software installed here, with its workers</li>`.
