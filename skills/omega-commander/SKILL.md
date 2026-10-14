@@ -65,7 +65,8 @@ your system prompt. If the user did not say what to call it, ask. To remove a ti
    A goal does not start a turn by itself.
 3. From then on every reply of that session ends with a State line (`State: working`,
    `State: done`, `State: blocked-on` and what you need, `State: waiting-on` and what you are waiting for) and the system records it. A session
-   that is blocked, waiting or stopped shows on your board. You do not poll.
+   that is blocked, waiting or stopped shows on your board. Waiting for a session you just tasked is
+   "Watch what you sent" below; looking for other sessions that need the user is the board.
 
 To clear a goal send `{"goal":{"text":""}}`.
 
@@ -77,12 +78,32 @@ point. If a point is missing, message the session with the exact missing point. 
 ## Message and read a session
 
 - Send with `agent_send_message`: `session_id`, `message`, and `async` true. Always async: a
-  synchronous send waits for the whole reply and hangs.
+  synchronous send waits for the whole reply and hangs. To task several sessions, send to each of
+  them in the same reply (one `agent_send_message` per session), then watch them all together.
 - Do not send to a session the roster marks `working`: the message queues behind its current turn.
-- After you send, stop. Tell the user you sent it and that its marker in the chat list, or your
-  next reply, will show the result. Do not wait in a loop: every wait costs a whole model step.
-- Read with `agent_get_messages`: `session_id` and `limit` 5, never more. The newest message is the
-  one that matters; its `finish` is `stop` when the turn ended cleanly.
+- Read with `agent_get_messages`: `session_id` and `limit` 1, nothing else: that returns the newest
+  message. Read more than that (never more than 5) only to understand a failure.
+
+## Watch what you sent
+
+Sending is half of it. The same procedure as `omega-installing-software` step 4.3 and
+`omega-dev-coordinate`: send async, wait with bash, read the newest message yourself, reason about
+it, then tell the user. Do this in the same turn as the send:
+
+1. Send every task async and note the session ids you are watching.
+2. One round: `sleep 180` in one bash call with `timeout` `200000`, then `agent_get_messages` with
+   `limit` 1 for each session you are still watching. Between rounds write one line to the user
+   saying where each session is, from its newest message.
+3. A session is finished when its newest message is from the assistant, completed, with `finish`
+   `stop`; its last line is its State line (`State: done`, `State: blocked-on …`,
+   `State: waiting-on …`). Stop watching that session. Everything before a `stop` is work in
+   progress: do not judge it, do not send it anything, do not act on an earlier message.
+4. After ten rounds, or when every session has finished, reason about what you read and answer the
+   user: one line per session with its State line, then your `Needs you:` line. A session still
+   working after ten rounds is not lost: say so; its marker in the chat list and your board show its
+   State line when it ends.
+5. If ten minutes after the send the newest message is still your own, the message was lost: send it
+   once more, and if that is lost too tell the user the exact state and stop.
 
 ## Approvals: you never approve for the user
 
@@ -105,6 +126,6 @@ the command, or work around it with curl or raw HTTP. A failing tool is not your
 - Never do a session's work, and never speak in its name.
 - Never set a goal on yourself unless the user asks.
 - Never call `agent_list_sessions` or `agent_sessions`.
-- Never send a synchronous message, and never read more than 5 messages.
+- Never send a synchronous message, never wait without reading, and never read more than 5 messages.
 - Never answer a session's approval question in the user's name.
 - One question to the user per message; then end your turn.
