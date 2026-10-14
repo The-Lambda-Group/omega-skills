@@ -125,3 +125,52 @@ test("the script itself: reads stdin, prints one JSON line per message, exits 0,
   assert.equal(big.status, 0);
   assert.ok(big.stdout.length < 400, `stdout is ${big.stdout.length} characters`);
 });
+
+test("an ok reply whose result is not an object with a messages array is read-failed, not user", () => {
+  const shape = { state: "read-failed", error: "unexpected reply shape" };
+  assert.deepEqual(render(JSON.stringify({ ok: true, data: { result: "x" } })), [shape]);
+  assert.deepEqual(render(JSON.stringify({ ok: true, data: { result: [] } })), [shape]);
+  assert.deepEqual(render(JSON.stringify({ ok: true, data: { result: [{}] } })), [shape]);
+  assert.deepEqual(render(JSON.stringify({ ok: true, data: { result: { messages: "no" } } })), [shape]);
+  assert.deepEqual(render(JSON.stringify({ ok: true, data: { result: null } })), [shape]);
+  assert.deepEqual(render(JSON.stringify({ ok: true, data: { result: { messages: [] } } })), [{ id: null, role: null, finish: null, state: "user", text: "" }]);
+  assert.deepEqual(render(JSON.stringify({ ok: true, data: { result: { messages: [{ info: { id: "m", role: "user" }, parts: [] }] } } }))[0].state, "user");
+});
+
+test("info.error as a plain string or as true is an error line, never a crash", () => {
+  const s = summarize(asst({ error: "boom" }, []));
+  assert.equal(s.state, "error");
+  assert.match(s.error, /boom/);
+  const t = summarize(asst({ error: true }, []));
+  assert.equal(t.state, "error");
+  assert.match(t.error, /true/);
+});
+
+test("a null entry inside messages becomes a user line, not a crash", () => {
+  const out = render(envelope(null, asst({ id: "m2", finish: "stop", time: { created: 1, completed: 2 } }, [{ type: "text", text: "ok" }])));
+  assert.equal(out.length, 2);
+  assert.equal(out[0].state, "user");
+  assert.equal(out[1].state, "done");
+});
+
+test("a user message with no text parts has empty text", () => {
+  assert.deepEqual(summarize({ info: { id: "u", role: "user" }, parts: [{ type: "file" }] }), { id: "u", role: "user", finish: null, state: "user", text: "" });
+});
+
+test("the 6000 character boundary: 5999 and 6000 are whole, 6001 is cut and flagged", () => {
+  const done = (n) => summarize(asst({ finish: "stop", time: { created: 1, completed: 2 } }, [{ type: "text", text: "x".repeat(n) }]));
+  for (const n of [5999, 6000]) {
+    const s = done(n);
+    assert.equal(s.text.length, n);
+    assert.equal(s.truncated, undefined);
+  }
+  const s = done(6001);
+  assert.equal(s.text.length, 6000);
+  assert.equal(s.truncated, true);
+});
+
+test("the script prints one read-failed line and exits 0 for an unexpected shape", () => {
+  const r = spawnSync(process.execPath, [SCRIPT], { input: JSON.stringify({ ok: true, data: { result: "x" } }), encoding: "utf8" });
+  assert.equal(r.status, 0);
+  assert.deepEqual(JSON.parse(r.stdout.trim()), { state: "read-failed", error: "unexpected reply shape" });
+});

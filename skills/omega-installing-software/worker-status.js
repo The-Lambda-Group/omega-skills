@@ -68,7 +68,8 @@ function render(input) {
   if (!r || r.ok === false || !r.data)
     return [{ state: "read-failed", error: clip(oneLine(asText((r && r.error) || "no data in the reply")), ERROR_MAX) }];
   const result = Array.isArray(r.data.result) ? r.data.result[0] : r.data.result;
-  const messages = result && Array.isArray(result.messages) ? result.messages : [];
+  if (!result || !Array.isArray(result.messages)) return [{ state: "read-failed", error: "unexpected reply shape" }];
+  const messages = result.messages;
   if (messages.length === 0) return [{ id: null, role: null, finish: null, state: "user", text: "" }];
   return messages.map(summarize);
 }
@@ -77,7 +78,12 @@ if (require.main === module) {
   let input = "";
   process.stdin.setEncoding("utf8");
   process.stdin.on("data", (c) => { input += c; });
-  process.stdin.on("end", () => { for (const line of render(input)) console.log(JSON.stringify(line)); });
+  process.stdin.on("end", () => {
+    let lines;
+    try { lines = render(input).map((line) => JSON.stringify(line)); }
+    catch { lines = [JSON.stringify({ state: "read-failed", error: "status filter crashed" })]; }
+    for (const line of lines) console.log(line);
+  });
 }
 
 module.exports = { summarize, render };
