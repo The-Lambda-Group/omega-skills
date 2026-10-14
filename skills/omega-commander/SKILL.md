@@ -87,23 +87,25 @@ point. If a point is missing, message the session with the exact missing point. 
 ## Watch what you sent
 
 Sending is half of it. The same procedure as `omega-installing-software` step 4.3 and
-`omega-dev-coordinate`: send async, wait with bash, read the newest message yourself, reason about
-it, then tell the user. Do this in the same turn as the send:
+`omega-dev-coordinate` step 3: send async, wait with bash, read the newest message yourself, reason
+about it, then tell the user. Do this in the same turn as the send:
 
 1. Send every task async and note the session ids you are watching.
-2. One round: `sleep 180` in one bash call with `timeout` `200000`, then `agent_get_messages` with
+2. One round: `sleep 30` in one bash call with `timeout` `40000`, then `agent_get_messages` with
    `limit` 1 for each session you are still watching. Between rounds write one line to the user
    saying where each session is, from its newest message.
 3. A session is finished when its newest message is from the assistant, completed, with `finish`
    `stop`; its last line is its State line (`State: done`, `State: blocked-on` and what you need,
    `State: waiting-on` and what you wait for). Stop watching that session. Everything before a `stop` is work in
-   progress: do not judge it, do not send it anything, do not act on an earlier message.
-4. After ten rounds, or when every session has finished, reason about what you read and answer the
-   user: one line per session with its State line, then your `Needs you:` line. A session still
-   working after ten rounds is not lost: say so; its marker in the chat list and your board show its
-   State line when it ends.
-5. If ten minutes after the send the newest message is still your own, the message was lost: send it
-   once more, and if that is lost too tell the user the exact state and stop.
+   progress: do not judge it, do not send it anything, do not act on an earlier message. A `finish`
+   other than `stop` or `tool-calls` means that session's turn died: tell the user so.
+4. After twenty rounds (about ten minutes), or when every session has finished, reason about what you
+   read and answer the user: one line per session with its State line, then your `Needs you:` line.
+   A session still working after twenty rounds is not lost: say so, and do not hold your turn for
+   it. Its marker in the chat list and your board show its State line when it ends, and you see it
+   on your next turn.
+5. If ten minutes after the send a session's newest message is still your own, the message was lost:
+   send it once more, and if that is lost too tell the user the exact state and stop.
 
 ## Approvals: you never approve for the user
 
