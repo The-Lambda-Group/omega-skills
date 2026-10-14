@@ -98,7 +98,7 @@ Job B text (after the openers): steps 1 and 2 of job A, but without the `&& rm -
 - hook, reason, quote, by, cta: exactly the strings given below.
 - stat: an object with prefix, value (a whole number), suffix and label, from the sentence given below.
 - beats: exactly 3 strings, each at most 40 characters, a short sentence in the site's own words, each naming one thing the product does.
-- cards: exactly 3 objects, each with name (at most 24 characters, as the site prints it) and text (at most 95 characters, copied word for word from site.txt), real customers' words, the ones that name an outcome first, from a company page or, when the company's pages hold too few, from a third-party page. Add a numeric rating only where site.txt prints a star and a number right beside the name, written like the name, a space, a star, a space, the number.
+- cards: exactly 3 objects, each with name (at most 24 characters, as the site prints it) and text (at most 95 characters, copied word for word from site.txt), real customers' words that name an outcome, with the card whose words state the strongest result (a multiplier, a percentage or a number) last because the reel shows the last card as its result, from a company page or, when the company's pages hold too few, from a third-party page. Add a numeric rating only where site.txt prints a star and a number right beside the name, written like the name, a space, a star, a space, the number.
 - bg, accent, accent2: three lowercase hex colours from the "## colours" line at the end of site.txt. bg is a dark one, accent is the bright one that stands out on it, accent2 is a strong second brand colour (white text must stay readable on it).
 - Never write the word Cas or Omega. Never name a competitor.
 The given strings:
@@ -118,7 +118,7 @@ Review the returned spec against these four questions. If an answer is "no", sen
 
 1. Does the hook name an outcome, and does the reason say what the customer gets?
 2. Is each feature line a thing the product does, in a verb, and different from the others?
-3. Are the three cards real customers saying something about their result, not about the product's features?
+3. Are the three cards real customers saying something about their result, not about the product's features, and does the last one state the strongest result?
 4. Do the colours match the company's own site (a dark background, one bright accent, one second colour)?
 
 ### 5. The story the reel tells (fixed; do not reorder)

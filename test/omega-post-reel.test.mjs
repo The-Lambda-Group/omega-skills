@@ -172,3 +172,9 @@ test("a missing part after research stops the reel, with a second round of resea
   assert.match(skill, /\*\*stop\*\*: tell the user which parts are missing/);
   assert.match(skill, /no reel was made and nothing was invented/);
 });
+
+test("job B asks for the strongest result last, because the story shows the last card as its result, and the review asks the same", () => {
+  assert.match(JOBS.B, /with the card whose words state the strongest result \(a multiplier, a percentage or a number\) last because the reel shows the last card as its result/);
+  assert.match(skill, /does the last one state the strongest result\?/);
+  assert.match(skill, /`cards\[2\]` is shown as the result: put the card whose words name a result/);
+});
