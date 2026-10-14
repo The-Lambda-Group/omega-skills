@@ -94,12 +94,11 @@ build.
    qo block service-account list-sessions "<root>/Resources/Containers@<name>-worker" --app-id <app_id> --limit 1 --json --host "${OMEGA_URL:-https://db.queryomega.com}"
    ```
 
-   (the CLI drops each row's whole system prompt; the MCP `list_sessions` returns it and costs
-   tens of thousands of tokens). If it lists a session, use that one; otherwise call `block_service_account_create_session` once more. If that times out too, stop and
+   If it lists a session, use that one; otherwise call `block_service_account_create_session` once more. If that times out too, stop and
    tell the user.
 2. If the session already has messages, first run the step 4.3 command without `sleep 180;` and
-   write down the newest `message-id` (or `none` if `messages` is empty; if the output has no
-   `"state"`, use MCP `limit` 1 and write down `info.id`).
+   write down the newest message's `info.id` (or `none` if `messages` is empty; if the output is
+   an error instead of `messages`, use MCP `limit` 1 and write down `info.id`).
 
    Then `block_service_account_send_message` with `block_path`, `session_id`, `async: true`, and a
    `message` that is the whole job. Start the message with these two sentences, word for word,
@@ -118,60 +117,50 @@ build.
    `timeout` `400000`, using the worker block path, session id and app id of steps 4.1 and 4.2:
 
    ```bash
-   sleep 180; qo block service-account get-messages "<root>/Resources/Containers@<name>-worker" <session_id> --app-id <app_id> --limit 1 --summary --json --host "${OMEGA_URL:-https://db.queryomega.com}" --base-url "${AGENT_URL:-https://agent.cloud.queryomega.com}"
+   sleep 180; qo block service-account get-messages "<root>/Resources/Containers@<name>-worker" <session_id> --app-id <app_id> --limit 1 --json --host "${OMEGA_URL:-https://db.queryomega.com}" --base-url "${AGENT_URL:-https://agent.cloud.queryomega.com}"
    ```
 
    Every round sleeps 180 seconds: not less because the worker looks nearly done, and not more.
-   `--summary` makes `qo` print its usual JSON envelope with each message replaced by a short
-   summary, never the message itself, which is megabytes when the worker has read images. The
-   summaries are in `data.result[0].messages`, oldest first, so the LAST one is the newest. Each has
-   `message-id`, `role`, `finish`, `completed` and a `state`. If `messages` is empty, the worker has
-   no message yet: treat it as `user`. If the newest `message-id` is the `message-id` you wrote
-   down in step 4.2, it is an earlier job's: do one more round; if it is still that id
-   after 4 rounds, the job did not start: tell the user the session id and stop. Otherwise its
-   `state` says where the worker is:
-   - `done` — the worker has finished; `text` is its answer (when `truncated` is `true`, say so
-     when you pass it on).
-   - `working` — the worker is still busy. When its `activity` says something new, write the user
-     one line from it. Then the next round. If `activity` is the same for 20 rounds in a row and the
-     job message did not carry the omega-long-running-work sentence, tell the user the session id
-     and that `activity`, and stop. If it did carry it, the limit is 60 rounds (three hours). Keep
-     your turn open until `done` or `error`.
-   - `user` — the newest message is still your job (`text` is its first 200 characters): the worker
-     has not started it yet. Do the next round. Still `user` (or `messages` empty) after 4 rounds in
-     a row (about 12 minutes) → tell the user the session id and that the job did not start, and
-     stop.
-   - `error` — the worker's turn failed: tell the user its `error` exactly, and stop.
+   The messages are in `data.result[0].messages`, oldest first, so the LAST one is the newest.
+   Each message is `{info, parts}`. If `messages` is empty, the worker has no message yet: treat
+   it as USER. If the newest message's `info.id` is the `info.id` you wrote down in step 4.2, it
+   is an earlier job's: do one more round; if it is still that id after 4 rounds, the job did not
+   start: tell the user the session id and stop. Otherwise read the newest message with these
+   rules, in this order:
+   - DONE — `info.role` is `assistant`, `info.time.completed` is set and `info.finish` is `stop`.
+     The worker has finished. Its `text` parts, joined, are its answer.
+   - ERROR — `info.error` is set, or `info.finish` is set and is neither `stop` nor `tool-calls`.
+     The worker's turn failed: tell the user `info.error` exactly, and stop.
+   - USER — `info.role` is `user`. The newest message is still your job: the worker has not
+     started it yet. Do the next round. Still USER (or `messages` empty) after 4 rounds in a row
+     (about 12 minutes) → tell the user the session id and that the job did not start, and stop.
+   - WORKING — anything else. The worker is still busy. What it is doing now is the newest part's
+     tool name plus its status, or the first 200 characters of its text. When that says something
+     new, write the user one line from it. Then the next round. If it is the same for 20 rounds in
+     a row and the job message did not carry the omega-long-running-work sentence, tell the user
+     the session id and what it is doing, and stop. If it did carry it, the limit is 60 rounds
+     (three hours). Keep your turn open until DONE or ERROR.
 
    **`turn-state`.** The same output has `data.result[0]["turn-state"]` beside `messages`: `running`,
    `idle` or `interrupted` (absent when the agent service cannot tell: treat it as `running`). When
-   it is `interrupted` and the newest `state` is not `done`, the worker's turn was cut off (the
-   service was restarted, a node was lost): its newest message reads `working` and never changes.
-   Stop the rounds and follow `omega-interrupted-turn`. When the newest `state` is `done` or
-   `error`, ignore `turn-state`.
+   it is `interrupted` and the newest message is not DONE, the worker's turn was cut off (the
+   service was restarted, a node was lost): its newest message reads WORKING and never changes.
+   Stop the rounds and follow `omega-interrupted-turn`. When the newest message is DONE or
+   ERROR, ignore `turn-state`.
 
-   **No `"state"` in the output** (an error message, `error: unknown option '--summary'` from an
-   old `qo`, not logged in, anything else): the shell read did not work. Read THAT round
-   immediately with `block_service_account_get_messages` with `limit` 1 and nothing else (no
-   `skip`, no `sort`, no `before`, no `include_reasoning`); the failed call already slept 180
-   seconds. That returns the raw newest message: it is `done` when `info.role` is `assistant`,
-   `info.time.completed` is set and `info.finish` is `stop` (its `text` parts are the answer);
-   `error` when `info.error` is set or `info.finish` is neither `stop` nor `tool-calls`; `user`
-   when `info.role` is `user`; otherwise `working`. If that read fails too, tell the user its error
-   exactly and stop. The NEXT round is again the full bash call `sleep 180; qo block
-   service-account get-messages …` — one failure does not change the recipe, so do not switch to
-   MCP reads after a single failed shell read. Only when two rounds in a row had no `"state"`,
-   every later round is a bash call of exactly `sleep 180` (`timeout` `400000`) then the MCP read.
-   Any round whose bash output has `"state"` resets the count to zero. In MCP mode the activity is
-   the newest part's tool name plus status, or its text's first 200 characters; apply the 4-round
-   `user` limit and the same-activity limits using that.
+   **An error instead of `messages`** (not logged in, a network error, anything else): the shell
+   read did not work. Read THAT round immediately with `block_service_account_get_messages` with
+   `limit` 1 and nothing else (no `skip`, no `sort`, no `before`, no `include_reasoning`); the
+   failed call already slept 180 seconds. Its newest message is read with the same rules. If that
+   read fails too, tell the user its error exactly and stop. The NEXT round is again the full bash
+   call `sleep 180; qo block service-account get-messages …`.
 
-   Read only the newest message. If `activity` is the same for 5 rounds in a row, make ONE extra
-   shell call with `--limit 5` in place of that round's call (never MCP `limit` above 1, never more
-   than 5 messages, never the whole transcript), read each `activity`, and go on. Do this at most
-   once per job. With `--limit 5` the LAST message in `messages` is the newest and its `state` is
-   the worker's state.
-   Send the worker nothing while it works. Until it is `done`, everything in its messages is work
+   Read only the newest message. If what the worker is doing now is the same for 5 rounds in a
+   row, make ONE extra shell call with `--limit 5` in place of that round's call (never MCP `limit`
+   above 1, never more than 5 messages, never the whole transcript), read what each message was
+   doing, and go on. Do this at most once per job. With `--limit 5` the LAST message in `messages`
+   is the newest, and the rules above are read on it.
+   Send the worker nothing while it works. Until it is DONE, everything in its messages is work
    in progress: a failed command in one of them (a `git fetch` before it has signed in, a test it
    is still fixing) is the worker's to handle, not your answer. Never call
    `block_service_account_list_sessions` or `qo block service-account list-sessions` to see how the
@@ -189,7 +178,7 @@ build.
 
 4. For a later job, reuse the same worker: send the new job to the session id kept in your
    notes, or open a new session exactly as in step 4.1; never look for a session with
-   `block_service_account_list_sessions`. Note the newest `message-id` first, as step 4.2 says.
+   `block_service_account_list_sessions`. Note the newest message's `info.id` first, as step 4.2 says.
    Every job message — including one to a worker you are reusing — starts with the two worker
    sentences from step 4.2, word for word; without them the worker orients itself in the
    workspace instead of doing the job.

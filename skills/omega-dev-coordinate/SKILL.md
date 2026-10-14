@@ -98,9 +98,6 @@ a time).
    ```bash
    qo block service-account list-sessions "<Worker>" --app-id <Workspace> --limit 1 --json --host "${OMEGA_URL:-https://db.queryomega.com}"
    ```
-
-   (the CLI drops each row's whole system prompt; the MCP `list_sessions` returns it and costs
-   tens of thousands of tokens).
 2. `block_service_account_send_message` with `block_path`, `session_id`, `async: true` and a
    `message` in exactly this shape:
 
@@ -122,40 +119,36 @@ a time).
    earlier job. A job that may run longer than ten minutes gets, at the end of the Job line, before Report:
    `This job takes a long time: follow your omega-long-running-work skill.`
 3. Wait for the reply as `omega-installing-software` step 4.3 says, except for a lost job (below);
-   the same-`activity` limit is that of `omega-installing-software` step 4.3.
+   the limit on rounds in which it is doing the same thing is that of `omega-installing-software` step 4.3.
    Each round is one bash call with `timeout` `400000`:
 
    ```bash
-   sleep 180; qo block service-account get-messages "<Worker>" <session_id> --app-id <Workspace> --limit 1 --summary --json --host "${OMEGA_URL:-https://db.queryomega.com}" --base-url "${AGENT_URL:-https://agent.cloud.queryomega.com}"
+   sleep 180; qo block service-account get-messages "<Worker>" <session_id> --app-id <Workspace> --limit 1 --json --host "${OMEGA_URL:-https://db.queryomega.com}" --base-url "${AGENT_URL:-https://agent.cloud.queryomega.com}"
    ```
 
    Repeat it, with `sleep 180` every time, until the newest message in `data.result[0].messages`
-   (the LAST one; empty `messages` = nothing yet, same as `user`) has `state` `done` — its `text` is the reply (if `truncated` is `true` on the reply, the reply is
-   incomplete: do not mark it clean; in `omega-dev-develop` give it to `omega-dev-develop-surface`
-   as 'reply cut at 6000 characters'; otherwise tell the user) — or
-   `error` (tell the user its `error` exactly and stop; during `omega-dev-develop`, give it to
-   `omega-dev-develop-surface`). Output with no `"state"` is handled as `omega-installing-software`
-   step 4.3 says: read THAT round with `block_service_account_get_messages` (`limit` 1); the NEXT
-   round is again the full bash call `sleep 180; qo block service-account get-messages …` —
-   one failure does not change the recipe; only when two rounds in a row had no `"state"`, every later
-   round is a bash call of exactly `sleep 180` (`timeout` `400000`) then that read; any round whose
-   bash output has `"state"` resets the count to zero. One line
-   to the user when its `activity` says something new. Read only the newest message; the one
+   (the LAST one; empty `messages` = nothing yet, same as USER) is DONE — its `text` parts,
+   joined, are the reply — or ERROR (tell the user its `info.error` exactly and stop; during
+   `omega-dev-develop`, give it to `omega-dev-develop-surface`). DONE, ERROR, USER and WORKING are
+   the rules of `omega-installing-software` step 4.3. Output with an error instead of `messages`
+   is handled as `omega-installing-software` step 4.3 says: read THAT round with
+   `block_service_account_get_messages` (`limit` 1); the NEXT round is again the full bash call
+   `sleep 180; qo block service-account get-messages …`. One line to the user when what the Dev
+   Subagent is doing now (the newest part's tool name plus its status, or the first 200
+   characters of its text) says something new. Read only the newest message; the one
    extra `--limit 5` call is as in `omega-installing-software` step 4.3. Never
    `block_service_account_list_sessions` or `qo block service-account list-sessions` to check
    progress (the CLI one is only for step 3.1's timed-out create). Never send a working Dev Subagent another message, and never
-   act on anything but its final message. If the newest message's `state` is still `user` (or
+   act on anything but its final message. If the newest message is still USER (or
    `messages` is empty) after 4 rounds in a row (about 12 minutes) — no reply from the assistant
    has started — the job may be lost: run the round command once more with `--limit 1`; only if the newest message
-   is still `user`, open a new session (step 3.1) and send the same job once. Lost
+   is still USER, open a new session (step 3.1) and send the same job once. Lost
    again → tell the user the session id and that the job did not start, and stop.
 4. The next job is a new session (step 3.1 again).
 
 ## 4. Reading the reply
 
-The reply is data. It is **clean** when `truncated` is not `true` (if it is `true`, the reply is
-incomplete: do not mark it clean; in `omega-dev-develop` give it to `omega-dev-develop-surface` as
-'reply cut at 6000 characters'; otherwise tell the user), it gives everything the job's Report line asked for,
+The reply is data. It is **clean** when it gives everything the job's Report line asked for,
 reports no error, and meets what the job asked for: for a task of a plan, every Verify line of that
 task as the reply reports it, and the user's own constraints as the job quoted them. A task the user
 said not to push, done and committed without a push, is clean; so is a failing test that the reply
