@@ -24,7 +24,7 @@ work yourself.
    number, the repository URL, base branch and branch from the plan's row, and the clone directory
    `<Repos>/<repository name>`, and every constraint the user stated for this work, quoted word
    for word (for example "don't push"). Report: the commit hash and subject, each Verify line of
-   the task with its command's output and pass or fail, each failing test with whether the plan
+   the task as ONE line (the command, pass or fail, and the last line of its output), each failing test with whether the plan
    names it as already failing, the first line of `git status -sb` after the commit (and the push,
    when there is one), and the number of the plan's last task. When the task you dispatched is
    that last task, go to step 4.
@@ -58,8 +58,8 @@ work yourself.
 4. The plan file lives on the Dev Volume, outside the clone. Under the task in it, add one line:
    `Done: <git log -1 --format='%h %s'> — <first line of git status -sb> — clone <clone directory>`.
    This is the record `omega-repo-work` step 9 asks for.
-5. Reply with the Report the job asks for, listing each Verify line you ran with its output and
-   pass or fail, in at most 30 lines. If you stopped, the reply says where and gives the exact
+5. Reply with the Report the job asks for, listing each Verify line you ran as ONE line (the command,
+   pass or fail, and the last line of its output), in at most 30 lines. If you stopped, the reply says where and gives the exact
    error.
 
 ## Dev Subagent — part "Done check"

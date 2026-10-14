@@ -111,8 +111,8 @@ a time).
    > command output beyond a command's last 20 lines>.
 
    The job must stand alone: the Dev Subagent has not seen this conversation, your notes or any
-   earlier job. A job that may run longer than ten minutes ends its Job line with: `This job takes a
-   long time: follow your omega-long-running-work skill.`
+   earlier job. A job that may run longer than ten minutes gets, at the end of the Job line, before Report:
+   `This job takes a long time: follow your omega-long-running-work skill.`
 3. Wait for the reply as `omega-installing-software` step 4.3 says, except for a lost job (below).
    Each round is one bash call with `timeout` `400000`:
 
@@ -125,12 +125,12 @@ a time).
    `omega-dev-develop-surface`). `read-failed` is handled as `omega-installing-software` step 4.3
    says. One line to the user when its `activity` says something new. At most the newest 5
    messages, never the whole transcript, and never `block_service_account_list_sessions` to check
-   progress (it is only for step 1's timed-out create). Never send a working Dev Subagent another
-   message, and never act on anything but its final message. If ten minutes after `send_message`
-   the line's `state` is still `user` — no reply from the assistant has started — the job was
-   lost: open a new session (step 1) and send the same job once. Lost again → tell the user the
-   exact state and stop.
-4. The next job is a new session (step 1 again).
+   progress (it is only for item 3.1's timed-out create). Never send a working Dev Subagent another
+   message, and never act on anything but its final message. If the line's `state` is still `user`
+   after 4 rounds in a row (about 12 minutes) — no reply from the assistant has started — the job
+   was lost: open a new session (item 3.1) and send the same job once. Lost again → tell the user
+   the session id and that the job did not start, and stop.
+4. The next job is a new session (item 3.1 again).
 
 ## 4. Reading the reply
 
