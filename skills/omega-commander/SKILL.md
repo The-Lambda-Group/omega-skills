@@ -100,7 +100,9 @@ about it, then tell the user. Do this in the same turn as the send:
    progress: do not judge it, do not send it anything, do not act on an earlier message. A `finish`
    other than `stop` or `tool-calls` means that session's turn died: tell the user so.
 4. After ten rounds (thirty minutes), or when every session has finished, reason about what you
-   read and answer the user: one line per session with its State line, then your `Needs you:` line.
+   read and answer the user with one line per session, in the form `Session name: State: done`,
+   copying the last line of that session's newest message exactly as it is written (do not
+   summarize it), then your `Needs you:` line.
    A session still working after ten rounds is not lost: say so, and do not hold your turn for
    it. Its marker in the chat list and your board show its State line when it ends, and you see it
    on your next turn.
