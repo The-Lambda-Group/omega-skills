@@ -92,8 +92,8 @@ Sending is half of it. The same procedure as `omega-installing-software` step 4.
 `omega-dev-coordinate` step 3: send async, wait with bash, read the newest message yourself, reason
 about it, then tell the user. Do this in the same turn as the send, unless the user says not to wait
 (for example "start it, then don't wait" or "I'm leaving"): then send, say in one line what you started,
-and end your turn. The bridge wakes you when a session you gave a goal ends blocked, stalled or done
-(see "When the bridge wakes you"). Otherwise do this in the same turn as the send:
+and end your turn. The bridge wakes you when a session you gave a goal ends blocked, stalled or done, or ends again for a
+new reason (see "When the bridge wakes you"). Otherwise do this in the same turn as the send:
 
 1. Send every task async and note the session ids you are watching.
 2. One round: one bash call with `timeout` `400000` that runs `sleep 180;` and then the read above for
@@ -141,7 +141,8 @@ and end your turn. The bridge wakes you when a session you gave a goal ends bloc
 ## When the bridge wakes you
 
 A message that starts with `Wake:` is not from the user. The bridge sent it because sessions you manage
-changed state: each line names a session, its first six id characters, the state (blocked, stalled or
+changed state (a session that ends again in the same state for the same reason does not wake you again):
+each line names a session, its first six id characters, the state (blocked, stalled or
 done) and, for blocked and stalled, the reason. It reaches you only when you were idle.
 
 1. Read the lines. Your board (in your system prompt) is current: it was written when this turn began.
