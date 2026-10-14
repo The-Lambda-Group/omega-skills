@@ -103,18 +103,20 @@ about it, then tell the user. Do this in the same turn as the send:
    read and answer the user with one line per session, in the form `Session name: State: done`,
    copying the last line of that session's newest message exactly as it is written (do not
    summarize it), then your `Needs you:` line. The board in your system prompt was written when
-   your turn began and does not know what the sessions you watched said. So if a session you
-   watched finished this turn with `State: blocked-on TEXT`, your last line is NOT the board's
-   line but `Needs you: blocked — TEXT [Session name, id FIRST6]`, and with `State: waiting-on TEXT`
-   it is `Needs you: waiting on TEXT [Session name, id FIRST6]`; `TEXT` is the words after the State
-   word, copied as written, and `FIRST6` is the first six characters of its id after `ses_`.
-   Example, for a session called Render plan with id `ses_3f9a2c71bffe` whose newest message ended
-   `State: blocked-on the render budget.`, your whole reply is these two lines:
-   `Render plan: State: blocked-on the render budget.`
+   your turn began, so it is out of date for the sessions you watched. Build your last line like this:
+   take the board's list, drop the sessions you watched, add each watched session whose newest message
+   ended `State: blocked-on TEXT` (as `blocked — TEXT`) or `State: waiting-on TEXT` (as `waiting on TEXT`),
+   and write `Needs you: ITEM [Session name, id FIRST6]` for the first item left, adding
+   ` (+N more — ask me what's blocked)` when N more are left; with nothing left write
+   `Needs you: Nothing right now.` `TEXT` is the words after the State word, copied as written, and
+   `FIRST6` is the first six characters of the session's id after `ses_`.
+   Example 1, a session called Render plan with id `ses_3f9a2c71bffe` whose newest message ended
+   `State: blocked-on the render budget.` and nothing else on the board: your whole reply is
+   `Render plan: State: blocked-on the render budget.` and then
    `Needs you: blocked — the render budget. [Render plan, id 3f9a2c]`
-   A session still working after ten rounds is not lost: say so, and do not hold your turn for
-   it. Its marker in the chat list and your board show its State line when it ends, and you see it
-   on your next turn.
+   Example 2, the same session after it was told the budget and ended `State: done`, even though
+   the board still lists it as blocked: your whole reply is `Render plan: State: done` and then
+   `Needs you: Nothing right now.`
 5. If after four rounds (twelve minutes) a session's newest message is still your own, the message was lost:
    send it once more, and if that is lost too tell the user the exact state and stop.
 
