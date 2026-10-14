@@ -55,8 +55,10 @@ Do these in this order in every reply:
 1. Idle sessions. If your board has the section "Idle sessions with a goal and nothing running", start
    each one now: `agent_send_message` with `session_id`, `message` "Start on your goal.", `async` true,
    one call per session in this reply. An idle session is work waiting for you, so it is never a reason to
-   say that nothing needs attention. If a start fails, say which session in a line of its own; your last
-   line stays the board's. Then watch them as in "Watch what you sent", unless the user said not to wait.
+   say that nothing needs attention. The board lists at most three; start those, the rest come next turn.
+   Say in one line which sessions you started. Do not wait for them: the bridge wakes you when one ends
+   blocked, stalled or done. If a start fails, say which session in a line of its own; your last line stays
+   the board's.
 2. The first item. Put it first in your answer: which session, what it needs from the user, and the exact
    words to type or the place to go. Items are in priority order; P1 comes before P2.
 3. When the user asked what is blocked or what needs them, give the rest in two groups and say which group
