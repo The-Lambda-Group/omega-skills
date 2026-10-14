@@ -117,19 +117,22 @@ a time).
    Each round is one bash call with `timeout` `400000`:
 
    ```bash
-   sleep 180; qo block service-account get-messages "<Worker>" <session_id> --app-id <Workspace> --limit 1 --json --host "${OMEGA_URL:-https://db.queryomega.com}" --base-url "${AGENT_URL:-https://agent.cloud.queryomega.com}" | node /opt/omega-skills/skills/omega-installing-software/worker-status.js
+   sleep 180; qo block service-account get-messages "<Worker>" <session_id> --app-id <Workspace> --limit 1 --summary --json --host "${OMEGA_URL:-https://db.queryomega.com}" --base-url "${AGENT_URL:-https://agent.cloud.queryomega.com}"
    ```
 
-   Repeat it, with `sleep 180` every time, until the line's `state` is `done` — its `text` is the reply — or `error` (tell the
-   user its `error` exactly and stop; during `omega-dev-develop`, give it to
-   `omega-dev-develop-surface`). `read-failed` is handled as `omega-installing-software` step 4.3
-   says. One line to the user when its `activity` says something new. At most the newest 5
-   messages, never the whole transcript, and never `block_service_account_list_sessions` to check
-   progress (it is only for item 3.1's timed-out create). Never send a working Dev Subagent another
-   message, and never act on anything but its final message. If the line's `state` is still `user`
-   after 4 rounds in a row (about 12 minutes) — no reply from the assistant has started — the job
-   was lost: open a new session (item 3.1) and send the same job once. Lost again → tell the user
-   the session id and that the job did not start, and stop.
+   Repeat it, with `sleep 180` every time, until the newest message in `data.result[0].messages`
+   (the LAST one; empty `messages` = nothing yet, same as `user`) has `state` `done` — its `text` is the reply — or
+   `error` (tell the user its `error` exactly and stop; during `omega-dev-develop`, give it to
+   `omega-dev-develop-surface`). Output with no `"state"` is handled as `omega-installing-software`
+   step 4.3 says (read that round with `block_service_account_get_messages`, `limit` 1; after two
+   rounds in a row without a `"state"`, every later round is `sleep 180` then that read). One line
+   to the user when its `activity` says something new. At most the newest 5 messages, never the
+   whole transcript, and never `block_service_account_list_sessions` to check progress (it is only
+   for item 3.1's timed-out create). Never send a working Dev Subagent another message, and never
+   act on anything but its final message. If the newest message's `state` is still `user` (or
+   `messages` is empty) after 4 rounds in a row (about 12 minutes) — no reply from the assistant
+   has started — the job was lost: open a new session (item 3.1) and send the same job once. Lost
+   again → tell the user the session id and that the job did not start, and stop.
 4. The next job is a new session (item 3.1 again).
 
 ## 4. Reading the reply
