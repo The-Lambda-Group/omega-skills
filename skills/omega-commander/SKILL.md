@@ -75,6 +75,7 @@ Do these in this order in every reply:
 
 ## Become the commander (once)
 
+<!-- DEPRECATED, NOT AN APPROVED FEATURE: the Session Profile role (commander) was never approved as a mechanism; it is flagged for slow removal. -->
 1. `qo write "system:#session:YOUR-SESSION-ID" --data '{"role":"commander"}' --json`
 2. Read it back: `qo get "system:#session:YOUR-SESSION-ID" --json`. `role` must be `commander`.
 
