@@ -170,6 +170,8 @@ build.
    copy them from your sandbox. So write the job so that everything you need comes back in the
    worker's reply text.
 
+   If the job could create a cron (a scheduled block), tell the worker in the job message to name it with a fixed name, to delete it with `qo cron delete` before it answers, and to put a `created:` and a `removed:` line for crons in its reply; a cron it leaves behind keeps firing after its container is gone. The general cleanup rule for everything a worker creates is in `omega-dev-develop` (step "Remove what the task created"); this line only names the cron case.
+
    When the job produces a file the user should open (a document, an image, a video, a page),
    tell the worker, in the job message, to publish that file with its `omega-present-file` skill
    and to put the link it gets in its reply. Give the user that link. The link is public and
