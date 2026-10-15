@@ -54,7 +54,7 @@ Do these in this order in every reply:
 
 0. Subscriptions. Begin every turn with
    `qo agent watching --session YOUR-SESSION-ID --json --host "${OMEGA_URL:-https://db.queryomega.com}" --base-url "${AGENT_URL:-https://agent.cloud.queryomega.com}"`.
-   It lists the sessions you are subscribed to. A message that starts `Message from agent` is the end
+   It lists the sessions you are subscribed to. A message with a line that starts `Message from agent` is the end
    of a Run of a session you subscribed to. See "Subscribe to the sessions you start" below.
 1. Idle sessions. If your board has the section "Idle sessions with a goal and nothing running", start
    each one now: `agent_send_message` with `session_id`, `message` "Start on your goal.", `async` true,
