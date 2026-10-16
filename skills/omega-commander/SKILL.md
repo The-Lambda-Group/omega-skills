@@ -42,7 +42,7 @@ user to send you another message to see the board.
 - One question at a time. Ask it, then stop and wait. If you have two, ask the one that unblocks the
   first item on your board and keep the other for the next reply.
 - Summarise, never dump. Never paste or quote a session's message, plan, log or diff. Say in one or two
-  sentences what it did and what is still open. The only words you copy from a session are its State line.
+  sentences what it did and what is still open. The only words you copy from a session are its State line, the STATE written in a Subscription Message header, and info.error when a turn died.
 - The last line of every reply is exactly the line your system prompt gave you (it starts with `Needs you:`).
   Copy it character for character. It is not a summary you write. If you also have a goal, the two
   last lines are your State line, then that line.
@@ -119,7 +119,7 @@ point. If a point is missing, message the session with the exact missing point. 
 
 - Send with `agent_send_message`: `session_id`, `message`, and `async` true. Always async: a
   synchronous send waits for the whole reply and hangs. To task several sessions, send to each of
-  them in the same reply (one `agent_send_message` per session), then watch them all together.
+  them in the same reply (one `agent_send_message` per session), then subscribe to each one (see "Subscribe to the sessions you start") and end your turn; for a session you could not subscribe to, watch it with the rounds in "Watch what you sent".
 - Do not send to a session the roster marks `working`: the message queues behind its current turn.
 - Read with `qo agent get-messages` in bash: `qo agent get-messages SESSION_ID --limit 1 --json --host "${OMEGA_URL:-https://db.queryomega.com}" --base-url "${AGENT_URL:-https://agent.cloud.queryomega.com}"`
   prints the newest message. The messages are in `data.result.messages`, oldest first, so the LAST
@@ -149,8 +149,7 @@ for every session you start or task, right after you create it, in the same turn
   or the ASP gone. Tell the user, and repeat the STATE to them in the header's words.
 - Messages are grouped for 30 seconds and sent at most once every 10 minutes, so several sessions can
   arrive in one message. Long text is cut at about 20000 characters in all, shared across the sessions in one message.
-- The Wake Push (a message that starts `Wake:`) stays for goal states until the commander role is
-  removed. Treat it as before. If a session sends both, the subscription message is the one to answer from.
+- A session you subscribed to reports only through its Subscription Message; the Wake Push covers sessions with a goal that you did not subscribe to.
 
 ## Watch what you sent
 
@@ -158,7 +157,7 @@ Sending is half of it. For a session you subscribed to, wait for its `Message fr
 `omega-dev-coordinate` step 3: send async, wait with bash, read the newest message yourself, reason
 about it, then tell the user. Do this in the same turn as the send, unless the user says not to wait
 (for example "start it, then don't wait" or "I'm leaving"): then send, say in one line what you started,
-and end your turn. The bridge wakes you when a session you gave a goal ends blocked, stalled or done, or ends again for a
+and end your turn. The bridge wakes you when a session with a goal that you did not subscribe to ends blocked, stalled or done, or ends again for a
 new reason (see "When the bridge wakes you"); a bridge restart can lose a wake, and the chat-list marker still shows the
 state. Otherwise do this in the same turn as the send:
 
@@ -210,7 +209,7 @@ state. Otherwise do this in the same turn as the send:
 A message that starts with `Wake:` is not from the user. The bridge sent it because sessions you manage
 changed state (a session that ends again in the same state for the same reason does not wake you again):
 each line names a session, its first six id characters, the state (blocked, stalled or
-done) and, for blocked and stalled, the reason. It reaches you only when you were idle.
+done) and, for blocked and stalled, the reason. It reaches you when you are idle; if you were busy it waits and arrives after your turn.
 
 1. Read the lines. Your board (in your system prompt) is current: it was written when this turn began.
 2. For each session, decide from its state: `done` means tell the user, and start the next piece of
