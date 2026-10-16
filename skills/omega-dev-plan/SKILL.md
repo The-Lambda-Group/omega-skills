@@ -65,6 +65,17 @@ to guess.
      **Files**, **Steps** — every code change shown as the code itself, never described — a
      **Verify** line after each step (an exact command and its exact expected output), and the
      **Commit message**.
+   - **Plan-only devcontainer:** when the work needs more than the Dev Machine's image (a database,
+     a compiler), or the user said not to use the Dev Machine's Devcontainer, the plan's first lines
+     under Tasks are `Plan-only devcontainer:` followed by a block name (the Dev Machine's
+     Devcontainer name, a hyphen, the topic) and its `devcontainer-json` (the Dev Machine's `mounts`
+     copied, plus the features the work needs and `curl` and `jq`). The Coordinator creates and
+     deletes it (`omega-dev-coordinate`).
+   - **Cleanup:** when the work creates workspaces, crons or devcontainer blocks, Task 1 saves the
+     list of the ones that exist now to the Plans directory under the Plan Name with the ending
+     `.before` (for crons, `qo page read PAGE-PATH` on each page that owns one), and the Definition of Done has an item whose command
+     lists them again and shows the same list. Each task that creates them removes them
+     (`omega-dev-develop`, "Remove what the task created").
    - Both ledgers start empty.
 3. Check it once, and fix what fails: run every Verify command whose files already exist and record
    what it prints; a Verify for code a task creates states the exact output it must print once that

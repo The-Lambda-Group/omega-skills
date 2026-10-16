@@ -91,7 +91,7 @@ One job per Dev Subagent, one Dev Subagent at a time (the Dev Volume is mounted 
 a time).
 
 1. `block_service_account_create_session` with exactly `app_id` = Workspace, `block_path` = Worker
-   and `devcontainer` = Devcontainer. `<session_id>` is the `session_id` it returned (the result's `sessionId`). If it times out, do as
+   and `devcontainer` = the plan-only devcontainer when the plan names one ("Plan-only devcontainer" below), otherwise Devcontainer. `<session_id>` is the `session_id` it returned (the result's `sessionId`). If it times out, do as
    `omega-installing-software` step 4.1 says (wait, then run this in bash, at most one more
    create):
 
@@ -164,10 +164,45 @@ Change a Plans Index row only after a clean reply. Then tell the user what it me
   Dev Subagent.
 - Any other failure of a tool, the container or git: tell the user the exact error and stop.
 
+## Plan-only devcontainer
+
+Every Dev Subagent session starts in a new container: nothing a job started or wrote outside the
+Dev Volume is there for the next job. A plan whose jobs need more than the Dev Machine's image (a
+database, a compiler), or the user's word not to use the Dev Machine's Devcontainer, names a
+**plan-only devcontainer**: a second devcontainer block that mounts the same Dev Volume. Its name
+and `devcontainer-json` are in the plan (`omega-dev-plan`). Where the plan names one, its name
+replaces the Devcontainer value in every job. The Coordinator handles it in this order:
+
+1. **Create it first.** `block_devcontainer_get` the Dev Machine's Devcontainer and keep its
+   `devcontainer-json` and `build-status` (a read does not touch it: make this read without asking,
+   even when the user said not to touch the Devcontainer; only a write to it is touching it). Then `block_devcontainer_create` the plan-only block
+   beside it with the name the plan gives, `write_data` its `devcontainer-json` with the plan's
+   string, and wait for `ready` as `omega-devcontainers` says. When the user said not to use the
+   Dev Machine's Devcontainer, nothing that edits a file on the Dev Volume (not even a revision of
+   the plan) is sent before this block is `ready`: a job needs a container to run in. If the build
+   ends `failed`, tell the user its `build-error` and stop.
+2. **Name it in every job.** Each `block_service_account_create_session` for the plan passes the
+   plan-only block as `devcontainer`. Before sending it, compare that value with every container the
+   user said not to touch; if they are equal, do not create the session: tell the user. If the
+   create answers `pod is bound to devcontainer` (the worker's pod still serves another
+   devcontainer), do not fall back to that devcontainer and do not retry in a loop: tell the user
+   the exact error, wait with one `sleep 180` in bash, make one more create, and if it answers the
+   same, tell the user and stop.
+3. **Say the user's rule in the job.** A user's word such as "do not touch the shared devcontainer"
+   goes into every job, quoted.
+4. **Delete it last.** Whenever the plan's loop ends, finished or stopped, and the user has not
+   asked to keep it: first, when a job created a file or directory on the Dev Volume that the plan
+   does not keep, send one more job on the plan-only block that removes it, and wait for that reply
+   (once the block is gone, no container is left that can remove it). Then
+   `block_devcontainer_delete` the plan-only block, `block_devcontainer_get` it
+   (the answer is `BlockNotFoundException`), then read the Dev Machine's Devcontainer again: its
+   `devcontainer-json` and `build-status` equal the first read.
+
 ## Rules
 
 - You never read, write or run anything on the Dev Volume yourself, and never open a session on any
-  devcontainer but the Dev Machine's.
+  devcontainer but the Dev Machine's, or the plan-only devcontainer a plan names ("Plan-only
+  devcontainer" above). When the user has said not to touch a container, no job names it.
 - Nothing is ever merged into a base branch or pushed to one. Dev Subagents push their own branch
   only; merging is the user's.
 - One question to the user per message when you need an answer; then end your turn and wait.

@@ -17,9 +17,14 @@ Subagents investigate and fix.
 1. **Classify** the reply, from its own words:
    - `TOOL` — an OmegaAI tool, the container, a clone, a sign-in or a push failed;
    - `FLOG` — the same error twice;
-   - `FIND` — a fact the plan did not expect;
+   - `FIND` — a fact the plan did not expect, including a false premise about the machine (a
+     process that is meant to survive into the next task, a tool the worker does not have);
    - `ARCH` — the task contradicts how the code works;
    - `UNKNOWN` — it stopped and did not say why.
+1a. **A change of dispatch.** If the reply shows that tasks cannot be dispatched as the plan says
+   (one session for several tasks, another container, another order), do not probe: tell the user the
+   finding, the options with what each costs, and the option you recommend, end your turn, and wait
+   for the answer.
 2. **`TOOL`:** handle it as `omega-dev-coordinate` §4 says (a GitHub sign-in link, or tell the user
    the exact error and stop). Nothing else in this skill applies.
 3. **Probe.** Dispatch a Dev Subagent with part "Probe": the plan path, the task number, and the
