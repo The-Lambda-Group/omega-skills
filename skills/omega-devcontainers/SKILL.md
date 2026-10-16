@@ -76,6 +76,9 @@ A typical build takes from tens of seconds up to a couple of minutes, longer if 
 - **The base image is locked — you cannot override the `FROM`.** You layer onto the standard sandbox base; you don't pick a different one. That's what keeps every devcontainer consistent and buildable.
 - **You can't write while a build is in flight.** A save during `building` throws `omega/query-omega/devcontainer/BuildInProgress`. Wait for `ready`/`failed`, then write again.
 - **Read `build-error` on failure.** It's the actual build log, so the failing step (a missing apt package, a pip resolution error, a bad `run` command) is visible directly.
+- **A package that asks questions at install fails under `apt-get install -y`, and `features.run` runs after `features.apt`.** Its post-install script reads an answer that is not there and exits non-zero (CouchDB exits 30 for the unanswered `couchdb/cookie`), and a package named in `features.apt` is installed before any `features.run` entry. So leave the package out of `features.apt`, and in `features.run` write the answers first and install second: `printf 'couchdb couchdb/cookie string couchcookie\\ncouchdb couchdb/cookie seen true\\n' | debconf-set-selections`, then `DEBIAN_FRONTEND=noninteractive apt-get install -y couchdb` (with `apt-get update` before them if the package comes from a repository the spec added).
+- **A build step runs as root; the process that uses it may not.** Every directory the process writes to (`/var/log/couchdb`, `/var/lib/couchdb`, and the targets of symlinks inside its install directory) is `chown`ed to the user it runs as in a `features.run` entry (`chown -R couchdb:couchdb /var/log/couchdb /var/lib/couchdb`), or it fails with `eacces` at first start.
+- **A spec with a large package can take about five minutes to build.** Read `build-error` for the failing step, fix that step, and write the whole spec again; do not retry the same spec.
 
 ## A minimal end-to-end
 

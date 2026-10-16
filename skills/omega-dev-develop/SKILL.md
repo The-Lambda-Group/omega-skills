@@ -20,16 +20,19 @@ work yourself.
 
 1. The plan's Plans Index row must have Status `planned` or `developing`. Set it to `developing`.
    Get the Dev Machine (`omega-dev-coordinate` §1).
-2. For each task, in order, dispatch a Dev Subagent with part "Task": the plan path, the task
+2. For each task, in order: first read it for a service it needs that an earlier task started (a
+   database, an engine, a server). Each task runs in a new container, so that service is gone: the
+   task must start it itself as its step 0. When it does not, do not dispatch it; give it to
+   `omega-dev-develop-surface` as a `FIND`. Then dispatch a Dev Subagent with part "Task": the plan path, the task
    number, the repository URL, base branch and branch from the plan's row, and the clone directory
    `<Repos>/<repository name>`, and every constraint the user stated for this work, quoted word
    for word (for example "don't push"). Report: the commit hash and subject, each Verify line of
    the task as ONE line (the command, pass or fail, and the last line of its output), each failing test with whether the plan
    names it as already failing, the first line of `git status -sb` after the commit (and the push,
-   when there is one), and the number of the plan's last task. When the task you dispatched is
+   when there is one), the `created:` and `removed:` lines, and the number of the plan's last task. When the task you dispatched is
    that last task, go to step 4.
 3. A reply is **clean** when it reports the task done with its commit, reports no error, every
-   Verify line it reports passed, and it meets the user's own constraints: the branch is pushed
+   Verify line it reports passed, its `created:` and `removed:` lines name the same things, and it meets the user's own constraints: the branch is pushed
    unless the user said not to push, and a failing test the reply says the plan or the user named
    as already failing is not a failure (`omega-dev-coordinate` §4). Tell the user one line and
    dispatch the next task. Anything else → `omega-dev-develop-surface` before you do anything
@@ -37,7 +40,8 @@ work yourself.
 4. After the last task, dispatch a Dev Subagent with part "Done check": the plan path and the clone
    directory. Report: each Definition of Done item with its command's output and pass or fail.
 5. All pass → set Status `done`. Tell the user the branch and its commits, whether it is pushed, and end with this
-   sentence: "Merging it is yours; I don't merge." Any fail → tell the user which, and stop.
+   sentence: "Merging it is yours; I don't merge." Any fail → tell the user which. In both cases, when the plan has a plan-only devcontainer, delete it
+   as `omega-dev-coordinate` ("Plan-only devcontainer", item 4) says; then stop.
 
 ## Dev Subagent — part "Task"
 
@@ -58,7 +62,13 @@ work yourself.
 4. The plan file lives on the Dev Volume, outside the clone. Under the task in it, add one line:
    `Done: <git log -1 --format='%h %s'> — <first line of git status -sb> — clone <clone directory>`.
    This is the record `omega-repo-work` step 9 asks for.
-5. Reply with the Report the job asks for, listing each Verify line you ran as ONE line (the command,
+5. **Remove what the task created.** Keep a list of what the task creates that the plan does not say to keep (a workspace, a cron, a
+   devcontainer block, a test app): write one line `created:` followed by the names, or `none`, as
+   you create each thing. At the end delete only the names on that line (a workspace:
+   `qo app delete ID --confirm-name NAME`; a cron: `qo cron delete PAGE-PATH NAME`; a devcontainer
+   block: `block_devcontainer_delete`), read the list again to see each is gone, and write one line
+   `removed:` followed by the names. Both lines go in the reply.
+6. Reply with the Report the job asks for, listing each Verify line you ran as ONE line (the command,
    pass or fail, and the last line of its output), in at most 30 lines. If you stopped, the reply says where and gives the exact
    error.
 

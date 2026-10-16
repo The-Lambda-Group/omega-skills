@@ -1,6 +1,6 @@
 ---
 name: omega-long-running-work
-description: Use when a job in your shell will take longer than ten minutes — whether you run it yourself or a job message tells you to follow this skill. Covers keeping the job's files where they survive, starting it so it keeps running between your tool calls, checking on it every nine minutes while keeping your turn open, and starting it again after your container restarts.
+description: Use when a job in your shell will take longer than ten minutes — or a service (a database, an engine) that later bash calls of your turn use — whether you run it yourself or a job message tells you to follow this skill. Covers keeping the job's files where they survive, starting it so it keeps running between your tool calls, checking on it every nine minutes while keeping your turn open, and starting it again after your container restarts.
 ---
 
 **Parent skill: `omega-navigation`.** If you have not invoked `omega-navigation` yet, invoke it
@@ -60,3 +60,25 @@ check costs a model call, and the job does not go faster for being watched.
 If your container was restarted, your session continues in a new container with the volume
 mounted again. Start the job again exactly as in step 2; a job that skips finished work continues
 where it stopped. Then check on it as in step 3.
+
+## 5. A service that must stay up across your bash calls
+
+Section 2 is for a job you wait on until it ends. A database or an engine that later bash calls of
+the same turn use is a service: it does not end. Do not start it with a bare `command &`: the bash
+call stays open until the command ends (a `sleep 1000 &` held one call for sixteen minutes). Start it
+as a session of the worker's own server, which keeps it running and lets you stop it. The devcontainer
+needs `curl` and `jq` in `features.apt` (the Dev Machine's has them):
+
+```bash
+PTY_ID=$(curl -s -X POST "http://localhost:${PORT:-4096}/pty" -H 'Content-Type: application/json' \
+  -d "$(jq -cn '{command:"bash",args:["-c","exec sleep 3600"],cwd:"/workspace/work",title:"service"}')" | jq -r .id)
+echo "$PTY_ID" > /tmp/service.pty
+curl -s "http://localhost:${PORT:-4096}/pty"
+curl -s -X DELETE "http://localhost:${PORT:-4096}/pty/$(cat /tmp/service.pty)"
+```
+
+The first call prints nothing and saves the id in `/tmp/service.pty`, because a shell variable does not
+survive into your next bash call. The second lists the session with `"status":"running"`; the third, in a
+later call, stops it. Replace `sleep 3600` with the service's own command. Then wait for the service's health command:
+run it every 5 seconds, at most 24 times; if it still fails, stop and report its last output. The
+service ends with your container, so each new session starts it again.

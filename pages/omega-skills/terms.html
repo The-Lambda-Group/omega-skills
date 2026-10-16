@@ -35,4 +35,6 @@
 
   <dt>Plan Name</dt>
   <dd><code>YYYY-MM-DD-&lt;topic&gt;</code>, unique in the Plans Index; it names the spec and plan files and, without the date, the branch <code>feat/&lt;topic&gt;</code>.</dd>
+  <dt>Plan-only devcontainer</dt>
+  <dd>A second devcontainer block that mounts the same Dev Volume as the Dev Machine's Devcontainer, created for one plan that needs more than the Dev Machine's image, named in every Dev Subagent job of that plan, and deleted when the plan's loop ends; the Dev Machine's own Devcontainer is left unchanged. See <code>omega-dev-coordinate</code>.</dd>
 </dl>
