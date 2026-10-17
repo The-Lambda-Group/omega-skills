@@ -65,7 +65,7 @@ where it stopped. Then check on it as in step 3.
 
 Section 2 is for a job you wait on until it ends. A database or an engine that later bash calls of
 the same turn use is a service: it does not end. Do not start it with a bare `command &`: the bash
-call stays open until the command ends (a `sleep 1000 &` held one call for sixteen minutes). Start it
+call stays open until the command ends (a `sleep 1000 &` holds the call for all 1000 seconds). Start it
 as a session of the worker's own server, which keeps it running and lets you stop it. The devcontainer
 needs `curl` and `jq` in `features.apt` (the Dev Machine's has them):
 
