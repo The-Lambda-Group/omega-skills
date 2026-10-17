@@ -147,6 +147,13 @@ a time).
    is still USER, open a new session (step 3.1) and send the same job once. Lost
    again → tell the user the session id and that the job did not start, and stop.
 4. The next job is a new session (step 3.1 again).
+5. **The plan job carries the container rule.** The user's word not to use the Dev Machine's
+   Devcontainer binds the plan, not only the jobs. When you dispatch a Dev Subagent to write or
+   revise a plan, the job says, in its own words, that the plan must name a plan-only devcontainer
+   and put `Plan-only devcontainer:` as the first line under Tasks, and it gives the block name and
+   the `devcontainer-json` to use. A plan that says anything else about the container contradicts
+   the user, and no job on it can be correct, so check the reply: if the plan does not name one, do
+   not dispatch its first task — send the plan back to be fixed.
 
 ## 4. Reading the reply
 

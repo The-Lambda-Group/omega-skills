@@ -120,7 +120,13 @@ link `$ARTIFACT_BASE_URL/<name>`), not an OmegaAI tool, so a worker uses it too 
 its reply. A page that shows other files (an `index.html` of images) goes over with those files, under
 names that keep its links working.
 
-## 9. Record where the work is
+## 9. Record where the work is, then remove the clone
 
 Before you end, write in the job's notes: the clone's path on the volume, the branch, the last
 commit (`git log -1 --format='%h %s'`) and whether it is pushed (`git status -sb`, first line).
+
+Then remove the clone directory: `rm -rf <clone directory>`. The branch and its commits are the
+record and they live in the repository, not in the working copy, so nothing is lost. Do this last,
+after every task that needs the clone has run and the Done check has read it; the job tells you when
+that is. A clone left on the volume is a file the user did not ask for, and the next run reuses the
+same path, so leaving it behind hides which run made it.
