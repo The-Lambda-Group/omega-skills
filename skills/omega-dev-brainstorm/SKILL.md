@@ -18,6 +18,8 @@ approaches, approval — and the spec is the record of what was decided together
    Plans Index row with Status `brainstorming`, the repository URL, and the base branch if the user
    named one (§2). When the first "Explore" reply reports the default branch, write it into the
    row's Base.
+
+   The Codex context is capped at model_auto_compact_token_limit = 250000 (spec 2026-10-17-codex-token-efficiency, D1); a loop that runs on must be stopped with /goal clear, and node /home/ryan/Development/omega/omega-knowledge-base/scripts/commander-kit/usage.mjs prints the spend.
 2. **Explore.** Dispatch a Dev Subagent (§3) with part "Explore": the repository URL, its base
    branch if the user named one (otherwise ask the Dev Subagent to report the default branch), the
    spec path, what the user wants, and what you need to know to ask good questions.
