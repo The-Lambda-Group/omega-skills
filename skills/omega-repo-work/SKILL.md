@@ -7,7 +7,7 @@ description: Use when a job is to write or change code in a git repository — c
 first — it establishes how to find your bearings in a workspace — then come back here. This skill
 uses three siblings: `omega-installing-software` (the container and its worker),
 `omega-devcontainers` ("Git with GitHub": the sign-in) and `omega-long-running-work` (jobs longer
-than ten minutes).
+than ten minutes, and services like a database that later bash calls need).
 
 # Working in a Repository
 

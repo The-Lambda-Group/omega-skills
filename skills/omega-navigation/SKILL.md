@@ -19,8 +19,9 @@ Invoke a child only after you have read this skill. Each says what it is for:
 - **`omega-installing-software`** — you need a program or library you don't have (`command not
   found`). You never install into yourself: build a container with it, hand the work to a worker
   running in that container, and record the container in your notes.
-- **`omega-long-running-work`** — a shell job that takes longer than ten minutes: start it in the
-  background, keep its files on a volume, and check on it every nine minutes without ending your turn.
+- **`omega-long-running-work`** — a shell job that takes longer than ten minutes, or a service (a
+  database, an engine) that later bash calls of your turn use: start it in the background, keep its
+  files on a volume, and check on it every nine minutes without ending your turn.
 - **`omega-repo-work`** — writing or changing code in a git repository: the clone on a volume, a
   branch from the base, the repo's own docs first, commits, pushing only your branch, and building it.
 - **`omega-dev-coordinate`** — the user wants to brainstorm, plan, revise a plan or develop a code
