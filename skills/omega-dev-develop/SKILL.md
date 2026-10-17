@@ -67,7 +67,10 @@ work yourself.
    you create each thing. At the end delete only the names on that line (a workspace:
    `qo app delete ID --confirm-name NAME`; a cron: `qo cron delete PAGE-PATH NAME`; a devcontainer
    block: `block_devcontainer_delete`; the clone: `rm -rf <clone directory>` once every task that
-   needs it has committed, because the branch is the record and the clone is only a working copy),
+   needs it has committed, because the branch is the record and the clone is only a working copy —
+   unless the branch was never pushed, because the job quoted the user saying not to push: then the
+   clone holds the only copy of the commits, so name it kept in `created:` and say in the reply that
+   it is kept because the branch is unpushed),
    read the list again to see each is gone, and write one line
    `removed:` followed by the names. Both lines go in the reply. A thing that cannot be deleted — a
    session record, a built devcontainer image — is named in `created:` and in the reply as kept, and

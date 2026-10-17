@@ -130,3 +130,8 @@ record and they live in the repository, not in the working copy, so nothing is l
 after every task that needs the clone has run and the Done check has read it; the job tells you when
 that is. A clone left on the volume is a file the user did not ask for, and the next run reuses the
 same path, so leaving it behind hides which run made it.
+
+**When the branch was never pushed, keep the clone.** If the job quoted the user saying not to push,
+the clone is the only copy of the commits: `rm -rf` would destroy the work. Name it in `created:` as
+kept, say in the reply that the branch is unpushed and the clone is its only copy, and leave it. This
+is the one exception; a clone whose branch was pushed is always removed.
