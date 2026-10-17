@@ -63,11 +63,15 @@ work yourself.
    `Done: <git log -1 --format='%h %s'> — <first line of git status -sb> — clone <clone directory>`.
    This is the record `omega-repo-work` step 9 asks for.
 5. **Remove what the task created.** Keep a list of what the task creates that the plan does not say to keep (a workspace, a cron, a
-   devcontainer block, a test app): write one line `created:` followed by the names, or `none`, as
+   devcontainer block, a test app, and the clone itself): write one line `created:` followed by the names, or `none`, as
    you create each thing. At the end delete only the names on that line (a workspace:
    `qo app delete ID --confirm-name NAME`; a cron: `qo cron delete PAGE-PATH NAME`; a devcontainer
-   block: `block_devcontainer_delete`), read the list again to see each is gone, and write one line
-   `removed:` followed by the names. Both lines go in the reply.
+   block: `block_devcontainer_delete`; the clone: `rm -rf <clone directory>` once every task that
+   needs it has committed, because the branch is the record and the clone is only a working copy),
+   read the list again to see each is gone, and write one line
+   `removed:` followed by the names. Both lines go in the reply. A thing that cannot be deleted — a
+   session record, a built devcontainer image — is named in `created:` and in the reply as kept, and
+   its absence from `removed:` is correct.
 6. Reply with the Report the job asks for, listing each Verify line you ran as ONE line (the command,
    pass or fail, and the last line of its output), in at most 30 lines. If you stopped, the reply says where and gives the exact
    error.
