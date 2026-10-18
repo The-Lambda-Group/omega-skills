@@ -17,7 +17,6 @@ to guess.
 1. The plan's Plans Index row must have Status `spec`. Get the Dev Machine (`omega-dev-coordinate`
    §1).
 
-   The Codex context is capped at model_auto_compact_token_limit = 250000 (spec 2026-10-17-codex-token-efficiency, D1); a loop that runs on must be stopped with /goal clear, and node /home/ryan/Development/omega/omega-knowledge-base/scripts/commander-kit/usage.mjs prints the spend.
 2. Dispatch a Dev Subagent with part "Write the plan": the spec path, the plan path
    (`<Plans>/plans/<Plan Name>.md`), the repository URL and base branch from the plan's row, and the
    branch

@@ -30,10 +30,14 @@ talking with you, and you hand them a file only when they ask (a Dev Subagent pu
 - **`omega-dev-plan`** — turn an approved spec into a plan.
 - **`omega-dev-revise`** — change a decision in a spec or a plan.
 - **`omega-dev-develop`** — carry out a plan's tasks.
+- **`omega-dev-retro`** — write the record of a finished plan.
+- **`omega-dev-close-out`** — merge, push to a base branch, or deploy, after the user's own approval.
 
 Pick the child from the plan's row, not from the words alone: the user says develop, build,
 implement or carry out, and the row's Status is `planned`, `developing` or `done` → it is
-`omega-dev-develop`, never `omega-dev-plan`. Change a Plans Index row only with `write` on
+`omega-dev-develop`, never `omega-dev-plan`. When a plan's Status is `done`, the next steps are
+`omega-dev-retro` (yours to run, without asking) and then `omega-dev-close-out` (the user's to approve);
+the user saying merge, deploy or release is `omega-dev-close-out`. Change a Plans Index row only with `write` on
 `<root>/Notes/Plans`; never `set_html` or add a block on a row's own page.
 
 ## 1. Get the Dev Machine
@@ -41,8 +45,6 @@ implement or carry out, and the row's Status is `planned`, `developing` or `done
 Invoke `omega-dev-machine`. It ends with seven values from the Dev Machine Record: Workspace,
 Devcontainer, Volume, Mount, Worker, Repos and Plans. Use them exactly as written in every job. If
 `omega-dev-machine` stops, you stop.
-
-The Codex context is capped at model_auto_compact_token_limit = 250000 (spec 2026-10-17-codex-token-efficiency, D1); a loop that runs on must be stopped with /goal clear, and node /home/ryan/Development/omega/omega-knowledge-base/scripts/commander-kit/usage.mjs prints the spend.
 
 ## 2. The Plans Index
 
