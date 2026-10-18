@@ -216,4 +216,5 @@ replaces the Devcontainer value in every job. The Coordinator handles it in this
   devcontainer" above). When the user has said not to touch a container, no job names it.
 - Nothing is ever merged into a base branch or pushed to one. Dev Subagents push their own branch
   only; merging is the user's.
-- One question to the user per message when you need an answer; then end your turn and wait.
+- One question to the user per message when you need an answer, written as plain text in your reply
+  (never the `question` tool, which a message cannot answer); then end your turn and wait.

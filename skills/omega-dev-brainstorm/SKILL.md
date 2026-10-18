@@ -24,7 +24,10 @@ approaches, approval — and the spec is the record of what was decided together
    spec path, what the user wants, and what you need to know to ask good questions.
    Report: each file it read with one sentence on what it revealed, then the facts that bear on the
    idea.
-3. **Ask.** One clarifying question per message, then end your turn. Keep every question and the
+3. **Ask.** One clarifying question per message, then end your turn. Write the question, its options
+   and your recommendation as plain text in your reply. Never use the `question` tool or any tool that
+   waits for an answer: the user reaches you through messages, a message cannot answer a tool call,
+   and the session would wait for ever. Keep every question and the
    user's answer, word for word. Dispatch another "Explore" job whenever an answer opens a question
    only the code can settle.
 4. **Approaches.** In one message, propose two or three distinct approaches with their trade-offs

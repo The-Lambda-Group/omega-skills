@@ -179,6 +179,15 @@ state. Otherwise do this in the same turn as the send:
    - WORKING — anything else. What it is doing now is the newest part's tool name plus its status,
      or the first 200 characters of its text.
 
+   BLOCKED — the newest assistant message has a tool part named `question` whose status is `running`,
+   or the session's newest message has not changed for two rounds while its turn state is `running`.
+   The session is not working: a `question` tool call cannot be answered by a message, so every reply you
+   or anyone sends is queued behind it. Never report a BLOCKED session as "working" or "continuing". Tell
+   the user its question and options word for word, and `Needs you: blocked — the question`. Then, because
+   the answer cannot reach it, start a replacement session for the same goal ("Give a session a goal")
+   with the answer when you have it, the line "Ask every question as plain text and end your turn; never use
+   the question tool" and the old session's id named as abandoned.
+
    A session is finished when its newest message is DONE; the last line of its reply is its State line (`State: done`, `State: blocked-on` and what you need,
    `State: waiting-on` and what you wait for). Stop watching that session. Everything before a `stop` is work in
    progress: do not judge it, do not send it anything, do not act on an earlier message. ERROR
