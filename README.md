@@ -23,6 +23,8 @@ Drop a skill's folder into your agent's skills directory.
 - [`skills/omega-dev-revise`](skills/omega-dev-revise) — ledgered, in-place changes to a spec or plan.
 - [`skills/omega-dev-develop`](skills/omega-dev-develop) — a plan carried out one task per Dev Subagent.
 - [`skills/omega-dev-develop-surface`](skills/omega-dev-develop-surface) — a task that did not come back clean.
+- [`skills/omega-dev-retro`](skills/omega-dev-retro) — the record of a finished plan: incidents, tests run, ledgers, open items.
+- [`skills/omega-dev-close-out`](skills/omega-dev-close-out) — merge, push to a base branch or deploy, only on the user's own approval of those steps.
 - [`skills/omega-commander`](skills/omega-commander) — look after the user's other sessions: name them, give them goals, message them, and tell the user which ones need them.
 
 ## The skills tree
@@ -48,5 +50,7 @@ Invoke the parent before a child — the parent establishes the context the chil
     - **`omega-dev-plan`** — spec → plan.
     - **`omega-dev-revise`** — ledgered changes.
     - **`omega-dev-develop`** — plan → commits.
+    - **`omega-dev-retro`** — finished plan → retro.
+    - **`omega-dev-close-out`** — retro → merge/deploy, on the user's approval.
       - **`omega-dev-develop-surface`** — a task that did not come back clean.
   - **`omega-commander`** — looking after the user's other sessions: names, goals, messages, the board.
