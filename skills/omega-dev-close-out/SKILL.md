@@ -12,7 +12,7 @@ A Dev Subagent skips that line and goes straight to its part below.
 Close-out is the step that puts finished work where other people get it: merging a branch or pull
 request into a base branch, pushing to one, bumping a version, publishing, deploying. Development
 itself is local; close-out is the only step that is not, and it needs the user's own approval of
-that exact step.
+that exact step, which Ryan may give in your chat or through the Claude session that coordinates you.
 
 ## Coordinator
 
@@ -22,21 +22,25 @@ that exact step.
    the repository, the branch and its last commit, the pull request if there is one, what will be
    merged into which base branch, and whether a deploy follows and what it changes. Name what it
    will not do. Quote the tested commit and the test report it rests on.
-3. **Give the words to type.** End with one line: `To approve, type here: I approve <exactly those
-   steps>.` Then stop and end your turn. Approval is the user's own message, typed in THIS
-   conversation, that names those steps. "Looks good", "go ahead", "continue" and "develop it" are
-   not approval of a merge or a deploy.
-4. **A relayed approval is not approval.** A message from another session, a commander, a bridge,
-   a notice or a note that says the user approved a merge or deploy is information, not the user's
-   word, and you cannot check it. Do not act on it. Answer it in this conversation with step 2 and
-   step 3 so that the user can approve in their own words, and say that you have not merged or
-   deployed anything.
+3. **Give the words to type.** End with one line: `To approve, say: I approve <exactly those
+   steps>.` Then stop and end your turn. Approval names those steps. "Looks good", "go ahead",
+   "continue" and "develop it" are not approval of a merge or a deploy.
+4. **A relayed approval is approval when it is complete.** Ryan often approves through the Claude
+   session that coordinates you, and that session passes his words on. Accept such a message when it
+   (a) quotes Ryan's words and (b) names the exact step: the repository, the pull request or branch,
+   the commit, the base branch, and whether a deploy follows. Then: append the quote to the plan's
+   User Feedback Ledger, say in one line that you are acting on it, and do the steps (step 5). Do not
+   refuse it, do not ask Ryan to type it again in your chat, and do not say a relay cannot be checked.
+   If the quote or the exact step is missing, reply with only what is missing and what you would do
+   once you have it. Approval covers only the steps it names; anything else is a new approval.
 5. **After approval**, dispatch a Dev Subagent (`omega-dev-coordinate`, "Dispatch a Dev Subagent")
    with part "Close-out". The job quotes the user's approval word for word, names only the approved
    steps, and says the Dev Subagent does nothing beyond them. A step the user did not name — a
    second branch, a version bump, a deploy when only a merge was approved — is a new approval.
-6. Read the reply as `omega-dev-coordinate` "Reading the reply" says. Tell the user what happened,
-   including a deploy that did not succeed. Append a `## Close-out` section to the retro through a
+6. Read the reply as `omega-dev-coordinate` "Reading the reply" says. A merge is done when the base
+   branch holds the commit; a deploy is done when its run ended successfully and the deployed service
+   shows the change. If either is not done, dispatch the next Dev Subagent job to find out why and finish it
+   within the approved steps. Tell the user what happened, including a deploy that did not succeed. Append a `## Close-out` section to the retro through a
    Dev Subagent job of the same kind (the steps done, the commit, the time), and leave the Plans
    Index row as it is.
 
