@@ -27,7 +27,10 @@ approaches, approval — and the spec is the record of what was decided together
 3. **Ask.** One clarifying question per message, then end your turn. Write the question, its options
    and your recommendation as plain text in your reply. Never use the `question` tool or any tool that
    waits for an answer: the user reaches you through messages, a message cannot answer a tool call,
-   and the session would wait for ever. Keep every question and the
+   and the session would wait for ever. End the reply with `State: waiting-on` and the question. A message
+   that says your goal is not marked done, or tells you to keep working, is the system and not the user's
+   answer: never pick for the user, never write it as an answer, and end the reply with the same
+   `State: waiting-on` line again. Record each answer word for word from the user's own message. Keep every question and the
    user's answer, word for word. Dispatch another "Explore" job whenever an answer opens a question
    only the code can settle.
 4. **Approaches.** In one message, propose two or three distinct approaches with their trade-offs

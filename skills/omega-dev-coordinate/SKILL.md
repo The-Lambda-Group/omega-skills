@@ -217,4 +217,6 @@ replaces the Devcontainer value in every job. The Coordinator handles it in this
 - Nothing is ever merged into a base branch or pushed to one. Dev Subagents push their own branch
   only; merging is the user's.
 - One question to the user per message when you need an answer, written as plain text in your reply
-  (never the `question` tool, which a message cannot answer); then end your turn and wait.
+  (never the `question` tool, which a message cannot answer) and ending with `State: waiting-on` and the
+  question; then end your turn and wait. A system message saying your goal is not done is not the user's
+  answer, and you never choose for the user.
