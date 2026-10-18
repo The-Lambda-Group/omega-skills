@@ -46,8 +46,6 @@ Invoke `omega-dev-machine`. It ends with seven values from the Dev Machine Recor
 Devcontainer, Volume, Mount, Worker, Repos and Plans. Use them exactly as written in every job. If
 `omega-dev-machine` stops, you stop.
 
-The Codex context is capped at model_auto_compact_token_limit = 250000 (spec 2026-10-17-codex-token-efficiency, D1); a loop that runs on must be stopped with /goal clear, and node /home/ryan/Development/omega/omega-knowledge-base/scripts/commander-kit/usage.mjs prints the spend.
-
 ## 2. The Plans Index
 
 Every plan has one row in the database page `<root>/Notes/Plans` (`<root>` is your working root, as
