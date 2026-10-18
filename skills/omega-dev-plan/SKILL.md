@@ -26,8 +26,10 @@ to guess.
    (a new session) with part "Review the plan": the plan path, the spec path, the repository path and
    the user's words, quoted. Report: each defect as one line with the plan section it is in, or the single
    line `No defects`. For each defect, dispatch part "Revise" of `omega-dev-revise` with the defect as an
-   `AI Self-Revision Ledger` entry, then review again with a new session. Stop at `No defects`, or after
-   three rounds and tell the user the defects left. Do not set Status `planned` and do not start
+   `AI Self-Revision Ledger` entry, then review again with a new session. One Revise job may carry every defect that is in
+   one plan section, each as its own ledger line, to save sessions. A round is one review that returned text; a review
+   with an empty reply is run again once and is not a round. Stop at `No defects`, or after three rounds and tell the
+   user the defects left. Do not set Status `planned` and do not start
    `omega-dev-develop` before the loop has ended.
 4. After the loop, set the row's Status to `planned`, its Plan to the plan path and its Branch to the branch.
 5. Tell the user the Definition of Done, the three uncertainties and how many review rounds it took, and
