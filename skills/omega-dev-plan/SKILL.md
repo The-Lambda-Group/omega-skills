@@ -22,9 +22,16 @@ to guess.
    branch
    `feat/<topic>`. Report: one line per task, the Definition of Done items, and the three things it
    is least sure of.
-3. After a clean reply, set the row's Status to `planned`, its Plan to the plan path and its Branch to the branch.
-4. Tell the user the Definition of Done and the three uncertainties, and that they can change
-   anything by telling you.
+3. **Review loop.** A plan that has just been written is not ready. Dispatch a different Dev Subagent
+   (a new session) with part "Review the plan": the plan path, the spec path, the repository path and
+   the user's words, quoted. Report: each defect as one line with the plan section it is in, or the single
+   line `No defects`. For each defect, dispatch part "Revise" of `omega-dev-revise` with the defect as an
+   `AI Self-Revision Ledger` entry, then review again with a new session. Stop at `No defects`, or after
+   three rounds and tell the user the defects left. Do not set Status `planned` and do not start
+   `omega-dev-develop` before the loop has ended.
+4. After the loop, set the row's Status to `planned`, its Plan to the plan path and its Branch to the branch.
+5. Tell the user the Definition of Done, the three uncertainties and how many review rounds it took, and
+   that they can change anything by telling you.
 
 ## Dev Subagent — part "Write the plan"
 
@@ -66,6 +73,15 @@ to guess.
      **Files**, **Steps** — every code change shown as the code itself, never described — a
      **Verify** line after each step (an exact command and its exact expected output), and the
      **Commit message**.
+   - **Browser test:** a change to what the user sees (a page, a panel, a route, a status text) has a
+     task and a Definition of Done item that run its browser test (Playwright) in the plan-only
+     devcontainer and quote the pass line. Never write that a browser test is "not run" or "not runnable"
+     because Docker or kind is unavailable: neither is needed. The devcontainer-json bakes Chromium:
+     `{"features":{"apt":["ca-certificates","curl","gh","git","git-lfs","jq","openssh-client","ripgrep"],"run":["npm install -g playwright@1.60.0","PLAYWRIGHT_BROWSERS_PATH=/ms-playwright playwright install --with-deps chromium"]},"mounts":[<the Dev Machine's mounts>]}`.
+     A page that needs the live stack (database, engine, dev server, sign-in) adds what the repository's
+     local-development docs name; an earlier run's plan and retro in `<Plans>` (search `<Plans>` for
+     `Stand up the local live stack`) hold a tested recipe: CouchDB, the engine on 3001, the dev server on
+     3002, the local seed, and the demo sign-in. Read them before writing the task.
    - **Plan-only devcontainer:** when the work needs more than the Dev Machine's image (a database,
      a compiler), or the user said not to use the Dev Machine's Devcontainer, the plan's first lines
      under Tasks are `Plan-only devcontainer:` followed by a block name (the Dev Machine's
@@ -83,3 +99,15 @@ to guess.
    task is done. No `TBD`, no "similar to Task N", no step without its code, no check without its
    exact output.
 4. Reply with the Report the job asks for.
+
+## Dev Subagent — part "Review the plan"
+
+1. Read the spec and the plan, then every file the plan changes. Do not edit anything.
+2. Check, and list a defect for each failure: a requirement of the spec or the user's words with no task;
+   a step that describes a change instead of showing it; a Verify without an exact command and output;
+   a placeholder (`TBD`, "similar to Task N"); a Definition of Done item that is a task and not a state of
+   the world; a command that does not exist in the repository's scripts (open `package.json` and check);
+   a test the plan lists as not run for an environment reason; a change the user can see with no browser test
+   in the devcontainer; a task order where a task needs what a later task creates.
+3. Run every Verify command whose files already exist and report each that fails.
+4. Reply with the Report the job asks for: the defects, or `No defects`.
