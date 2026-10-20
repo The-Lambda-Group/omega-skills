@@ -13,9 +13,9 @@ Drop a skill's folder into your agent's skills directory.
 - [`skills/omega-present-file`](skills/omega-present-file) — hand the user a public link to a file: copy it into `ARTIFACT_DIR`, reply with `ARTIFACT_BASE_URL/<name>`.
 - [`skills/omega-installing-software`](skills/omega-installing-software) — install software the only way an agent can: build a devcontainer with it, run the work on a worker agent in that container, and record the container in Notes for reuse.
 - [`skills/omega-repo-work`](skills/omega-repo-work) — write code in a git repository from a container: clone on a volume, branch, test, commit, push only the branch, build or render.
-- [`skills/omega-post-reel`](skills/omega-post-reel) — a 15-second reel a company could post, made from its own public pages on the render worker: find the reason a customer buys, tell it as a story, review stills, render, hand over the link and the Handoff Sheet; it sends nothing to anyone but the user.
 - [`skills/omega-interrupted-turn`](skills/omega-interrupted-turn) — a worker's turn was cut off (the service was restarted, a node was lost): tell the user, send the one message that continues it, stop after two.
 - [`skills/omega-long-running-work`](skills/omega-long-running-work) — a shell job longer than ten minutes, or a service (a database, an engine) that later bash calls of your turn use: run it in the background on a volume and check on it every nine minutes.
+- [`skills/omega-working-with-images`](skills/omega-working-with-images) — looking at, downloading or rendering images and frames: the 30 MB request limit, and how to stay under it.
 - [`skills/omega-dev-coordinate`](skills/omega-dev-coordinate) — development work: the agent talking to the user coordinates, Dev Subagents on the user's Dev Machine do the file and code work.
 - [`skills/omega-dev-machine`](skills/omega-dev-machine) — find, check, set up or repair the Dev Machine (devcontainer + volume + worker) and its Notes record.
 - [`skills/omega-dev-brainstorm`](skills/omega-dev-brainstorm) — from an idea to an approved spec.
@@ -41,8 +41,8 @@ Invoke the parent before a child — the parent establishes the context the chil
   - **`omega-packages`** — discovering and installing packages.
   - **`omega-present-file`** — handing the user a public link to a file.
     - **`omega-installing-software`** — installing software: a devcontainer plus a worker, recorded in Notes.
-      - **`omega-post-reel`** — a reel a company could post, rendered on the worker from its own pages.
   - **`omega-long-running-work`** — a shell job longer than ten minutes, or a service later bash calls need.
+  - **`omega-working-with-images`** — looking at, downloading or rendering images and frames: the 30 MB request limit.
   - **`omega-repo-work`** — writing code in a git repository: clone on a volume, branch, commit, push, build.
   - **`omega-dev-coordinate`** — development work: you converse, Dev Subagents work.
     - **`omega-dev-machine`** — the Dev Machine and its record.
