@@ -22,9 +22,18 @@ to guess.
    branch
    `feat/<topic>`. Report: one line per task, the Definition of Done items, and the three things it
    is least sure of.
-3. After a clean reply, set the row's Status to `planned`, its Plan to the plan path and its Branch to the branch.
-4. Tell the user the Definition of Done and the three uncertainties, and that they can change
-   anything by telling you.
+3. **Review loop.** A plan that has just been written is not ready. Dispatch a different Dev Subagent
+   (a new session) with part "Review the plan": the plan path, the spec path, the repository path and
+   the user's words, quoted. Report: each defect as one line with the plan section it is in, or the single
+   line `No defects`. For each defect, dispatch part "Revise" of `omega-dev-revise` with the defect as an
+   `AI Self-Revision Ledger` entry, then review again with a new session. One Revise job may carry every defect that is in
+   one plan section, each as its own ledger line, to save sessions. A round is one review that returned text; a review
+   with an empty reply is run again once and is not a round. Stop at `No defects`, or after three rounds and tell the
+   user the defects left. Defects left after round three go into the plan's uncertainties and development starts. A new round needs the user to say so, and every review that returned text counts as a round, whoever asked for it. Do not set Status `planned` and do not start
+   `omega-dev-develop` before the loop has ended.
+4. After the loop, set the row's Status to `planned`, its Plan to the plan path and its Branch to the branch.
+5. Tell the user the Definition of Done, the three uncertainties and how many review rounds it took, and
+   that they can change anything by telling you.
 
 ## Dev Subagent — part "Write the plan"
 
@@ -62,10 +71,22 @@ to guess.
      the work — fix it and run it again; the same error twice after a fix → stop and report; a
      failing tool, container, sign-in or clone, or a push still rejected after `omega-repo-work`
      step 7's one `git pull --rebase` → stop and report the exact error.
+   - **Skills Invoked:** a `## Skills Invoked` section with one line per skill used, each ending `- surfaced:` and what that skill changed in this plan.
    - **Tasks:** `### Task N: <subject>`, numbered from 1, in the order they must be done. Each has
      **Files**, **Steps** — every code change shown as the code itself, never described — a
      **Verify** line after each step (an exact command and its exact expected output), and the
      **Commit message**.
+   - **Browser test:** a change to what the user sees (a page, a panel, a route, a status text) has a
+     task and a Definition of Done item that run its browser test (Playwright) in the plan-only
+     devcontainer and quote the pass line. Never write that a browser test is "not run" or "not runnable"
+     because Docker or kind is unavailable: neither is needed. The devcontainer-json bakes Chromium:
+     `{"features":{"apt":["ca-certificates","curl","gh","git","git-lfs","jq","openssh-client","ripgrep"],"run":["npm install -g playwright@1.60.0","PLAYWRIGHT_BROWSERS_PATH=/ms-playwright playwright install --with-deps chromium"]},"mounts":[<the Dev Machine's mounts>]}`.
+     A page that needs the live stack (database, engine, dev server, sign-in) adds what the repository's
+     local-development docs name, and the task cites those docs by path; read them before writing the task.
+     A page that needs a signed-in user takes its test login from the repository's testing documentation, which
+     names the account and where its credentials come from; when the credentials are not in the environment,
+     the plan stops and asks the owner for them. Never sign up for a new account and never copy a saved
+     session from another machine.
    - **Plan-only devcontainer:** when the work needs more than the Dev Machine's image (a database,
      a compiler), or the user said not to use the Dev Machine's Devcontainer, the plan's first lines
      under Tasks are `Plan-only devcontainer:` followed by a block name (the Dev Machine's
@@ -83,3 +104,15 @@ to guess.
    task is done. No `TBD`, no "similar to Task N", no step without its code, no check without its
    exact output.
 4. Reply with the Report the job asks for.
+
+## Dev Subagent — part "Review the plan"
+
+1. Read the spec and the plan, then every file the plan changes. Do not edit anything.
+2. Check, and list a defect for each failure: a requirement of the spec or the user's words with no task;
+   a step that describes a change instead of showing it; a Verify without an exact command and output;
+   a placeholder (`TBD`, "similar to Task N"); a plan with no `## Skills Invoked` section, or a skill listed there with no note of what it changed in this plan; a Definition of Done item that is a task and not a state of
+   the world; a command that does not exist in the repository's scripts (open `package.json` and check);
+   a test the plan lists as not run for an environment reason; a change the user can see with no browser test
+   in the devcontainer; a task order where a task needs what a later task creates.
+3. Run every Verify command whose files already exist and report each that fails.
+4. Reply with the Report the job asks for: the defects, or `No defects`.

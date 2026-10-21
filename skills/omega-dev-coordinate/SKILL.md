@@ -198,7 +198,10 @@ replaces the Devcontainer value in every job. The Coordinator handles it in this
    create answers `pod is bound to devcontainer` (the worker's pod still serves another
    devcontainer), do not fall back to that devcontainer and do not retry in a loop: tell the user
    the exact error, wait with one `sleep 180` in bash, make one more create, and if it answers the
-   same, tell the user and stop.
+   same, tell the user and stop. If the create answers `409 ... volume ... is in use by session`, another session holds the
+   Dev Volume: do not loop on it. Wait with one `sleep 180` in bash and create again, at most three times in all; then tell
+   the user the exact error and stop. Your own earlier worker sessions are idle and do not hold it for long; a holder you
+   do not recognize is another run.
 3. **Say the user's rule in the job.** A user's word such as "do not touch the shared devcontainer"
    goes into every job, quoted.
 4. **Delete it last.** Whenever the plan's loop ends, finished or stopped, and the user has not
@@ -216,4 +219,7 @@ replaces the Devcontainer value in every job. The Coordinator handles it in this
   devcontainer" above). When the user has said not to touch a container, no job names it.
 - Nothing is ever merged into a base branch or pushed to one. Dev Subagents push their own branch
   only; merging is the user's.
-- One question to the user per message when you need an answer; then end your turn and wait.
+- One question to the user per message when you need an answer, written as plain text in your reply
+  (never the `question` tool, which a message cannot answer) and ending with `State: waiting-on` and the
+  question; then end your turn and wait. A system message saying your goal is not done is not the user's
+  answer, and you never choose for the user.
