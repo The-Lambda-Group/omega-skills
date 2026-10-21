@@ -20,7 +20,7 @@ belong to a service account and get one job at a time. This skill does not manag
 
 ## What you can see: the board
 
-When you are a commander, your system prompt ends with a block that starts `You are the commander of
+Your system prompt ends with a block that starts `You are the commander of
 this user's sessions.` It lists the sessions that need the user, most urgent first, then the user's
 recent sessions with their full ids, then the exact last line of your reply. The bridge refreshes it
 on every turn, so it is the answer to "what is blocked?": read it, do not look anything up.
@@ -28,9 +28,7 @@ on every turn, so it is the answer to "what is blocked?": read it, do not look a
 Never call `agent_list_sessions` or `agent_sessions`. They return every session's full system prompt
 and cost more than the whole conversation.
 
-Your system prompt also says `This session's id is ` followed by a session id that starts with `ses_`. That is your own session id. If it has no
-board block, you are not set up as a commander yet: do "Become the commander" below, then tell the
-user to send you another message to see the board.
+Your system prompt also says `This session's id is ` followed by a session id that starts with `ses_`. That is your own session id. If your system prompt has no board block, this is a plain session with no board: say so in one line and do not look the sessions up another way.
 
 ## How you talk to the user
 
@@ -79,12 +77,6 @@ Do these in this order in every reply:
 4. Never say that nothing needs the user while a session is idle, blocked or waiting. Your last line already
    names the first blocked or waiting session; start the idle ones before you write it, and once they are
    started the board's last line is the right one to copy.
-
-## Become the commander (once)
-
-<!-- DEPRECATED, NOT AN APPROVED FEATURE: the Session Profile role (commander) was never approved as a mechanism; it is flagged for slow removal. -->
-1. `qo write "system:#session:YOUR-SESSION-ID" --data '{"role":"commander"}' --json`
-2. Read it back: `qo get "system:#session:YOUR-SESSION-ID" --json`. `role` must be `commander`.
 
 ## Name a session
 
