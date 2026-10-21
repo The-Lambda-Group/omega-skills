@@ -31,8 +31,9 @@ the agent service; I am telling it to continue."
 
 ## 2. Send one message that continues it
 
-Before you send, run the command of `omega-installing-software` step 4.3 without its
-`sleep 180;` and note the `info.id` of the last message in `data.result[0].messages`. Then
+Before you send, read the newest message with
+`qo block service-account get-messages "BLOCK_PATH" SESSION_ID --app-id APP_ID --limit 1 --json --host "${OMEGA_URL:-https://db.queryomega.com}" --base-url "${AGENT_URL:-https://agent.cloud.queryomega.com}"`
+and note the `info.id` of the last message in `data.result[0].messages`. Then
 `block_service_account_send_message` with the same `block_path`, the same `session_id`,
 `async: true` and this `message`, word for word:
 
@@ -47,9 +48,8 @@ skill says in step 4, after a restart: it continues where it stopped.`
 
 ## 3. Wait as before
 
-Go back to waiting in rounds (`omega-installing-software` step 4.3). The output says `interrupted`
-until the agent's new reply starts; when the last message's `info.id` differs from the one you
-noted, read it with the rules of `omega-installing-software` step 4.3 as usual.
+Go back to waiting with `qo session wait` (`omega-installing-software` step 4.3), with `--after-id` set to the `info.id` you noted, so the cut-off turn is not read again.
+It returns `done` when the continued reply has finished; read any other state with the rules of `omega-installing-software` step 4.3 as usual.
 
 ## 4. Stop after two
 
