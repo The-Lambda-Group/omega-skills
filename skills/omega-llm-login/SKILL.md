@@ -1,5 +1,5 @@
 ---
-name: omega-auth
+name: omega-llm-login
 description: Use when a task needs an Omega or Claude credential, or is about to write a login, token or key anywhere in a plan, a task, a test fixture or a doc. Names the one place a Claude login lives — the Account's LlmLogin record — and the credential-boundary scan run before finishing.
 ---
 

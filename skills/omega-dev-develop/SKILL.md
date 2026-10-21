@@ -86,4 +86,4 @@ output and pass or fail. Change nothing.
 
 ## Credential boundary
 
-Follow the `omega-auth` skill's "Credential boundary": a Claude login lives only in the Account's `LlmLogin` row, and you scan what you touched for a leaked login before finishing.
+Follow the `omega-llm-login` skill's "Credential boundary": a Claude login lives only in the Account's `LlmLogin` row, and you scan what you touched for a leaked login before finishing.
