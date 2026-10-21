@@ -72,6 +72,7 @@ to guess.
      the work — fix it and run it again; the same error twice after a fix → stop and report; a
      failing tool, container, sign-in or clone, or a push still rejected after `omega-repo-work`
      step 7's one `git pull --rebase` → stop and report the exact error.
+   - **Skills Invoked:** a `## Skills Invoked` section with one line per skill used, each ending `- surfaced:` and what that skill changed in this plan.
    - **Tasks:** `### Task N: <subject>`, numbered from 1, in the order they must be done. Each has
      **Files**, **Steps** — every code change shown as the code itself, never described — a
      **Verify** line after each step (an exact command and its exact expected output), and the
@@ -82,9 +83,11 @@ to guess.
      because Docker or kind is unavailable: neither is needed. The devcontainer-json bakes Chromium:
      `{"features":{"apt":["ca-certificates","curl","gh","git","git-lfs","jq","openssh-client","ripgrep"],"run":["npm install -g playwright@1.60.0","PLAYWRIGHT_BROWSERS_PATH=/ms-playwright playwright install --with-deps chromium"]},"mounts":[<the Dev Machine's mounts>]}`.
      A page that needs the live stack (database, engine, dev server, sign-in) adds what the repository's
-     local-development docs name; an earlier run's plan and retro in `<Plans>` (search `<Plans>` for
-     `Stand up the local live stack`) hold a tested recipe: CouchDB, the engine on 3001, the dev server on
-     3002, the local seed, and the demo sign-in. Read them before writing the task.
+     local-development docs name, and the task cites those docs by path; read them before writing the task.
+     A page that needs a signed-in user takes its test login from the repository's testing documentation, which
+     names the account and where its credentials come from; when the credentials are not in the environment,
+     the plan stops and asks the owner for them. Never sign up for a new account and never copy a saved
+     session from another machine.
    - **Plan-only devcontainer:** when the work needs more than the Dev Machine's image (a database,
      a compiler), or the user said not to use the Dev Machine's Devcontainer, the plan's first lines
      under Tasks are `Plan-only devcontainer:` followed by a block name (the Dev Machine's
@@ -108,7 +111,7 @@ to guess.
 1. Read the spec and the plan, then every file the plan changes. Do not edit anything.
 2. Check, and list a defect for each failure: a requirement of the spec or the user's words with no task;
    a step that describes a change instead of showing it; a Verify without an exact command and output;
-   a placeholder (`TBD`, "similar to Task N"); a Definition of Done item that is a task and not a state of
+   a placeholder (`TBD`, "similar to Task N"); a plan with no `## Skills Invoked` section, or a skill listed there with no note of what it changed in this plan; a Definition of Done item that is a task and not a state of
    the world; a command that does not exist in the repository's scripts (open `package.json` and check);
    a test the plan lists as not run for an environment reason; a change the user can see with no browser test
    in the devcontainer; a task order where a task needs what a later task creates.
