@@ -154,37 +154,25 @@ new reason (see "When the bridge wakes you"); a bridge restart can lose a wake, 
 state. Otherwise do this in the same turn as the send:
 
 1. Send every task async and note the session ids you are watching.
-2. One round: one bash call with `timeout` `400000` that runs `sleep 180;` and then the read above for
-   each session you are still watching, for example
-   `sleep 180; qo agent get-messages SESSION_1 --limit 1 --json --host "${OMEGA_URL:-https://db.queryomega.com}" --base-url "${AGENT_URL:-https://agent.cloud.queryomega.com}"; qo agent get-messages SESSION_2 --limit 1 --json --host "${OMEGA_URL:-https://db.queryomega.com}" --base-url "${AGENT_URL:-https://agent.cloud.queryomega.com}"`.
-   If the output is an error instead of `messages` for a session, read that session that round with
+2. One round: one bash call with `timeout` `400000` that runs `qo session wait` once for each session you are still watching.
+   Give each wait `--timeout` of 300 divided by the number of sessions, rounded down (300 for one, 150 for two, 100 for three, 60 for five), so the round ends inside the call's limit. A session that is already finished answers at once. For example, two sessions:
+   `qo session wait SESSION_1 --timeout 150 --json --host "${OMEGA_URL:-https://db.queryomega.com}" --base-url "${AGENT_URL:-https://agent.cloud.queryomega.com}"; qo session wait SESSION_2 --timeout 150 --json --host "${OMEGA_URL:-https://db.queryomega.com}" --base-url "${AGENT_URL:-https://agent.cloud.queryomega.com}"`.
+   Each wait returns as soon as its session has finished its turns, so a quick reply comes back in seconds, not after a fixed sleep.
+   If the output is an error instead of `data` for a session (not logged in, a network error), read that session that round with
    `agent_get_messages` (`session_id` and `limit` 1, nothing else: no skip, no sort, no before, no
-   include_reasoning). The NEXT round is the shell command again.
-   Between rounds write one line to the user saying where each session is,
-   from its newest message.
-3. Read each session's newest message with these rules, in this order:
-   - DONE — `info.role` is `assistant`, `info.time.completed` is set and `info.finish` is `stop`.
-     Its `text` parts, joined, are the session's reply.
-   - ERROR — `info.error` is set, or `info.finish` is set and is neither `stop` nor `tool-calls`.
-   - USER — `info.role` is `user` (also when `messages` is empty). The session has not started your
-     message.
-   - WORKING — anything else. What it is doing now is the newest part's tool name plus its status,
-     or the first 200 characters of its text.
+   include_reasoning) and judge its newest message by these rules: DONE — `info.role` is `assistant`, `info.time.completed` is set and `info.finish` is `stop`; ERROR — `info.error` is set, or `info.finish` is set and is neither `stop` nor `tool-calls`; anything else is WORKING. The NEXT round is the shell command again.
+   Between rounds write one line to the user saying where each session is, from `data.activity`.
+3. Read each session's `data.state` with these rules:
+   - `done` — the session finished its turns and is idle. `data.text` is the session's reply.
+   - `error` — its newest turn ended abnormally (`data.reason`). Tell the user so, with `data.reason` and `data.text` exactly, and stop watching that session.
+   - `interrupted` — its newest turn was cut off (`data.reason`). Tell the user so, and stop watching that session.
+   - `needs-input` — BLOCKED: the session asked a question (`data.activity` names the `question` tool) and nothing can answer it, so every reply you or anyone sends is queued behind it. Never report it as "working" or "continuing". Tell the user its question and options word for word (read its newest message with `agent_get_messages`, `limit` 1, if `data.text` does not hold them), and `Needs you: blocked — the question`. Then, because the answer cannot reach it, start a replacement session for the same goal ("Give a session a goal") with the answer when you have it, the line "Ask every question as plain text and end your turn; never use the question tool" and the old session's id named as abandoned. Stop watching the old session.
+   - `not-started` — the session has not begun your message. Do the next round. After 3 rounds in a row, tell the user the session id and that it did not start, and stop watching it.
+   - `busy` — the session is still working. This is the wait's own timeout: deliberate, not an error, and the session is not broken. Send it nothing. `data.activity` is what it is doing now (the newest part's tool name plus its status, or the first 200 characters of its text). Do the next round. If `data.message-id` is the same as in the previous round for two rounds in a row while `data.observed` has `"turn-state": "running"`, the session is BLOCKED in the same way: tell the user and replace it as for `needs-input`.
 
-   BLOCKED — the newest assistant message has a tool part named `question` whose status is `running`,
-   or the session's newest message has not changed for two rounds while its turn state is `running`.
-   The session is not working: a `question` tool call cannot be answered by a message, so every reply you
-   or anyone sends is queued behind it. Never report a BLOCKED session as "working" or "continuing". Tell
-   the user its question and options word for word, and `Needs you: blocked — the question`. Then, because
-   the answer cannot reach it, start a replacement session for the same goal ("Give a session a goal")
-   with the answer when you have it, the line "Ask every question as plain text and end your turn; never use
-   the question tool" and the old session's id named as abandoned.
-
-   A session is finished when its newest message is DONE; the last line of its reply is its State line (`State: done`, `State: blocked-on` and what you need,
-   `State: waiting-on` and what you wait for). Stop watching that session. Everything before a `stop` is work in
-   progress: do not judge it, do not send it anything, do not act on an earlier message. ERROR
-   means that session's turn died: tell the user so, with `info.error` exactly.
-4. After ten rounds (thirty minutes), or when every session has finished, reason about what you
+   A session is finished when its state is `done`; the last line of its reply (`data.text`) is its State line (`State: done`, `State: blocked-on` and what you need,
+   `State: waiting-on` and what you wait for). Stop watching that session. Everything before it is work in progress: do not judge it, do not send the session anything, do not act on an earlier message.
+4. After six rounds (thirty minutes), or when every session has finished, reason about what you
    read and answer the user with one line per session, in the form `Session name: State: done`,
    copying the last line of that session's newest message exactly as it is written (do not
    summarize it), then your `Needs you:` line. The board in your system prompt was written when
@@ -255,7 +243,7 @@ the command, or work around it with curl or raw HTTP. A failing tool is not your
 - Never set a goal on yourself unless the user asks.
 - Never call `agent_list_sessions` or `agent_sessions`.
 - Subscribe to every session you start, never poll with sleep rounds for a subscribed session, and end your turn after sending to one.
-- Never send a synchronous message, never wait on a session without reading its newest message, and never read more than 5 messages.
+- Never send a synchronous message, never wait on a session without reading what the wait returned (its `data.state` and `data.text`), and never read more than 5 messages.
 - Never invent an approval, and never ask the user to approve something you have not shown them; never
   refuse a complete one (quoted words and the exact step).
 - One thread and one question to the user per message; then end your turn.
