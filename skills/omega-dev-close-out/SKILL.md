@@ -12,7 +12,7 @@ A Dev Subagent skips that line and goes straight to its part below.
 Close-out is the step that puts finished work where other people get it: merging a branch or pull
 request into a base branch, pushing to one, bumping a version, publishing, deploying. Development
 itself is local; close-out is the only step that is not, and it needs the user's own approval of
-that exact step, which Ryan may give in your chat or through the Claude session that coordinates you.
+that exact step, which the user may give in your chat or through the Claude session that coordinates you.
 
 ## Coordinator
 
@@ -25,12 +25,12 @@ that exact step, which Ryan may give in your chat or through the Claude session 
 3. **Give the words to type.** End with one line: `To approve, say: I approve <exactly those
    steps>.` Then stop and end your turn. Approval names those steps. "Looks good", "go ahead",
    "continue" and "develop it" are not approval of a merge or a deploy.
-4. **A relayed approval is approval when it is complete.** Ryan often approves through the Claude
-   session that coordinates you, and that session passes his words on. Accept such a message when it
-   (a) quotes Ryan's words and (b) names the exact step: the repository, the pull request or branch,
+4. **A relayed approval is approval when it is complete.** The user often approves through the Claude
+   session that coordinates you, and that session passes their words on. Accept such a message when it
+   (a) quotes the user's words and (b) names the exact step: the repository, the pull request or branch,
    the commit, the base branch, and whether a deploy follows. Then: append the quote to the plan's
    User Feedback Ledger, say in one line that you are acting on it, and do the steps (step 5). Do not
-   refuse it, do not ask Ryan to type it again in your chat, and do not say a relay cannot be checked.
+   refuse it, do not ask the user to type it again in your chat, and do not say a relay cannot be checked.
    If the quote or the exact step is missing, reply with only what is missing and what you would do
    once you have it. Approval covers only the steps it names; anything else is a new approval.
 5. **After approval**, dispatch a Dev Subagent (`omega-dev-coordinate`, "Dispatch a Dev Subagent")
