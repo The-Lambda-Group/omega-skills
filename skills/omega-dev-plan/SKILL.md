@@ -29,8 +29,7 @@ to guess.
    `AI Self-Revision Ledger` entry, then review again with a new session. One Revise job may carry every defect that is in
    one plan section, each as its own ledger line, to save sessions. A round is one review that returned text; a review
    with an empty reply is run again once and is not a round. Stop at `No defects`, or after three rounds and tell the
-   user the defects left. Count every review, including one a user's `go ahead` leads to: a sixth review happened after three
-   were allowed. Defects left after round three go into the plan's uncertainties and development starts; a new round needs the user to say so. Do not set Status `planned` and do not start
+   user the defects left. Defects left after round three go into the plan's uncertainties and development starts. A new round needs the user to say so, and every review that returned text counts as a round, whoever asked for it. Do not set Status `planned` and do not start
    `omega-dev-develop` before the loop has ended.
 4. After the loop, set the row's Status to `planned`, its Plan to the plan path and its Branch to the branch.
 5. Tell the user the Definition of Done, the three uncertainties and how many review rounds it took, and
