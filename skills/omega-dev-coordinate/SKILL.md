@@ -122,31 +122,22 @@ a time).
    The job must stand alone: the Dev Subagent has not seen this conversation, your notes or any
    earlier job. A job that may run longer than ten minutes gets, at the end of the Job line, before Report:
    `This job takes a long time: follow your omega-long-running-work skill.`
-3. Wait for the reply as `omega-installing-software` step 4.3 says, except for a lost job (below);
+3. Wait for the reply with `qo session wait`, as `omega-installing-software` step 4.3 says, except for a lost job (below);
    the limit on rounds in which it is doing the same thing is that of `omega-installing-software` step 4.3.
-   Each round is one bash call with `timeout` `400000`:
+   Each job is a new session, so there is no `--after-id`. Each round is one bash call with `timeout` `400000`:
 
-   ```bash
-   sleep 180; qo block service-account get-messages "<Worker>" <session_id> --app-id <Workspace> --limit 1 --json --host "${OMEGA_URL:-https://db.queryomega.com}" --base-url "${AGENT_URL:-https://agent.cloud.queryomega.com}"
-   ```
+   `qo session wait SESSION_ID --service-account "WORKER" --app-id WORKSPACE --timeout 300 --json --host "${OMEGA_URL:-https://db.queryomega.com}" --base-url "${AGENT_URL:-https://agent.cloud.queryomega.com}"`
 
-   Repeat it, with `sleep 180` every time, until the newest message in `data.result[0].messages`
-   (the LAST one; empty `messages` = nothing yet, same as USER) is DONE — its `text` parts,
-   joined, are the reply — or ERROR (tell the user its `info.error` exactly and stop; during
-   `omega-dev-develop`, give it to `omega-dev-develop-surface`). DONE, ERROR, USER and WORKING are
-   the rules of `omega-installing-software` step 4.3. Output with an error instead of `messages`
+   Repeat it until `data.state` is `done` — `data.text` is the reply — or `error` (tell the user `data.reason` and `data.text` exactly and stop; during
+   `omega-dev-develop`, give it to `omega-dev-develop-surface`). `busy`, `not-started`, `interrupted` and `needs-input` are the rules of
+   `omega-installing-software` step 4.3; `busy` is the wait's own timeout, not an error, so never send a working Dev Subagent another message. Output with an error instead of `data`
    is handled as `omega-installing-software` step 4.3 says: read THAT round with
-   `block_service_account_get_messages` (`limit` 1); the NEXT round is again the full bash call
-   `sleep 180; qo block service-account get-messages …`. One line to the user when what the Dev
-   Subagent is doing now (the newest part's tool name plus its status, or the first 200
-   characters of its text) says something new. Read only the newest message; the one
-   extra `--limit 5` call is as in `omega-installing-software` step 4.3. Never
+   `block_service_account_get_messages` (`limit` 1); the NEXT round is again the full `qo session wait` call. One line to the user when `data.activity` (what the Dev
+   Subagent is doing now) says something new. The one extra `--limit 5` call is as in `omega-installing-software` step 4.3. Never
    `block_service_account_list_sessions` or `qo block service-account list-sessions` to check
-   progress (the CLI one is only for step 3.1's timed-out create). Never send a working Dev Subagent another message, and never
-   act on anything but its final message. If the newest message is still USER (or
-   `messages` is empty) after 4 rounds in a row (about 12 minutes) — no reply from the assistant
-   has started — the job may be lost: run the round command once more with `--limit 1`; only if the newest message
-   is still USER, open a new session (step 3.1) and send the same job once. Lost
+   progress (the CLI one is only for step 3.1's timed-out create). Never act on anything but its final message. If the state is `not-started` after 3 rounds in a row (about 15 minutes) — no reply from the assistant
+   has started — the job may be lost: run `qo block service-account get-messages "WORKER" SESSION_ID --app-id WORKSPACE --limit 1 --json --host "${OMEGA_URL:-https://db.queryomega.com}" --base-url "${AGENT_URL:-https://agent.cloud.queryomega.com}"` once; only if the newest message
+   is still a user message, open a new session (step 3.1) and send the same job once. Lost
    again → tell the user the session id and that the job did not start, and stop.
 4. The next job is a new session (step 3.1 again).
 5. **The plan job carries the container rule.** The user's word not to use the Dev Machine's
@@ -198,7 +189,10 @@ replaces the Devcontainer value in every job. The Coordinator handles it in this
    create answers `pod is bound to devcontainer` (the worker's pod still serves another
    devcontainer), do not fall back to that devcontainer and do not retry in a loop: tell the user
    the exact error, wait with one `sleep 180` in bash, make one more create, and if it answers the
-   same, tell the user and stop.
+   same, tell the user and stop. If the create answers `409 ... volume ... is in use by session`, another session holds the
+   Dev Volume: do not loop on it. Wait with one `sleep 180` in bash and create again, at most three times in all; then tell
+   the user the exact error and stop. Your own earlier worker sessions are idle and do not hold it for long; a holder you
+   do not recognize is another run.
 3. **Say the user's rule in the job.** A user's word such as "do not touch the shared devcontainer"
    goes into every job, quoted.
 4. **Delete it last.** Whenever the plan's loop ends, finished or stopped, and the user has not
@@ -216,4 +210,7 @@ replaces the Devcontainer value in every job. The Coordinator handles it in this
   devcontainer" above). When the user has said not to touch a container, no job names it.
 - Nothing is ever merged into a base branch or pushed to one. Dev Subagents push their own branch
   only; merging is the user's.
-- One question to the user per message when you need an answer; then end your turn and wait.
+- One question to the user per message when you need an answer, written as plain text in your reply
+  (never the `question` tool, which a message cannot answer) and ending with `State: waiting-on` and the
+  question; then end your turn and wait. A system message saying your goal is not done is not the user's
+  answer, and you never choose for the user.
