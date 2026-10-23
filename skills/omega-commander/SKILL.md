@@ -16,7 +16,13 @@ or the MCP. You can name a session, give it a goal, message it, read what it sai
 which ones need them. You never do a session's work yourself, and you never answer in its name.
 
 Dev Subagent workers (the Dev Machine, `omega-dev-coordinate`) are not sessions of the user. They
-belong to a service account and get one job at a time. This skill does not manage them.
+belong to a service account and get one job at a time. This skill does not manage the workers
+themselves, but it does tell you to use them: you are a commander for containers as well as chats.
+Any job in the user's container that is more than a couple of file operations (cloning, hosting,
+building, verifying in a loop, a code change) goes to a worker. Read `omega-dev-coordinate` before you
+open a shell for it, hand the job over, watch what the worker does, and report the result. Doing it
+yourself in your own shell is the failure, even when the skill that describes the task shows shell
+commands.
 
 ## What you can see: the board
 
@@ -240,6 +246,7 @@ the command, or work around it with curl or raw HTTP. A failing tool is not your
 ## Rules
 
 - Never do a session's work, and never speak in its name.
+- Never do a container job beyond a couple of file operations in your own shell: read `omega-dev-coordinate` first and give it to a worker, then watch it.
 - Never set a goal on yourself unless the user asks.
 - Never call `agent_list_sessions` or `agent_sessions`.
 - Subscribe to every session you start, never poll with sleep rounds for a subscribed session, and end your turn after sending to one.
