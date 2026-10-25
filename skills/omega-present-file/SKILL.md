@@ -45,3 +45,4 @@ read, scroll, or keep, write it to a file with a real extension (`.md`, `.html`,
 - The link is public to anyone who has it: never place a secret (a key, a token, a credential file) in `ARTIFACT_DIR`.
 - If the user already gave you a URL, return that URL unchanged instead of re-hosting.
 - Files under `ARTIFACT_DIR` belong to your account and are shared by every session of this account; do not delete files you did not create in this conversation.
+- A worker on a Dedicated Pod (`omega-dedicated-pod-work`) loses its disk when it ends: it presents every result this way before it is released.
