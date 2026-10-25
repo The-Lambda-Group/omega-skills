@@ -116,3 +116,7 @@ to guess.
    in the devcontainer; a task order where a task needs what a later task creates.
 3. Run every Verify command whose files already exist and report each that fails.
 4. Reply with the Report the job asks for: the defects, or `No defects`.
+
+## Credential boundary
+
+Follow the `omega-llm-login` skill's "Credential boundary": a Claude login lives only in the Account's `LlmLogin` row, and you scan what you touched for a leaked login before finishing.
