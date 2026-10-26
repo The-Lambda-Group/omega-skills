@@ -82,3 +82,24 @@ survive into your next bash call. The second lists the session with `"status":"r
 later call, stops it. Replace `sleep 3600` with the service's own command. Then wait for the service's health command:
 run it every 5 seconds, at most 24 times; if it still fails, stop and report its last output. The
 service ends with your container, so each new session starts it again.
+
+## 6. On a Claude Code session in the chat
+
+Sections 1 to 5 are for a session whose container ends with your turn. A Claude Code session that
+the user talks to in the AI panel keeps its container while a background task runs, and it wakes
+you when the task ends. There, start the job with the Bash tool's `run_in_background` set to
+`true`; do not use `setsid nohup` or a trailing `&`. For example, a render that writes its own log:
+
+```bash
+cd /workspace/work && ./render.sh > /workspace/work/logs/render.log 2>&1
+```
+
+The call returns a task id at once. Write one line saying what you started and where its log is,
+then end your turn. The session stays busy while the task runs (the user sees "Background task
+running" with a Stop button), and when the command exits you get a new turn with its result: read
+the log file, then report. Never `sleep` to wait for it and never poll it, because each wait is a
+model call and the exit wakes you anyway. A call that has already been running a while can be moved
+to the background by the user with the Background button; you do not do that yourself.
+
+This holds only in the AI panel chat. A job message that reaches you over HTTP (`async: true`) or from a
+cron has no open chat to keep the session busy, so the task ends with your turn: use sections 2 and 3.
