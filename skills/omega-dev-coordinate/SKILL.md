@@ -40,15 +40,17 @@ implement or carry out, and the row's Status is `planned`, `developing` or `done
 the user saying merge, deploy or release is `omega-dev-close-out`. Change a Plans Index row only with `write` on
 `<root>/Notes/Plans`; never `set_html` or add a block on a row's own page.
 
-## Where the work runs
+## Before anything else
 
-If this is new work, set the planning goal first ("The planning goal" below), before anything else here.
+On new work, set the planning goal first (see "The planning goal" below), then read the notes and continue. Do this before any question, including a question for the repository URL.
+
+## Where the work runs
 
 Prefer a Dev Machine. Planning and development are best on a container with a volume: every spec,
 plan and repository stays as a file there, and each Dev Subagent can read all of it. This is a
 guideline, not a lock.
 
-The user's notes can override it. Before step 1, read `<root>/Notes/README`, every note page it links whose name or line mentions
+The user's notes can override it, and this check is the second thing you do, after the planning goal. Notes are found only through `Notes/README` links: the note must be linked from `Notes/README`; a page the README does not link is not a note of the user's, so a user who wants a note found links it there. Before step 1, read `<root>/Notes/README`, every note page it links whose name or line mentions
 development, containers or plans, then `ls "<root>/Notes"` and `ls` each folder it lists, and read every page there whose name
 mentions development, containers, plans or machine, and the `README` of the folder that holds them when `ls` lists one (for example
 `<root>/Notes/Development/README`). If a note says the user will not use
