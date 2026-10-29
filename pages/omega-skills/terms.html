@@ -28,10 +28,13 @@
   <dd>The Dev Machine's Volume: persistent disk holding the repositories (the Repos directory) and the specs and plans (the Plans directory, <code>&lt;mount&gt;/.omega</code>).</dd>
 
   <dt>Dev Machine Record</dt>
-  <dd>The note page <code>&lt;root&gt;/Notes/Dev Machine</code>, linked from <code>&lt;root&gt;/Notes/README</code>, naming the Dev Machine's Workspace, Devcontainer, Devcontainer JSON, Volume, Mount, Worker, Repos and Plans.</dd>
+  <dd>The note page named <code>Dev Machine</code> that <code>&lt;root&gt;/Notes/README</code> links, at <code>&lt;root&gt;/Notes/Dev Machine</code> or inside a folder of the user's notes such as <code>&lt;root&gt;/Notes/Development/Dev Machine</code>, naming the Dev Machine's Workspace, Devcontainer, Devcontainer JSON, Volume, Mount, Worker, Repos and Plans.</dd>
 
   <dt>Plans Index</dt>
-  <dd>The database page <code>&lt;root&gt;/Notes/Plans</code>: one row per plan, keyed by Plan Name, indexed by <code>Created</code>, with Status, Repository, Base, Spec, Plan and Branch, and a "Most recent" view.</dd>
+  <dd>The database page named <code>Plans</code> that <code>&lt;root&gt;/Notes/README</code> links, at <code>&lt;root&gt;/Notes/Plans</code> or inside a folder of the user's notes such as <code>&lt;root&gt;/Notes/Development/Plans</code>: one row per plan, keyed by Plan Name, indexed by <code>Created</code>, with Status, Repository, Base, Spec, Plan and Branch, and a "Most recent" view.</dd>
+
+  <dt>Planning Goal</dt>
+  <dd>The goal a Coordinator sets on its own session, through <code>agent_goal</code>, when new work starts: brainstorm, plan and revise until a fresh Dev Subagent's review returns <code>No defects</code> or three rounds have run. It ends with a <code>State:</code> line, not a judge. See <code>omega-dev-coordinate</code>.</dd>
 
   <dt>Plan Name</dt>
   <dd><code>YYYY-MM-DD-&lt;topic&gt;</code>, unique in the Plans Index; it names the spec and plan files and, without the date, the branch <code>feat/&lt;topic&gt;</code>.</dd>
