@@ -25,7 +25,7 @@ Prerequisite vocabulary (block, page, `@path`): see `omega-skills:omega-navigati
 
 ## The spec
 
-The spec is a JSON string on the block's `devcontainer-json` field. Only two top-level keys are supported; anything else is rejected (see Gotchas):
+The spec is a JSON string on the block's `devcontainer-json` field. Only three top-level keys are supported (`features`, `mounts`, `hostRequirements`); anything else is rejected (see Gotchas):
 
 ```json
 {
@@ -42,6 +42,8 @@ The spec is a JSON string on the block's `devcontainer-json` field. Only two top
 - **`features.pip`** — pip packages (installed with `pip3`).
 - **`features.run`** — arbitrary shell commands, run in order, after the package installs.
 - **`mounts`** — volumes to attach (see your volume/mount setup).
+- **`features.fetch`** — sources fetched while the image builds, into `/opt/src/`. Two entry shapes: `{"repo": "OWNER/NAME", "ref": "branch-or-tag", "dest": "/opt/src/NAME"}` clones a GitHub repository with the grant the user connected under "Git with GitHub" below; `{"download": "https://example.com/tool.tgz", "sha256": "the 64 hex digits of the file's sha256sum", "dest": "/opt/src/tool.tgz"}` downloads a file and checks its checksum. No other keys (a `token` key is rejected with `InvalidFetchEntry`). Example: `{"features": {"fetch": [{"repo": "The-Lambda-Group/query-omega-oql", "ref": "production", "dest": "/opt/src/oql"}], "run": ["cd /opt/src/oql && npm ci"]}}`.
+- **`hostRequirements`** — the pod size a Run or session on this image asks for: `{"cpus": 2, "memory": "4gb", "storage": "20gb"}`. Any other key is rejected (`UnsupportedKey`). Changing it does not rebuild the image.
 
 Each entry becomes a build step, applied in order: apt first, then pip, then each `run` command.
 
@@ -64,6 +66,8 @@ Read the block back (`qo block devcontainer get "Resources/Containers@my-env"`, 
 | `failed` | Build failed. `build-error` holds the build log — read it to see which step broke. |
 
 Three fields carry the result: `build-status`, `image-tag` (set on `ready`), and `build-error` (set on `failed`).
+
+`qo block devcontainer rebuild PAGE@NAME` builds again from the same definition. A build that fails keeps the last good image; `build-status: failed` with the old `image-tag` still boots (see `omega-pod-runs`).
 
 A typical build takes from tens of seconds up to a couple of minutes, longer if you install a lot via apt.
 
@@ -106,6 +110,8 @@ A volume is mounted by one container at a time. When a session needs a volume an
 A built image does nothing until something runs in it. To run work with the installed software,
 open a session on a **worker** (a service account) bound to this devcontainer and send it the job —
 see `omega-installing-software`. Your own session cannot switch to it.
+
+To run a program on the image with no agent, use `omega-pod-runs`.
 
 ## Git with GitHub (OAuth sign-in)
 

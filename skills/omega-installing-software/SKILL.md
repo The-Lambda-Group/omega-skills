@@ -70,6 +70,10 @@ build.
    path until `build-status` is `ready` or `failed`. A build takes from under a minute to about ten.
    On `failed`, stop and tell the user the `build-error`.
 
+## 2.5 Or run it as a Run (no worker)
+
+If the job is one program, or the same program many times, and needs no thinking, skip the worker: put the program in the image and follow `omega-pod-runs`. Use a worker (section 3) only when an agent has to read, decide or write.
+
 ## 3. Create the worker
 
 `block_service_account_create` with `page` = `<root>/Resources/Containers` and
