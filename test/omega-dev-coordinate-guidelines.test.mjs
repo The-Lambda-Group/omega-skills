@@ -14,6 +14,8 @@ test("the Dev Machine is a preference, and the user's notes override it", () => 
   assert.match(coordinate, /If a note says the user will not use\nspecial containers/);
   assert.match(coordinate, /do not invoke\n`omega-dev-machine`/);
   assert.match(coordinate, /A later word from the user overrides the note\./);
+  assert.match(coordinate, /do not offer to, and dispatch no Dev Subagent/);
+  assert.match(coordinate, /end your reply with `State: waiting-on`/);
 });
 
 test("the section on where the work runs comes before step 1", () => {
@@ -23,6 +25,7 @@ test("the section on where the work runs comes before step 1", () => {
 test("the Dev Machine Record and the Plans Index are found where the README links them", () => {
   assert.match(machine, /`Notes\/Development\/Dev Machine`/);
   assert.match(machine, /use the path\nthe README gives/);
+  assert.match(machine, /`ls` each folder the README links under\n`Notes`/);
   assert.match(coordinate, /`.root.\/Notes\/Development\/Plans`/);
   assert.match(coordinate, /\*\*Create the page once\*\*, only if `.root.\/Notes\/README` links no `Plans` page/);
 });
@@ -41,6 +44,10 @@ test("the Coordinator sets the planning goal on her own session through agent_go
   assert.match(coordinate, /until a review returns No defects or three rounds have run/);
   assert.match(coordinate, /End with State: done when the loop has ended, State: waiting-on when you need the user\./);
   assert.match(coordinate, /A Dev Subagent never sets a goal\./);
+  assert.match(coordinate, /Do it again for every new plan\./);
+  assert.match(coordinate, /I could not find my own session,\n   so I have not set a goal\./);
+  assert.match(coordinate, /its `text` must equal what you sent/);
+  assert.match(coordinate, /call `agent_goal` with `clear` true\./);
   assert.ok(coordinate.indexOf("## The planning goal") < coordinate.indexOf("## 3. Dispatch a Dev Subagent"));
 });
 
