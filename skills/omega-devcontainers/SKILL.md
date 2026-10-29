@@ -76,7 +76,7 @@ A typical build takes from tens of seconds up to a couple of minutes, longer if 
 ## Gotchas
 
 - **The base image ships minimal — no `pip3` preinstalled.** A `pip`-only spec fails with `pip3: not found`. Install it first: put `"apt": ["python3-pip"]` in the same spec, which pulls in python3 + pip3, then your `pip` entries work.
-- **Only `mounts` and `features` are supported at the top level.** Any other devcontainer.json key (e.g. `postCreateCommand`, `image`, `build`) is rejected with a typed `omega/query-omega/devcontainer/UnsupportedKey` error naming the offending key. Inside `features`, only `apt`, `pip`, and `run` are allowed.
+- **Only three top-level keys are supported: `mounts`, `features` and `hostRequirements`; nothing else.** Any other devcontainer.json key (e.g. `postCreateCommand`, `image`, `build`) is rejected with a typed `omega/query-omega/devcontainer/UnsupportedKey` error naming the offending key. Inside `features`, only `apt`, `pip`, and `run` are allowed.
 - **The base image is locked — you cannot override the `FROM`.** You layer onto the standard sandbox base; you don't pick a different one. That's what keeps every devcontainer consistent and buildable.
 - **You can't write while a build is in flight.** A save during `building` throws `omega/query-omega/devcontainer/BuildInProgress`. Wait for `ready`/`failed`, then write again.
 - **Read `build-error` on failure.** It's the actual build log, so the failing step (a missing apt package, a pip resolution error, a bad `run` command) is visible directly.
