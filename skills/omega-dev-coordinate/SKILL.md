@@ -40,6 +40,21 @@ implement or carry out, and the row's Status is `planned`, `developing` or `done
 the user saying merge, deploy or release is `omega-dev-close-out`. Change a Plans Index row only with `write` on
 `<root>/Notes/Plans`; never `set_html` or add a block on a row's own page.
 
+## Where the work runs
+
+Prefer a Dev Machine. Planning and development are best on a container with a volume: every spec,
+plan and repository stays as a file there, and each Dev Subagent can read all of it. This is a
+guideline, not a lock.
+
+The user's notes can override it. Before step 1, read `<root>/Notes/README`, every note page it links whose name or line mentions
+development, containers or plans, and the `README` of the folder that holds them when `ls` lists one (for example
+`<root>/Notes/Development/README`). If a note says the user will not use
+special containers, a dev machine, devcontainers or a volume, follow the note: do not invoke
+`omega-dev-machine`, do not set one up, do not offer to, and dispatch no Dev Subagent. Say so in one
+sentence — "Your notes say not to use special containers, so I am not setting up a dev machine." —
+then ask how they want the development work done instead, end your reply with `State: waiting-on`
+and that question, and wait. A later word from the user overrides the note.
+
 ## 1. Get the Dev Machine
 
 Invoke `omega-dev-machine`. It ends with seven values from the Dev Machine Record: Workspace,
@@ -48,8 +63,11 @@ Devcontainer, Volume, Mount, Worker, Repos and Plans. Use them exactly as writte
 
 ## 2. The Plans Index
 
-Every plan has one row in the database page `<root>/Notes/Plans` (`<root>` is your working root, as
-in `omega-navigation`; at the workspace root the path is `Notes/Plans`).
+Every plan has one row in the database page named `Plans` that `<root>/Notes/README` links: at
+`<root>/Notes/Plans`, or inside a folder of your notes, for example `<root>/Notes/Development/Plans`
+(`<root>` is your working root, as in `omega-navigation`; at the workspace root the paths have no
+prefix). That page is the Plans Index; wherever these skills write `<root>/Notes/Plans`, use the path the
+README gives.
 
 **Its name.** A Plan Name is the date and a short topic: `YYYY-MM-DD-<topic>`, the date from
 `date -u +%F` in your shell and the topic in lowercase words joined by hyphens, for example
@@ -58,7 +76,8 @@ in `omega-navigation`; at the workspace root the path is `Notes/Plans`).
 one, `read "<root>/Notes/Plans/<Plan Name>"`. If that page exists and is the same work, continue
 that plan; if it is other work, add `-2` (then `-3`) to the topic.
 
-**Create the page once**, if `ls "<root>/Notes"` does not list `Plans`. These steps are this page's
+**Create the page once**, only if `<root>/Notes/README` links no `Plans` page and neither `ls "<root>/Notes"` nor
+`ls` of a folder the README links under `Notes` lists `Plans`. These steps are this page's
 whole recipe; they take the place of the generic column and view steps in `omega-database-pages`.
 
 1. `add_page` with `parent_path` `<root>/Notes`, name `Plans`, `database: true`.
@@ -88,6 +107,26 @@ Subagent job. Every later job about this plan takes its repository and base bran
 for example `{"header": ["Name", "Status"], "rows": [["<Plan Name>", "spec"]]}`.
 
 **Most recent plans:** `query` `<root>/Notes/Plans` with `column` `Created`, `sort` `desc`.
+
+## The planning goal
+
+When new work starts — the user asks you to brainstorm, design or plan a change, or to develop one
+whose Plans Index row does not exist yet — set the revise-loop goal on your own session once, right
+after you write the new row and before the first job, so that you keep revising until the plan is
+exact. Do it again for every new plan. A Dev Subagent never sets a goal.
+
+1. Find your own session. Call `agent_list_sessions` with `limit` 10. For each row, call `agent_turn_status` with the row's `session-id`
+   as `session_id` (a row's `status` field can read `idle` or null during a turn, so it is not used). For each row
+   whose answer is `running`, call `agent_get_messages` with that `session_id` and `limit` 100 (the newest hundred
+   messages, oldest first). Your session is the one running row where a `user` message has exactly the text of the
+   user's message you are answering. If no row or more than one row matches, do not guess: tell the user "I could not find my own session,
+   so I have not set a goal." and go on without one.
+2. Call `agent_goal` with that `session_id`, `continues` 3 and this `text`, with `<Plan Name>` written
+   out: `Plan <Plan Name>: brainstorm, plan and revise with omega-dev-brainstorm, omega-dev-plan and omega-dev-revise. A fresh Dev Subagent reviews the plan, the defects are revised in place, and it is reviewed again until a review returns No defects or three rounds have run. Stay within the spec and the agreed user feedback. Do not begin development before the loop ends. End with State: done when the loop has ended, State: waiting-on when you need the user.`
+3. Call `agent_goal` with only the `session_id`: its `text` must equal what you sent. If it does not,
+   say so in one line and go on.
+4. The goal is yours to change: when the user says the plan is approved, or asks you to stop looping,
+   call `agent_goal` with `clear` true.
 
 ## 3. Dispatch a Dev Subagent
 

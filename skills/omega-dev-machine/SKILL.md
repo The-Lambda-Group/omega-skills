@@ -29,7 +29,10 @@ shell.
 ## 1. Find the record
 
 Read `<root>/Notes/README` (for the Home workspace it is already in your system prompt). If it links
-`Notes/Dev Machine`, `read` that page and go to step 3.
+a page named `Dev Machine` — directly under `Notes`, or inside a folder of your notes, for example
+`Notes/Development/Dev Machine` — `read` that page at the path the link gives and go to step 3. That
+path is the Dev Machine Record: wherever these skills write `<root>/Notes/Dev Machine`, use the path
+the README gives.
 
 ## 2. No record yet
 
@@ -42,8 +45,9 @@ Read `<root>/Notes/README` (for the Home workspace it is already in your system 
    write the record (step 4), then check it (step 3).
 3. **Several candidates:** list them the same way and ask which one. End your turn.
 4. **None:** if the user already asked you to set one up, go to step 5. Otherwise ask: "You don't
-   have a dev machine recorded. If you have one, tell me its devcontainer's page path; otherwise I
-   can set one up for you — shall I?" End your turn. A path → check it as in 1, then 2. A yes →
+   have a dev machine recorded. Planning and development work best on a personal devcontainer with a
+   volume, where your specs, plans and repositories stay as files. If you have one, tell me its
+   devcontainer's page path; otherwise I can set one up for you as your default — shall I?" End your turn. A path → check it as in 1, then 2. A yes →
    step 5.
 
 Look only in your working root and your notes; never search other folders for a machine.
@@ -78,7 +82,9 @@ Do this once per conversation, before the first Dev Subagent job, and right afte
 
 ## 4. Write the record
 
-`ls "<root>/Notes"` first. If it lists `Dev Machine` although the README does not link it, `read` it:
+Step 1 found no link to a `Dev Machine` page. `ls "<root>/Notes"` and `ls` each folder the README links under
+`Notes` (for example `<root>/Notes/Development`) first. If one lists `Dev Machine` although the README does not
+link it, `read` it:
 if it records a machine, add the README line below and go to step 3 with it; write nothing else.
 Otherwise `add_page` with `parent_path` `<root>/Notes` and name `Dev Machine` (create `<root>/Notes`
 first if it is missing), then `set_html` on `<root>/Notes/Dev Machine`, block `Content`, with this
