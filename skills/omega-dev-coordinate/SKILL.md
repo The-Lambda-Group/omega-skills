@@ -42,12 +42,15 @@ the user saying merge, deploy or release is `omega-dev-close-out`. Change a Plan
 
 ## Where the work runs
 
+If this is new work, set the planning goal first ("The planning goal" below), before anything else here.
+
 Prefer a Dev Machine. Planning and development are best on a container with a volume: every spec,
 plan and repository stays as a file there, and each Dev Subagent can read all of it. This is a
 guideline, not a lock.
 
 The user's notes can override it. Before step 1, read `<root>/Notes/README`, every note page it links whose name or line mentions
-development, containers or plans, and the `README` of the folder that holds them when `ls` lists one (for example
+development, containers or plans, then `ls "<root>/Notes"` and `ls` each folder it lists, and read every page there whose name
+mentions development, containers, plans or machine, and the `README` of the folder that holds them when `ls` lists one (for example
 `<root>/Notes/Development/README`). If a note says the user will not use
 special containers, a dev machine, devcontainers or a volume, follow the note: do not invoke
 `omega-dev-machine`, do not set one up, do not offer to, and dispatch no Dev Subagent. Say so in one
@@ -111,9 +114,10 @@ for example `{"header": ["Name", "Status"], "rows": [["<Plan Name>", "spec"]]}`.
 ## The planning goal
 
 When new work starts — the user asks you to brainstorm, design or plan a change, or to develop one
-whose Plans Index row does not exist yet — set the revise-loop goal on your own session once, right
-after you write the new row and before the first job, so that you keep revising until the plan is
-exact. Do it again for every new plan. A Dev Subagent never sets a goal.
+whose Plans Index row does not exist yet — set the revise-loop goal on your own session once, as the first
+thing you do, before the check in "Where the work runs", before step 1 and before you ask the user anything (the
+<Plan Name> is the date and topic of the request; the Plans Index row may not exist yet), so that you keep revising
+until the plan is exact. Do it again for every new plan. A Dev Subagent never sets a goal.
 
 1. Find your own session. Call `agent_list_sessions` with `limit` 10. For each row, call `agent_turn_status` with the row's `session-id`
    as `session_id` (a row's `status` field can read `idle` or null during a turn, so it is not used). For each row
