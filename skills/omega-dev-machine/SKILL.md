@@ -17,13 +17,13 @@ computer to work on:
 - a **Volume**, the **Dev Volume**: persistent disk where the repositories, specs and plans live, and
 - a **Worker**: a service account whose sessions boot that Devcontainer.
 
-The **Dev Machine Record** is the note page `<root>/Notes/Dev Machine`, linked from
+The **Dev Machine Record** is the note page `<root>/Notes/Development/Dev Machine`, linked from
 `<root>/Notes/README`. It says which blocks they are. This skill ends with a ready Dev Machine and
 its seven values — Workspace, Devcontainer, Volume, Mount, Worker, Repos, Plans — or stops and tells
 the user why.
 
 `<root>` is your working root (`omega-navigation`). At the workspace root, paths have no prefix:
-`Notes/Dev Machine`, `Resources/Containers@dev-machine`. Today's date is `date -u +%F` in your
+`Notes/Development/Dev Machine`, `Resources/Containers@dev-machine`. Today's date is `date -u +%F` in your
 shell.
 
 ## 1. Find the record
@@ -31,7 +31,7 @@ shell.
 Read `<root>/Notes/README` (for the Home workspace it is already in your system prompt). If it links
 a page named `Dev Machine` — directly under `Notes`, or inside a folder of your notes, for example
 `Notes/Development/Dev Machine` — `read` that page at the path the link gives and go to step 3. That
-path is the Dev Machine Record: wherever these skills write `<root>/Notes/Dev Machine`, use the path
+path is the Dev Machine Record: wherever these skills write `<root>/Notes/Development/Dev Machine`, use the path
 the README gives.
 
 ## 2. No record yet
@@ -44,11 +44,11 @@ the README gives.
    `target` and its worker, and ask: "Shall I use this as your dev machine?" End your turn. On yes,
    write the record (step 4), then check it (step 3).
 3. **Several candidates:** list them the same way and ask which one. End your turn.
-4. **None:** if the user already asked you to set one up, go to step 5. Otherwise ask: "You don't
-   have a dev machine recorded. Planning and development work best on a personal devcontainer with a
-   volume, where your specs, plans and repositories stay as files. If you have one, tell me its
-   devcontainer's page path; otherwise I can set one up for you as your default — shall I?" End your turn. A path → check it as in 1, then 2. A yes →
-   step 5.
+4. **None:** in a workspace other than Home, follow the `Dev Machine` link in Home's `Notes/README` (it is in your system
+   prompt), `read` that page and go to step 3 with it: the record's Workspace value says where its blocks are, and
+   this workspace's own record, once it has one, always wins. If Home links none, or this is Home, go to step 5. A user who does not want special containers has said so in their notes or in
+   their message, and `omega-dev-coordinate` stopped before invoking this skill; nobody else is asked.
+   Say in one sentence that you found no dev machine and are setting up a basic one.
 
 Look only in your working root and your notes; never search other folders for a machine.
 
@@ -76,7 +76,7 @@ Do this once per conversation, before the first Dev Subagent job, and right afte
    create a new, empty one (step 6.2). End your turn.
 4. `block_service_account_list`. The Worker is there when an entry's `name` equals the part of the
    Worker path after `@`. **Not there:** repair it (step 6.3).
-5. Update the record's `Checked` line to today's date: `set_html` on `<root>/Notes/Dev Machine`,
+5. Update the record's `Checked` line to today's date: `set_html` on `<root>/Notes/Development/Dev Machine`,
    block `Content`, with the whole record as read and only that line changed; `read` it back. Hand
    the seven values to the Coordinator.
 
@@ -86,8 +86,8 @@ Step 1 found no link to a `Dev Machine` page. `ls "<root>/Notes"` and `ls` each 
 `Notes` (for example `<root>/Notes/Development`) first. If one lists `Dev Machine` although the README does not
 link it, `read` it:
 if it records a machine, add the README line below and go to step 3 with it; write nothing else.
-Otherwise `add_page` with `parent_path` `<root>/Notes` and name `Dev Machine` (create `<root>/Notes`
-first if it is missing), then `set_html` on `<root>/Notes/Dev Machine`, block `Content`, with this
+Otherwise `add_page` with `parent_path` `<root>/Notes/Development` and name `Dev Machine` (create `<root>/Notes` and
+`<root>/Notes/Development` first if they are missing), then `set_html` on `<root>/Notes/Development/Dev Machine`, block `Content`, with this
 HTML, each `{…}` replaced by its value, and `<`, `>`, `&` inside a value written as `&lt;`, `&gt;`,
 `&amp;`:
 
@@ -113,7 +113,7 @@ HTML, each `{…}` replaced by its value, and `<`, `>`, `&` inside a value writt
 - **Plans** is `{mount target}/.omega`.
 
 Then add ONE line to `<root>/Notes/README`: `read` it — the result gives its block name and HTML —
-add `<li><p><strong>Notes/Dev Machine</strong> — the dev machine: its devcontainer, disk, worker and
+add `<li><p><strong>Notes/Development/Dev Machine</strong> — the dev machine: its devcontainer, disk, worker and
 folders.</p></li>` after the last `<li>` of its first `<ul>`, keep everything else exactly as read,
 `set_html` on that block name, and `read` both pages back.
 
