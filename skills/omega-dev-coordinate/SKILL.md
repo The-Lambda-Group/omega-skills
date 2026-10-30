@@ -192,6 +192,10 @@ a time).
    the `devcontainer-json` to use. A plan that says anything else about the container contradicts
    the user, and no job on it can be correct, so check the reply: if the plan does not name one, do
    not dispatch its first task — send the plan back to be fixed.
+6. **One part per job.** A job names exactly one part of one skill, spelled as the skill spells it
+   (`Explore`, `Write the spec`, `Write the plan`, `Review the plan`, `Revise`, `Task`, `Done check`).
+   Never merge two parts into one job and never rename a part: what you do between parts (the user's
+   approval, the review loop, a ledger line) happens between jobs.
 
 ## 4. Reading the reply
 

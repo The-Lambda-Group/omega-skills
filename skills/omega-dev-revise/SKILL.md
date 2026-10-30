@@ -19,6 +19,8 @@ is true now and the ledgers say why.
 2. Know which ledger. The user changing something → `User Feedback Ledger`, entry text = the user's
    own words, word for word. A correction found by you or a Dev Subagent (a develop surface, a
    contradiction) → `AI Self-Revision Ledger`, entry text = one sentence saying what was found.
+   A defect a review reports is such a correction: it always gets its line, even when the fix is one
+   word, and the fix is made by part "Revise", never by the review.
 3. Dispatch a Dev Subagent with part "Revise": the file path, the ledger, the entry text, and the
    change — which sections or task numbers, and what they must say now. Report: the ledger line it
    added and the headings of the sections it changed.

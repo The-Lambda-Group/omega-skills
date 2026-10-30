@@ -31,6 +31,11 @@ to guess.
    with an empty reply is run again once and is not a round. Stop at `No defects`, or after three rounds and tell the
    user the defects left. Defects left after round three go into the plan's uncertainties and development starts. A new round needs the user to say so, and every review that returned text counts as a round, whoever asked for it. Do not set Status `planned` and do not start
    `omega-dev-develop` before the loop has ended.
+   Each review reports `A-lines: N`, the number of ledger lines in the plan. After a round that
+   reported D defects, the next review must report an `A-lines` at least D higher than the one
+   before; if it does not, a defect was repaired without a ledger line, so dispatch part "Revise"
+   for each defect with no line and review again. Only part "Revise" of `omega-dev-revise` repairs
+   a defect: not the review job, not "Write the plan", not you.
 4. After the loop, set the row's Status to `planned`, its Plan to the plan path and its Branch to the branch.
 5. Tell the user the Definition of Done, the three uncertainties and how many review rounds it took, and
    that they can change anything by telling you.
@@ -57,6 +62,7 @@ to guess.
    ## Traversal Log
    ## File Map
    ## Rules
+   ## Skills Invoked
    ## Tasks
    ## User Feedback Ledger
    ## AI Self-Revision Ledger
@@ -103,6 +109,19 @@ to guess.
    what it prints; a Verify for code a task creates states the exact output it must print once that
    task is done. No `TBD`, no "similar to Task N", no step without its code, no check without its
    exact output.
+   Then check the plan file for placeholders. Set `PLAN` to the plan path and run these three
+   commands; each must print nothing. The plan shows real names, or a shell variable such as
+   `${TOPIC}`, never a word in angle brackets, and a path or call is written in full, never cut
+   short with three dots.
+
+   ```bash
+   grep -nP '(?<![\w)\]>])<[a-z][a-z0-9_-]*(?: [a-z0-9_-]+)*>' "$PLAN"
+   grep -nP '(^|[\s(\[{,:=])\.\.\.($|[\s)\]},;])' "$PLAN"
+   grep -nE '\b(T[B]D|TOD[O]|FIXM[E]|X[X]X|REPLACE_M[E]|CHANGEM[E]|PLACEHOLDE[R])\b|path/t[o]/' "$PLAN"
+   ```
+
+   A line the first command prints that is an HTML tag of the file being written (`<div>`, `<h1>`)
+   is not a defect; every other printed line is, and you fix it and run the three again.
 4. Reply with the Report the job asks for.
 
 ## Dev Subagent — part "Review the plan"
@@ -115,6 +134,9 @@ to guess.
    a test the plan lists as not run for an environment reason; a change the user can see with no browser test
    in the devcontainer; a task order where a task needs what a later task creates.
 3. Run every Verify command whose files already exist and report each that fails.
+   Run the three placeholder commands of the "Write the plan" part, step 3, on the plan file; every
+   line they print, except an HTML tag, is a defect. Then run `grep -c '^A\.[0-9]' "$PLAN"` and
+   report the number as `A-lines: N`.
 4. Reply with the Report the job asks for: the defects, or `No defects`.
 
 ## Credential boundary
