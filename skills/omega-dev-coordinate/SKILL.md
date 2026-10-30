@@ -123,7 +123,8 @@ before you ask the user anything. The one read that may come first is, when the 
 row's Status (`Notes/README` and the page it links): it picks the one goal you set, and you never set the other first.
 A Dev Subagent never sets a goal.
 
-1. Find your own session. Call `agent_list_sessions` with `limit` 10. For each row, call `agent_turn_status` with the row's `session-id`
+1. Find your own session. Your system prompt carries the line `This session's id is` followed by your session id, on every turn: that id is your
+   `session_id`, and you need no search. Only if that line is missing, search for it as follows. Call `agent_list_sessions` with `limit` 10. For each row, call `agent_turn_status` with the row's `session-id`
    as `session_id` (a row's `status` field can read `idle` or null during a turn, so it is not used). For each row
    whose answer is `running`, call `agent_get_messages` with that `session_id` and `limit` 100 (the newest hundred
    messages, oldest first). Your session is the one running row where a `user` message has exactly the text of the

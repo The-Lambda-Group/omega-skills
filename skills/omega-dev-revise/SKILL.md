@@ -14,6 +14,8 @@ is true now and the ledgers say why.
 
 ## Coordinator
 
+This skill is the loop the Revise Goal names. Read it with `agent_goal` and your own `session_id` (your system prompt carries the line `This session's id is` followed by your session id); when its `text` is empty, set it now as `omega-dev-coordinate` "The session goal" says, before any other step. When you are revising during development, your goal is the Development Goal and stays it.
+
 1. Know which file: the Plan Name and whether it is the spec or the plan. If the user did not say
    and there is more than one candidate, ask: "Which plan, and the spec or the plan?"
 2. Know which ledger. The user changing something → `User Feedback Ledger`, entry text = the user's

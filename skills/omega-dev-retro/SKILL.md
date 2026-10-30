@@ -25,6 +25,7 @@ for `omega-dev-close-out`, not for this.
    most 30 lines. The job is short; it does not need the plan-only devcontainer.
 3. Tell the user, in a few lines: what the retro says went wrong and what it says is left. Then
    say that closing out is the next step and is theirs to approve (`omega-dev-close-out`).
+4. Clear your session goal: call `agent_goal` with your own `session_id` and `clear` true.
 
 ## Dev Subagent — part "Retro"
 

@@ -14,6 +14,8 @@ approaches, approval — and the spec is the record of what was decided together
 
 ## Coordinator
 
+Your session goal is the Revise Goal for this whole job: Read it with `agent_goal` and your own `session_id` (your system prompt carries the line `This session's id is` followed by your session id); when its `text` is empty, set it now as `omega-dev-coordinate` "The session goal" says, before any other step. While you wait for the user's answer to a question, the goal reads `waiting`; the answer continues the same goal, so do not set it again.
+
 1. **Set up.** Get the Dev Machine (`omega-dev-coordinate` §1). Choose the Plan Name and write its
    Plans Index row with Status `brainstorming`, the repository URL, and the base branch if the user
    named one (§2). When the first "Explore" reply reports the default branch, write it into the

@@ -36,6 +36,7 @@
   <dt>Revise Goal</dt>
   <dd>The goal a Coordinator sets on its own session, through <code>agent_goal</code>, when new work starts: the commander kit's <code>default.txt</code> loop worded for <code>omega-dev-revise</code> &mdash; revise the plan on a loop until it is exact, with no development. It ends with a <code>State:</code> line, not a judge. See <code>omega-dev-coordinate</code>.</dd>
 
+  <dt>Phase Goal</dt><dd>The Revise Goal or Development Goal a Coordinator holds while a phase skill (<code>omega-dev-brainstorm</code>, <code>omega-dev-plan</code>, <code>omega-dev-revise</code>, <code>omega-dev-develop</code>) runs; each skill's Coordinator section says which, and <code>omega-dev-retro</code> clears it. See <code>omega-dev-coordinate</code>.</dd>
   <dt>Development Goal</dt>
   <dd>The goal that replaces the Revise Goal when the user tells a Coordinator to develop an approved plan: the commander kit's <code>develop.txt</code> loop worded for <code>omega-dev-develop</code> &mdash; develop, revise and handle surface events until the tests are comprehensive. A Coordinator holds exactly one of the two goals while it works. See <code>omega-dev-coordinate</code>.</dd>
 
