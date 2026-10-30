@@ -54,6 +54,10 @@ approaches, approval — and the spec is the record of what was decided together
 Never dispatch "Write the spec" before the user has approved the design. (The "Explore" part
 creates the spec file with empty headings only, to hold the Traversal Log.)
 
+## Orchestrated mode (optional)
+
+When the design has several separable decisions, or the open question is how to approach a body of material, the Coordinator may run fresh agents from stored briefs before step 6: a Prose Brainstorm per decision, an Angle Brainstorm run Blind and Grounded, then an assigned-lens review of the merged draft. The method, its costs and its shared rules are in the KB page `pages/kb/contributor/kb-operations/agent-discipline/parallel-agent-orchestration.html` (read it through `omega:omega-docs`). The Coordinator, not an agent, merges the items, fixes the briefs and records the trial in the spec's AI Self-Revision Ledger; no agent reads another agent's output until the merge. The default flow above is unchanged.
+
 ## Dev Subagent — part "Explore"
 
 1. Sign in and clone exactly as `omega-repo-work` steps 1 and 2 say, with the Repos directory as
