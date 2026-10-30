@@ -35,6 +35,11 @@ approaches, approval — and the spec is the record of what was decided together
    only the code can settle.
 4. **Approaches.** In one message, propose two or three distinct approaches with their trade-offs
    and your recommendation. End your turn. The user picks or redirects.
+   If the user's message says they are not available to answer, or hands the choice to you in their
+   own words (for example "you pick"), do not wait: write the two or three approaches in your reply,
+   choose one, and tell the Dev Subagent in "Write the spec" to record the `Chosen:` line as
+   `chosen by the Coordinator under the user's words` followed by those words, quoted. When neither
+   holds, wait as above.
 5. **Design.** Present the design in short sections — what changes, which files, how data flows,
    what happens on errors — asking after each whether it is right. Revise until the user says it
    is.
@@ -79,6 +84,7 @@ creates the spec file with empty headings only, to hold the Traversal Log.)
    ## Traversal Log
    ## Affected Files
    ## Clarifying questions and answers
+   ## Approaches
    ## Proposed decisions
    ## Non-goals
    ## Design
@@ -87,9 +93,13 @@ creates the spec file with empty headings only, to hold the Traversal Log.)
    ```
 
    `Clarifying questions and answers` holds every question and answer as given (`Q:` / `A:` lines).
+   `Approaches` holds two or three `###` approaches, each with its trade-offs, then one
+   `**Recommendation:**` line and one `**Chosen:**` line that names the approach and who chose it.
    `Proposed decisions` has one `###` per decision with `**Recommendation:**` and
    `**Alternatives considered:**`. `Non-goals` says `none` only if the job says none. Both ledgers
    start empty.
 2. Self-review and fix in place: no `TBD`, `TODO` or empty section other than the two ledgers; no two
    sections that contradict; no requirement that can be read two ways.
+   Also fix a spec whose `Approaches` section has fewer than two approaches, or lacks the
+   `**Recommendation:**` line or the `**Chosen:**` line.
 3. Reply with the Report the job asks for.

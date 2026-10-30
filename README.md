@@ -19,9 +19,9 @@ Drop a skill's folder into your agent's skills directory.
 - [`skills/omega-dedicated-pod-work`](skills/omega-dedicated-pod-work) — run a job on a Dedicated Pod of its own: `qo agent create-session --dedicated-pod`, hold it, send the job, get results out as public links; eight at once.
 - [`skills/omega-dev-coordinate`](skills/omega-dev-coordinate) — development work: the agent talking to the user coordinates, Dev Subagents on the user's Dev Machine do the file and code work; it prefers a Dev Machine, follows the user's notes when they say not to use special containers, and sets its own planning goal.
 - [`skills/omega-dev-machine`](skills/omega-dev-machine) — find, check, set up or repair the Dev Machine (devcontainer + volume + worker) and its Notes record.
-- [`skills/omega-dev-brainstorm`](skills/omega-dev-brainstorm) — from an idea to an approved spec.
-- [`skills/omega-dev-plan`](skills/omega-dev-plan) — from an approved spec to a plan.
-- [`skills/omega-dev-revise`](skills/omega-dev-revise) — ledgered, in-place changes to a spec or plan.
+- [`skills/omega-dev-brainstorm`](skills/omega-dev-brainstorm) — from an idea to an approved spec, with two or three approaches and the chosen one recorded in it.
+- [`skills/omega-dev-plan`](skills/omega-dev-plan) — from an approved spec to a plan that has passed a placeholder check and a review loop.
+- [`skills/omega-dev-revise`](skills/omega-dev-revise) — ledgered, in-place changes to a spec or plan; every review defect gets its ledger line.
 - [`skills/omega-dev-develop`](skills/omega-dev-develop) — a plan carried out one task per Dev Subagent.
 - [`skills/omega-dev-develop-surface`](skills/omega-dev-develop-surface) — a task that did not come back clean.
 - [`skills/omega-dev-retro`](skills/omega-dev-retro) — the record of a finished plan: incidents, tests run, ledgers, open items.
