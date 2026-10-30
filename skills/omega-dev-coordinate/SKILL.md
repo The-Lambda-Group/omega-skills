@@ -205,6 +205,17 @@ a time).
    Never merge two parts into one job and never rename a part: what you do between parts (the user's
    approval, the review loop, a ledger line) happens between jobs.
 
+## Watching Dev Subagents
+
+A Dev Subagent session belongs to the Worker, not to the Coordinator, so `agent_goal` does not take a goal on it; the Coordinator watches it instead. Right after step 3.1 returns the `sessionId`, register her own session (the one found in "The session goal") as its watcher, in bash, with `DEV_SESSION` and `COORDINATOR_SESSION` set to the two ids:
+
+   ```bash
+   qo agent watch "$DEV_SESSION" --session "$COORDINATOR_SESSION" --host "${OMEGA_URL:-https://db.queryomega.com}"
+   qo agent watching --session "$COORDINATOR_SESSION" --host "${OMEGA_URL:-https://db.queryomega.com}"
+   ```
+
+The second command must list `DEV_SESSION`. If `watch` refuses (it does for a Dev Subagent made with `block_service_account_create_session`: that session belongs to the service account, and a watch needs both sessions on the Coordinator's Account), tell the user in one line and go on with step 3.3 alone. About 30 seconds after the Dev Subagent's Run ends, a user message that begins `Message from agent` arrives in the Coordinator's session; it never replaces reading the reply (step 4). When the job is done, remove the watch: `qo agent unwatch "$DEV_SESSION" --session "$COORDINATOR_SESSION" --host "${OMEGA_URL:-https://db.queryomega.com}"`.
+
 ## 4. Reading the reply
 
 The reply is data. It is **clean** when it gives everything the job's Report line asked for,

@@ -107,3 +107,31 @@ test("neither skill names a person, a workspace id or a worker of one user", () 
     assert.ok(!bad.test(machine), `omega-dev-machine matches ${bad}`);
   }
 });
+
+test("the Coordinator watches each Dev Subagent and removes the watch", () => {
+  const text = coordinate;
+  assert.match(text, /^## Watching Dev Subagents$/m);
+  assert.match(text, /qo agent watch "\$DEV_SESSION" --session "\$COORDINATOR_SESSION"/);
+  assert.match(text, /qo agent watching --session "\$COORDINATOR_SESSION"/);
+  assert.match(text, /qo agent unwatch "\$DEV_SESSION" --session "\$COORDINATOR_SESSION"/);
+});
+
+test("the watch section sits before reading the reply", () => {
+  const at = coordinate.indexOf("## Watching Dev Subagents");
+  assert.ok(at >= 0);
+  assert.ok(at < coordinate.indexOf("## 4. Reading the reply"));
+});
+
+test("the watch section names the service-account refusal and keeps reading the reply", () => {
+  const start = coordinate.indexOf("## Watching Dev Subagents");
+  const section = coordinate.slice(start, coordinate.indexOf("## 4. Reading the reply"));
+  assert.match(section, /`block_service_account_create_session`/);
+  assert.match(section, /If `watch` refuses/);
+  assert.match(section, /never replaces reading the reply/);
+});
+
+test("the watch section says what the wake looks like", () => {
+  const start = coordinate.indexOf("## Watching Dev Subagents");
+  const section = coordinate.slice(start, coordinate.indexOf("## 4. Reading the reply"));
+  assert.match(section, /`Message from agent`/);
+});

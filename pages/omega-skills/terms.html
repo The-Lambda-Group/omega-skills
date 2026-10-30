@@ -39,6 +39,9 @@
   <dt>Development Goal</dt>
   <dd>The goal that replaces the Revise Goal when the user tells a Coordinator to develop an approved plan: the commander kit's <code>develop.txt</code> loop worded for <code>omega-dev-develop</code> &mdash; develop, revise and handle surface events until the tests are comprehensive. A Coordinator holds exactly one of the two goals while it works. See <code>omega-dev-coordinate</code>.</dd>
 
+  <dt>Dev Subagent Watch</dt>
+  <dd>The Session Subscription a Coordinator registers on each Dev Subagent session she dispatches (<code>qo agent watch</code>), so its Run End wakes her; it never replaces reading the reply. See <code>omega-dev-coordinate</code>.</dd>
+
   <dt>Plan Name</dt>
   <dd><code>YYYY-MM-DD-&lt;topic&gt;</code>, unique in the Plans Index; it names the spec and plan files and, without the date, the branch <code>feat/&lt;topic&gt;</code>.</dd>
   <dt>Plan-only devcontainer</dt>
