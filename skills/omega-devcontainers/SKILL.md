@@ -67,7 +67,7 @@ Read the block back (`qo block devcontainer get "Resources/Containers@my-env"`, 
 
 Three fields carry the result: `build-status`, `image-tag` (set on `ready`), and `build-error` (set on `failed`).
 
-`qo block devcontainer rebuild PAGE@NAME` builds again from the same definition. A build that fails keeps the last good image; `build-status: failed` with the old `image-tag` still boots (see `omega-pod-runs`).
+`qo block devcontainer rebuild PAGE@NAME` builds again from the same definition (add `--force` to build even when the registry already holds an image for that content). A build that fails keeps the last good image; `build-status: failed` with the old `image-tag` still boots (see `omega-pod-runs`).
 
 A typical build takes from tens of seconds up to a couple of minutes, longer if you install a lot via apt.
 
@@ -76,7 +76,7 @@ A typical build takes from tens of seconds up to a couple of minutes, longer if 
 ## Gotchas
 
 - **The base image ships minimal — no `pip3` preinstalled.** A `pip`-only spec fails with `pip3: not found`. Install it first: put `"apt": ["python3-pip"]` in the same spec, which pulls in python3 + pip3, then your `pip` entries work.
-- **Only three top-level keys are supported: `mounts`, `features` and `hostRequirements`; nothing else.** Any other devcontainer.json key (e.g. `postCreateCommand`, `image`, `build`) is rejected with a typed `omega/query-omega/devcontainer/UnsupportedKey` error naming the offending key. Inside `features`, only `apt`, `pip`, and `run` are allowed.
+- **Only three top-level keys are supported: `mounts`, `features` and `hostRequirements`; nothing else.** Any other devcontainer.json key (e.g. `postCreateCommand`, `image`, `build`) is rejected with a typed `omega/query-omega/devcontainer/UnsupportedKey` error naming the offending key. Inside `features`, only `apt`, `pip`, `run` and `fetch` are allowed.
 - **The base image is locked — you cannot override the `FROM`.** You layer onto the standard sandbox base; you don't pick a different one. That's what keeps every devcontainer consistent and buildable.
 - **You can't write while a build is in flight.** A save during `building` throws `omega/query-omega/devcontainer/BuildInProgress`. Wait for `ready`/`failed`, then write again.
 - **Read `build-error` on failure.** It's the actual build log, so the failing step (a missing apt package, a pip resolution error, a bad `run` command) is visible directly.
