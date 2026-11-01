@@ -14,6 +14,8 @@ to guess.
 
 ## Coordinator
 
+Your session goal is the Revise Goal: Read it with `agent_goal` and your own `session_id` (your system prompt carries the line `This session's id is` followed by your session id); when its `text` is empty, set it now as `omega-dev-coordinate` "The session goal" says, before any other step. The review loop in step 3 is the loop that goal names; the round limit below still applies to it.
+
 1. The plan's Plans Index row must have Status `spec`. Get the Dev Machine (`omega-dev-coordinate`
    §1).
 

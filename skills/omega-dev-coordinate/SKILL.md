@@ -42,7 +42,7 @@ the user saying merge, deploy or release is `omega-dev-close-out`. Change a Plan
 
 ## Before anything else
 
-On new work, set the planning goal first (see "The planning goal" below), then read the notes and continue. Do this before any question, including a question for the repository URL.
+On new work, set the session goal first (see "The session goal" below), then read the notes and continue. Do this before any question, including a question for the repository URL.
 
 ## Where the work runs
 
@@ -50,7 +50,7 @@ Prefer a Dev Machine. Planning and development are best on a container with a vo
 plan and repository stays as a file there, and each Dev Subagent can read all of it. This is a
 guideline, not a lock.
 
-The user's notes can override it, and this check is the second thing you do, after the planning goal. Notes are found only through `Notes/README` links: the note must be linked from `Notes/README`; a page the README does not link is not a note of the user's, so a user who wants a note found links it there. Before step 1, read `<root>/Notes/README`, every note page it links whose name or line mentions
+The user's notes can override it, and this check is the second thing you do, after the session goal (after the Status read, for a develop request). Notes are found only through `Notes/README` links: the note must be linked from `Notes/README`; a page the README does not link is not a note of the user's, so a user who wants a note found links it there. Before step 1, read `<root>/Notes/README`, every note page it links whose name or line mentions
 development, containers or plans, then `ls "<root>/Notes"` and `ls` each folder it lists, and read every page there whose name
 mentions development, containers, plans or machine, and the `README` of the folder that holds them when `ls` lists one (for example
 `<root>/Notes/Development/README`). If a note says the user will not use
@@ -113,26 +113,35 @@ for example `{"header": ["Name", "Status"], "rows": [["<Plan Name>", "spec"]]}`.
 
 **Most recent plans:** `query` `<root>/Notes/Plans` with `column` `Created`, `sort` `desc`.
 
-## The planning goal
+## The session goal
 
-When new work starts — the user asks you to brainstorm, design or plan a change, or to develop one
-whose Plans Index row does not exist yet — set the revise-loop goal on your own session once, as the first
-thing you do, before the check in "Where the work runs", before step 1 and before you ask the user anything (the
-<Plan Name> is the date and topic of the request; the Plans Index row may not exist yet), so that you keep revising
-until the plan is exact. Do it again for every new plan. A Dev Subagent never sets a goal.
+You are always in exactly one of two modes, and your own session's goal says which. The Revise Goal is
+set when new work starts; the Development Goal replaces it when the user tells you to develop a plan
+that is approved. They are the commander kit's two loops (`default.txt` and `develop.txt`), worded for
+your skills. Set the goal as the first thing you do, before the check in "Where the work runs", before step 1 and
+before you ask the user anything. The one read that may come first is, when the user asks you to develop, the Plans Index
+row's Status (`Notes/README` and the page it links): it picks the one goal you set, and you never set the other first.
+A Dev Subagent never sets a goal.
 
-1. Find your own session. Call `agent_list_sessions` with `limit` 10. For each row, call `agent_turn_status` with the row's `session-id`
+1. Find your own session. Your system prompt carries the line `This session's id is` followed by your session id, on every turn: that id is your
+   `session_id`, and you need no search. Only if that line is missing, search for it as follows. Call `agent_list_sessions` with `limit` 10. For each row, call `agent_turn_status` with the row's `session-id`
    as `session_id` (a row's `status` field can read `idle` or null during a turn, so it is not used). For each row
    whose answer is `running`, call `agent_get_messages` with that `session_id` and `limit` 100 (the newest hundred
    messages, oldest first). Your session is the one running row where a `user` message has exactly the text of the
    user's message you are answering. If no row or more than one row matches, do not guess: tell the user "I could not find my own session,
    so I have not set a goal." and go on without one.
-2. Call `agent_goal` with that `session_id`, `continues` 3 and this `text`, with `<Plan Name>` written
-   out: `Plan <Plan Name>: brainstorm, plan and revise with omega-dev-brainstorm, omega-dev-plan and omega-dev-revise. A fresh Dev Subagent reviews the plan, the defects are revised in place, and it is reviewed again until a review returns No defects or three rounds have run. Stay within the spec and the agreed user feedback. Do not begin development before the loop ends. End with State: done when the loop has ended, State: waiting-on when you need the user.`
-3. Call `agent_goal` with only the `session_id`: its `text` must equal what you sent. If it does not,
+2. **Revise mode.** The user asks you to brainstorm, design or plan a change, or to develop one whose Plans Index row
+   does not exist yet, or asks for a change to a plan that is still being planned. Call `agent_goal` with that
+   `session_id`, `continues` 3 and this `text`:
+   `Use omega-dev-revise to revise this plan on a loop until you've figured it out exactly. No placeholders — all exact code, even if you're unsure it will work. Please figure this out. No development, just plan, but you may run read-only probes and experiments to find out what you are unsure about, and cite what they showed. Cite docs and skills in your code and in your decisions. Include all docs and skills update tasks. All code, commands, env vars, and args 100% placeholder-free, written exactly as we will attempt them. End with State: done when the plan is exact.`
+3. **Development mode.** The user tells you to develop a plan whose Plans Index row has Status `planned` or `developing`. A plan whose Status is `brainstorming` or `spec` is still being planned: Revise mode. `done` and `abandoned` need no goal.
+   Call `agent_goal` with that `session_id`, `continues` 3 and this `text`, which replaces the Revise Goal:
+   `omega-dev-develop, omega-dev-revise and omega-dev-develop-surface loop until your tests are comprehensive, or the plan has to change in a scope-changing way — stay within the spec and the agreed user feedback. Otherwise iterate on your own without checking in. Read the skill gates and the plan before starting. End with State: done when the tests are comprehensive.`
+4. Call `agent_goal` with only the `session_id`: its `text` must equal what you sent. If it does not,
    say so in one line and go on.
-4. The goal is yours to change: when the user says the plan is approved, or asks you to stop looping,
-   call `agent_goal` with `clear` true.
+5. Change mode with step 2 or 3 again whenever the work moves between planning and developing, and
+   once for every new plan. When the user says to stop, or the plan's Status is `done` and
+   you have written its retro, call `agent_goal` with `clear` true.
 
 ## 3. Dispatch a Dev Subagent
 
@@ -196,6 +205,17 @@ a time).
    (`Explore`, `Write the spec`, `Write the plan`, `Review the plan`, `Revise`, `Task`, `Done check`).
    Never merge two parts into one job and never rename a part: what you do between parts (the user's
    approval, the review loop, a ledger line) happens between jobs.
+
+## Watching Dev Subagents
+
+A Dev Subagent session belongs to the Worker, not to the Coordinator, so `agent_goal` does not take a goal on it; the Coordinator watches it instead. Right after step 3.1 returns the `sessionId`, register her own session (the one found in "The session goal") as its watcher, in bash, with `DEV_SESSION` and `COORDINATOR_SESSION` set to the two ids:
+
+   ```bash
+   qo agent watch "$DEV_SESSION" --session "$COORDINATOR_SESSION" --host "${OMEGA_URL:-https://db.queryomega.com}"
+   qo agent watching --session "$COORDINATOR_SESSION" --host "${OMEGA_URL:-https://db.queryomega.com}"
+   ```
+
+The second command must list `DEV_SESSION`. If `watch` refuses (it does for a Dev Subagent made with `block_service_account_create_session`: that session belongs to the service account, and a watch needs both sessions on the Coordinator's Account), tell the user in one line and go on with step 3.3 alone. About 30 seconds after the Dev Subagent's Run ends, a user message that begins `Message from agent` arrives in the Coordinator's session; it never replaces reading the reply (step 4). When the job is done, remove the watch: `qo agent unwatch "$DEV_SESSION" --session "$COORDINATOR_SESSION" --host "${OMEGA_URL:-https://db.queryomega.com}"`.
 
 ## 4. Reading the reply
 

@@ -18,6 +18,8 @@ work yourself.
 
 ## Coordinator
 
+Your session goal is the Development Goal: Read it with `agent_goal` and your own `session_id` (your system prompt carries the line `This session's id is` followed by your session id); when its `text` is empty, set it now as `omega-dev-coordinate` "The session goal" says, before any other step. If the goal you read is still the Revise Goal, replace it with the Development Goal (`omega-dev-coordinate` "The session goal", step 3).
+
 1. The plan's Plans Index row must have Status `planned` or `developing`. Set it to `developing`.
    Get the Dev Machine (`omega-dev-coordinate` §1).
 2. For each task, in order: first read it for a service it needs that an earlier task started (a

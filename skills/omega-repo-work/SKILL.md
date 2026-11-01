@@ -36,6 +36,8 @@ command, with its `--app-id`, of a page it must follow).
 
 ## 1. Sign in to GitHub
 
+When the job's notes say the repository is public and the job only reads it (an explore, a spec, a plan), skip this step and any sign-in check a phase skill asks for under it: clone with `git clone https://github.com/OWNER/REPOSITORY.git`, using the URL the notes give. A job that pushes, or a repository the notes do not call public, signs in as follows.
+
 Follow `omega-devcontainers`, "Git with GitHub (OAuth sign-in)", in the container that will run git.
 Use `https://github.com/...` remotes only. Never ask for, store or print a token.
 
