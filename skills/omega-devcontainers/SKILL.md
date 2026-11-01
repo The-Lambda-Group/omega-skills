@@ -42,10 +42,11 @@ The spec is a JSON string on the block's `devcontainer-json` field. Only three t
 - **`features.pip`** — pip packages (installed with `pip3`).
 - **`features.run`** — arbitrary shell commands, run in order, after the package installs.
 - **`mounts`** — volumes to attach (see your volume/mount setup).
-- **`features.fetch`** — sources fetched while the image builds, into `/opt/src/`. Two entry shapes: `{"repo": "OWNER/NAME", "ref": "branch-or-tag", "dest": "/opt/src/NAME"}` clones a GitHub repository with the grant the user connected under "Git with GitHub" below; `{"download": "https://example.com/tool.tgz", "sha256": "the 64 hex digits of the file's sha256sum", "dest": "/opt/src/tool.tgz"}` downloads a file and checks its checksum. No other keys (a `token` key is rejected with `InvalidFetchEntry`). Example: `{"features": {"fetch": [{"repo": "The-Lambda-Group/query-omega-oql", "ref": "production", "dest": "/opt/src/oql"}], "run": ["cd /opt/src/oql && npm ci"]}}`.
+- **`features.fetch`** — sources fetched while the image builds, into `/opt/src/`. Two entry shapes: `{"repo": "OWNER/NAME", "ref": "branch-or-tag", "dest": "/opt/src/NAME"}` clones a GitHub repository with the grant the user connected under "Git with GitHub" below; `{"download": "https://example.com/tool.tgz", "sha256": "the 64 hex digits of the file's sha256sum", "dest": "/opt/src/tool.tgz"}` downloads a file and checks its checksum. No other keys (a `token` key is rejected with `InvalidFetchEntry`). Example: `{"features": {"fetch": [{"repo": "The-Lambda-Group/query-omega-oql", "ref": "production", "dest": "/opt/src/oql"}]}}`. Do not put a command that needs the fetched tree in `run`: `run` executes before the fetch copy, so `cd /opt/src/oql` there fails. Use `runAfterFetch`.
+- **`features.runAfterFetch`** — shell commands that run after the fetch copy, as the `agent` user, in order, each as one Dockerfile `RUN` line. This is where a fetched project's dependencies get installed, so a pod that boots from the image starts with them in place: `{"features": {"fetch": [{"repo": "The-Lambda-Group/query-omega-oql", "ref": "production", "dest": "/opt/src/oql"}], "runAfterFetch": ["cd /opt/src/oql && npm ci --no-audit --no-fund"]}}`. Like `run`, it has no credential. A moved fetch ref re-runs these commands on the next build.
 - **`hostRequirements`** — the pod size a Run or session on this image asks for: `{"cpus": 2, "memory": "4gb", "storage": "20gb"}`. Any other key is rejected (`UnsupportedKey`). Changing it does not rebuild the image.
 
-Each entry becomes a build step, applied in order: apt first, then pip, then each `run` command.
+Each entry becomes a build step, applied in order: apt first, then pip, then each `run` command, then the `fetch` copy, then each `runAfterFetch` command.
 
 ## Writing the spec (what triggers the build)
 
@@ -76,7 +77,7 @@ A typical build takes from tens of seconds up to a couple of minutes, longer if 
 ## Gotchas
 
 - **The base image ships minimal — no `pip3` preinstalled.** A `pip`-only spec fails with `pip3: not found`. Install it first: put `"apt": ["python3-pip"]` in the same spec, which pulls in python3 + pip3, then your `pip` entries work.
-- **Only three top-level keys are supported: `mounts`, `features` and `hostRequirements`; nothing else.** Any other devcontainer.json key (e.g. `postCreateCommand`, `image`, `build`) is rejected with a typed `omega/query-omega/devcontainer/UnsupportedKey` error naming the offending key. Inside `features`, only `apt`, `pip`, `run` and `fetch` are allowed.
+- **Only three top-level keys are supported: `mounts`, `features` and `hostRequirements`; nothing else.** Any other devcontainer.json key (e.g. `postCreateCommand`, `image`, `build`) is rejected with a typed `omega/query-omega/devcontainer/UnsupportedKey` error naming the offending key. Inside `features`, only `apt`, `pip`, `run`, `fetch` and `runAfterFetch` are allowed.
 - **The base image is locked — you cannot override the `FROM`.** You layer onto the standard sandbox base; you don't pick a different one. That's what keeps every devcontainer consistent and buildable.
 - **You can't write while a build is in flight.** A save during `building` throws `omega/query-omega/devcontainer/BuildInProgress`. Wait for `ready`/`failed`, then write again.
 - **Read `build-error` on failure.** It's the actual build log, so the failing step (a missing apt package, a pip resolution error, a bad `run` command) is visible directly.

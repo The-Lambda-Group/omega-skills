@@ -17,7 +17,7 @@ A Dedicated Pod Session is **ephemeral and headless**:
 - Its transcript is not kept. When the pod is deleted, the Session and everything in its disk are gone. It never appears in the list of your sessions.
 - Its disk is empty at the start and is lost at the end. The only things that outlive it are files it copies into its `ARTIFACT_DIR` (`omega-present-file`), which are public links under your account.
 - It lives only while you **hold** it. The hold is a connection that the `qo` command keeps open for as long as it runs. About 60 seconds after the last hold closes, the pod is deleted. A command that is stopped or killed takes its pod with it.
-- You can have **eight** Dedicated Pods at once. A ninth start is refused with HTTP status 429 and the code `dedicated-pod-cap`. Stop one of the holds and start again.
+- You can have **ten** Dedicated Pods at once. An eleventh start is refused with HTTP status 429 and the code `dedicated-pod-cap`. Stop one of the holds and start again.
 
 ## Rules
 

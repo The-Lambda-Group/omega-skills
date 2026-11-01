@@ -25,10 +25,10 @@ test("it names no worker, repository, workspace or person", () => {
   for (const bad of [/ryan/i, /personal-worker/i, /cas-reels/i, /lambda-?group/i, /3b12bbed/, /[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-/, /github\.com\/[A-Za-z-]+\//]) assert.ok(!bad.test(skill), `the skill matches ${bad}`);
 });
 
-test("it carries the two commands, the limit of eight and its error code, and the 60 seconds", () => {
+test("it carries the two commands, the limit of ten and its error code, and the 60 seconds", () => {
   assert.ok(skill.includes("qo agent create-session --dedicated-pod"));
   assert.ok(skill.includes("qo agent hold-session SESSION_ID"));
-  assert.match(skill, /\*\*eight\*\* Dedicated Pods/);
+  assert.match(skill, /\*\*ten\*\* Dedicated Pods/);
   assert.match(skill, /HTTP status 429 and the code `dedicated-pod-cap`/);
   assert.match(skill, /About 60 seconds after the last hold closes/);
 });

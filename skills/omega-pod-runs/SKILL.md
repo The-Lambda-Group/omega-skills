@@ -20,9 +20,9 @@ A Run starts a pod from a Devcontainer image that is already built, runs one pro
 {"language": "script", "code": "{\"devcontainer\":\"DEVCONTAINER_ID\",\"entrypoint\":\"/opt/app/run\",\"dedicatedPod\":true,\"async\":true,\"timeout\":600000,\"lease\":1800000}"}
 ```
 
-   `devcontainer` is the `devcontainer-id` that `qo block devcontainer get` printed, not the page path (a path is refused with `devcontainer-ref`). The entrypoint must live in the image: a Run Pod mounts no Volume. `dedicatedPod: true` gives each call a pod of its own, so many calls run in parallel (at most 8 Dedicated Pods at once per Account, shared with Dedicated Sessions; the 9th call answers `PodCapException`, wait and call again). `async: true` returns at once with a `pod_id`; leave it out and the call waits and returns the result. `timeout` is milliseconds the program may run before it is killed; `lease` is milliseconds the pod is kept while its program runs (default 1800000), renewed by each `qo pod status` read.
-5. **Run it.** `qo run "Jobs/Build" -p Job -m run --args '[]'`. With `async` it prints `{"pod_id": "YWNjdC0xI2RlZGljYXRlZDo3ZjNj"}`; keep that `pod_id` in your notes with the page path.
-6. **Read the answer.** `qo pod status POD_ID` prints `state` (`running`, `exited` or `failed`). While it says `running`, wait 30 seconds (`sleep 30`) and read again; each read keeps the pod alive. When it says `exited`, `result`, `logs` and `exit` are there; copy what you need before the pod is reaped about 3 minutes later. Large files: write them to the Artifact Dir from the program and send the link.
+   `devcontainer` is the `devcontainer-id` that `qo block devcontainer get` printed, not the page path (a path is refused with `devcontainer-ref`). The entrypoint must live in the image: a Run Pod mounts no Volume. `dedicatedPod: true` gives each call a pod of its own, so many calls run in parallel (at most 10 Dedicated Pods at once per Account, shared with Dedicated Sessions; the 11th call answers `PodCapException`, wait and call again). `async: true` returns at once with a `pod_id`, while the pod may still be starting; leave it out and the call waits and returns the result. `timeout` is milliseconds the program may run before it is killed; `lease` is milliseconds the pod is kept while its program runs (default 1800000), renewed by each `qo pod status` read.
+5. **Run it.** `qo run "Jobs/Build" -p Job -m run --args '[]'`. With `async` it prints a one-element array, `[{"pod_id": "YWNjdC0xI2RlZGljYXRlZDo3ZjNj"}]`; keep that `pod_id` in your notes with the page path.
+6. **Read the answer.** `qo pod status POD_ID` prints `state` (`starting`, `running`, `exited` or `failed`). While it says `starting` or `running`, wait 30 seconds (`sleep 30`) and read again; each read of a running pod keeps it alive. A cold node can stay `starting` for minutes. When it says `exited`, `result` and `logs` are there (`exit` is set only when `state` is `failed`); copy what you need before the pod is reaped about 3 minutes later. Large files: write them to the Artifact Dir from the program and send the link.
 7. **Stop what you no longer need.** `qo pod stop POD_ID` ends the pod now.
 
 ## Errors
@@ -32,7 +32,8 @@ A Run starts a pod from a Devcontainer image that is already built, runs one pro
 - `HandlerOutputInvalidException`: stdout was not the JSON shape in rule 3.
 - `NoSuccessfulBuildException`: the Devcontainer never built; fix the build first (rule 1).
 - `PodBusyException`: retry after 15 seconds.
-- `PodCapException`: 8 Dedicated Pods are already running; wait for one to end, or `qo pod stop` one you no longer need, and call again.
+- `PodCapException`: 10 Dedicated Pods are already running; wait for one to end, or `qo pod stop` one you no longer need, and call again.
+- A `state` of `failed` with `kind` `start` and an `error`: the pod never became ready or refused the work, and it has been stopped. Run again.
 - `PodGoneException` on `qo pod status` or `qo pod stop`: the pod ended (stopped, lease lapsed, or grace over), never existed, or is not yours. Run again.
 - If a `qo` verb is not found, stop and tell the user which verb and which `qo --version` you have. Do not work around it with another tool.
 
