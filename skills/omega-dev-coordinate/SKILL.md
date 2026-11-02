@@ -146,7 +146,8 @@ A Dev Subagent never sets a goal.
 ## 3. Dispatch a Dev Subagent
 
 One job per Dev Subagent, one Dev Subagent at a time (the Dev Volume is mounted by one container at
-a time).
+a time). You are each Dev Subagent's Caller, and your Caller is your user: where the Worker has no model, LLM Account or
+Claude login of its own, the Dev Subagent runs on your user's, so do not set them on the Worker.
 
 1. `block_service_account_create_session` with exactly `app_id` = Workspace, `block_path` = Worker
    and `devcontainer` = the plan-only devcontainer when the plan names one ("Plan-only devcontainer" below), otherwise Devcontainer. `<session_id>` is the `session_id` it returned (the result's `sessionId`). If it times out, do as
