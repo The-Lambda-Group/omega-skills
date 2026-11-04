@@ -68,7 +68,7 @@ Read the block back (`qo block devcontainer get "Resources/Containers@my-env"`, 
 
 Three fields carry the result: `build-status`, `image-tag` (set on `ready`), and `build-error` (set on `failed`).
 
-`qo block devcontainer rebuild PAGE@NAME` builds again from the same definition (add `--force` to build even when the registry already holds an image for that content). A build that fails keeps the last good image; `build-status: failed` with the old `image-tag` still boots (see `omega-pod-runs`).
+`qo block devcontainer rebuild PAGE@NAME` builds again from the same definition (add `--force` to build even when the registry already holds an image for that content). A build that fails keeps the last good image; `build-status: failed` with the old `image-tag` still boots (see `omega-pod-runs`). A rebuild is never blocked by an earlier build's leftover pod or ConfigMaps: the bridge deletes a leftover that answers HTTP 409 and creates it again, and retries a failed Kubernetes call up to 6 times. When a build still ends `failed`, read `build-error` and do not delete build objects by hand.
 
 A typical build takes from tens of seconds up to a couple of minutes, longer if you install a lot via apt.
 
