@@ -69,6 +69,7 @@ build.
 4. Every 30 seconds (`sleep 30` in bash between reads), read `block_devcontainer_get` on the same
    path until `build-status` is `ready` or `failed`. A build takes from under a minute to about ten.
    On `failed`, stop and tell the user the `build-error`.
+4.1. Before any worker is created or messaged, reboot onto the new image: run `qo block devcontainer rebuild PATH`, poll `qo block devcontainer get PATH` until `build-status` is `ready`, then run `qo block devcontainer reboot DEVCONTAINER_ID`. A worker on the same Devcontainer is also rebooted: a Reboot restarts every pod on the Devcontainer.
 
 ## 2.5 Or run it as a Run (no worker)
 
