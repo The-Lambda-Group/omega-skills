@@ -63,7 +63,7 @@ qo service stop web --devcontainer "$DC"
   - `off`: the address exists and the Devcontainer has no always-on ASP, so nothing will boot (it is serverless, or its always-on ASP has not been applied yet).
   - `starting`: the address exists and the always-on ASP's pod is booting.
   - `running`: the address exists and the always-on ASP has a running pod. This does not check that your program answers.
-- `stop` removes the address and its forwarding. It does not stop the pod or any program in it.
+- `stop` removes the address and its forwarding. It does not stop the pod or any program in it. Stopping a service that is not stored answers `omega/query/no-return`, so `qo service stop` is safe to repeat.
 - A service is stored at the path `system:#service:$DC:web`. `qo service up` is a `qo write` of that path, `status` is a `qo get` and `stop` is a `qo delete`. A write that carries any field but the port (for example `command` or `env`) is refused with `UnsupportedServiceKeyException`.
 
 ## Who may do what
