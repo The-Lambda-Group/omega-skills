@@ -1,6 +1,6 @@
 ---
 name: omega-devcontainer-services
-description: Use when a Devcontainer's pod must run all the time instead of only when a session needs it (set `executionType` to `"always-on"`), or when a port of a Devcontainer's pod must answer on a web address of its own (a Devcontainer Service, made with `qo service up`, read with `qo service status`, removed with `qo service stop`). These are two separate things: an always-on Devcontainer needs no service, and a service starts nothing. Covers both, who may manage a service, that visiting one is public, and a VNC and a Plex recipe.
+description: Use when a Devcontainer's pod must run all the time instead of only when a session needs it (set `executionType` to `"always-on"`), or when a port of a Devcontainer's pod must answer on a web address of its own (a Devcontainer Service, made with `qo service up`, read with `qo service status`, removed with `qo service stop`). These are two separate things: an always-on Devcontainer needs no service, and a service starts nothing. Covers both, that a Devcontainer has one Execution Type and its sessions run in its always-on pod, who may manage a service (only those the Devcontainer allows: a service has no permission of its own), that visiting one is public, how a session starts your program, a tested VNC recipe and an untested Plex recipe.
 ---
 
 **Parent skill: `omega-navigation`.** If you have not invoked `omega-navigation` yet, invoke it
@@ -23,6 +23,8 @@ A Devcontainer's sessions run in its **Agent Service Pod (ASP)**: the pod that r
 - `"always-on"`: the **Always-On ASP Execution Model**. The ASP runs as soon as the Devcontainer is always-on and its build is `ready`, whether or not it has any service. It is a Kubernetes Deployment of one pod: Kubernetes keeps it running, starts it again when it crashes, and starts it on another machine when its machine is lost. OmegaAI adds no start or restart of its own.
 - Any other value is refused with `omega/query-omega/devcontainer/UnsupportedExecutionType`.
 
+A Devcontainer has exactly one Execution Type at a time, and no pod of the other type. Every session on an always-on Devcontainer runs in its always-on ASP; no second pod is started for it. Open one as for any Devcontainer: `qo agent create-session --devcontainer "$DC" --json`.
+
 Set it by writing the spec, as `omega-devcontainers` describes:
 
 ```bash
@@ -33,7 +35,7 @@ qo block devcontainer get "Resources/Containers@web-env"
 
 - Every write of `devcontainer-json` builds. When the build is `ready`, the always-on ASP is started, or started again on the new image. `executionType` is not part of the image: changing only it builds the same image again.
 - Writing `"serverless"` (or leaving the key out), or deleting the Devcontainer, removes the always-on ASP.
-- The always-on ASP runs the same agent server a serverless one runs, and nothing else.
+- The always-on ASP runs the same agent server a serverless one runs, and nothing else. OmegaAI starts no program of yours in it and restarts none. A session on the Devcontainer starts your program: send it the commands that start the program, as the recipes below do. A program started this way runs until it exits or the pod starts again; after the pod starts again, a session starts it again.
 - There is no limit on the number of always-on Devcontainers per account.
 - Files written outside a mounted Volume are lost when the pod starts again. Mount a Volume (`omega-devcontainers`, "Volumes") for anything that must last. A Volume is mounted by one container at a time, and an always-on ASP mounts its Devcontainer's Volumes all the time.
 
@@ -67,14 +69,15 @@ qo service stop web --devcontainer "$DC"
 ## Who may do what
 
 - **Visiting a service is public.** Anyone who has its address can open it. The program behind it must ask for its own password; OmegaAI adds no sign-in.
-- **Managing a service is not.** Reading, changing or removing a service (`qo service up`, `status`, `stop`) takes the Devcontainer's own permission (a Resource-Level Access Policy): you may read a service only if you may read its Devcontainer, and change or remove it only if you may write its Devcontainer. Anyone else is refused with `PERMISSION_DENIED_EXCEPTION`. The agent service checks the write permission again itself when a service is changed or removed through it, so calling it directly with a credential that may only read the Devcontainer is refused too. Being able to visit an address does not let you manage it.
+- **Managing a service is not, and a service has no permission of its own.** A Devcontainer's always-on ASP and every one of its services have no permission of their own, and none can be set: the Devcontainer's permission is theirs (a Resource-Level Access Policy). Every read, change, removal and status of them is decided once, by the Devcontainer's permission, in the OmegaAI API, and nothing else decides it. You may read a service, or list them, only if you may read its Devcontainer; you may change or remove one only if you may change its Devcontainer. Anyone else is refused with `PERMISSION_DENIED_EXCEPTION`.
+- **The agent service decides nothing of its own.** Its routes for always-on pods and services take only ids. They read the Devcontainer and its services through the OmegaAI API with your credential, and make the cluster match what is stored. A refusal from the API is passed back to you; a call with no credential is refused with HTTP `401`. Being able to visit an address does not let you manage it.
 
 ## Limits
 
 - Deleting a Devcontainer that still has a service is refused with `DevcontainerHasServicesException`: stop its services first. Writing it `"serverless"` is not refused; its services then read `off` and answer `503` until it is always-on again.
-- A Devcontainer has no list of its services: `qo service status` reads one service by its name.
+- `qo get "system:#service:$DC"` lists a Devcontainer's services: a `services` list whose items carry `service-id`, `name` and `port`. `qo service status` reads one service by its name, with its `state`.
 
-## Recipe: a remote desktop in the browser (VNC)
+## Recipe: a remote desktop in the browser (VNC), tested
 
 1. The Volume, made once: `qo block volume create "Resources/Volumes" vnc-config`.
 2. The Devcontainer: `qo block devcontainer create "Resources/Containers" desktop`, with this as its `devcontainer-json` (write it as `omega-devcontainers` describes and wait for `ready`):
@@ -90,17 +93,27 @@ qo service stop web --devcontainer "$DC"
 }
 ```
 
-3. The password. The desktop must have a VNC password, because the address is public. The password is kept in the Volume as the file `/home/agent/vnc-config/rfbauth`, readable only by the `agent` user, in the format `vncpasswd -f` (from `tigervnc-tools`) writes. It is never put in the spec, the image, a service or any stored record, and never passed through a service. Only the first 8 characters of a VNC password count. How that file is written into the Volume is not decided yet: it needs a shell, as the `agent` user, in a container that mounts the Volume, and a Run Pod mounts no Volume (`omega-pod-runs`).
-4. The service:
+3. The service:
 
 ```bash
 DC=$(dcid "Resources/Containers@desktop")
 qo service up desktop --devcontainer "$DC" --port 6080
 ```
 
-The programs that serve the desktop, as checked in the base image as the `agent` user, are `vncserver :1 -geometry 1280x800 -localhost yes -SecurityTypes VncAuth -rfbauth /home/agent/vnc-config/rfbauth` and then `websockify --web /usr/share/novnc 6080 localhost:5901`. Once they run, open the service's `url` with `/vnc.html` added, press Connect, and type the password.
+4. Start the desktop with a session on the Devcontainer. The session runs in the always-on ASP, which mounts the Volume:
 
-## Recipe: a Plex Media Server
+```bash
+SID=$(qo agent create-session --devcontainer "$DC" --json | node -e 'let s="";process.stdin.on("data",d=>s+=d).on("end",()=>{const f=o=>o&&typeof o==="object"?(o.sessionId||Object.values(o).map(f).find(Boolean)):undefined;console.log(f(JSON.parse(s)))})')
+qo agent send-message "$SID" 'Run these shell commands in this pod, exactly as written, as the agent user, then answer with the single word done. Do not print the contents of password.txt. 1) umask 077; mkdir -p /home/agent/vnc-config; [ -s /home/agent/vnc-config/password.txt ] || head -c 6 /dev/urandom | base64 | tr -d "\n" > /home/agent/vnc-config/password.txt; vncpasswd -f < /home/agent/vnc-config/password.txt > /home/agent/vnc-config/rfbauth 2) vncserver :1 -geometry 1280x800 -localhost yes -SecurityTypes VncAuth -rfbauth /home/agent/vnc-config/rfbauth 3) websockify -D --web /usr/share/novnc 6080 localhost:5901' --async --wait --timeout 600 --json
+```
+
+The desktop must have a VNC password, because the address is public. The first command makes a random one, once, and keeps it in the Volume as `/home/agent/vnc-config/password.txt`. From it, it makes `/home/agent/vnc-config/rfbauth`, the file `vncserver` reads, in the format that `vncpasswd -f` (from `tigervnc-tools`) writes. Both files are readable only by the `agent` user. The password is never put in the spec, the image or a service. Only the first 8 characters of a VNC password count. `vncserver` and `websockify -D` keep running after the session's command ends. When the pod starts again, send the same message again: the password in the Volume is kept.
+
+5. Read the password with a session on the Devcontainer (ask it to print `/home/agent/vnc-config/password.txt`). That puts the password in that session's messages, which only those who may read the session can read. Then open the service's `url` with `/vnc.html` added, press Connect, and type the password.
+
+## Recipe: a Plex Media Server (untested)
+
+Untested: this recipe has not been run end to end. Only the server's start in the base image, as the `agent` user, was checked.
 
 1. The Volume, made once: `qo block volume create "Resources/Volumes" plex-config`. Put media on a second Volume made the same way and add it to the same `mounts` list.
 2. The Devcontainer: `qo block devcontainer create "Resources/Containers" plex`, with this as its `devcontainer-json`:
@@ -123,7 +136,7 @@ DC=$(dcid "Resources/Containers@plex")
 qo service up plex --devcontainer "$DC" --port 32400
 ```
 
-The server, as checked in the base image as the `agent` user, is `/home/agent/plex-root/usr/lib/plexmediaserver/Plex Media Server`, run with `PLEX_MEDIA_SERVER_HOME=/home/agent/plex-root/usr/lib/plexmediaserver`, `LD_LIBRARY_PATH=/home/agent/plex-root/usr/lib/plexmediaserver/lib`, `PLEX_MEDIA_SERVER_APPLICATION_SUPPORT_DIR=/home/agent/plex-config`, `TMPDIR=/tmp` and `TZ=UTC`. Once it runs, the service's `url` with `/identity` added answers. Plex asks for its own sign-in.
+4. Start the server with a session on the Devcontainer (`qo agent create-session --devcontainer "$DC" --json`, then `qo agent send-message`, as in the VNC recipe). Ask it to run, as the `agent` user, `/home/agent/plex-root/usr/lib/plexmediaserver/Plex Media Server` with `PLEX_MEDIA_SERVER_HOME=/home/agent/plex-root/usr/lib/plexmediaserver`, `LD_LIBRARY_PATH=/home/agent/plex-root/usr/lib/plexmediaserver/lib`, `PLEX_MEDIA_SERVER_APPLICATION_SUPPORT_DIR=/home/agent/plex-config`, `TMPDIR=/tmp` and `TZ=UTC`, in the background, so that it keeps running after the command ends. Once it runs, the service's `url` with `/identity` added answers. Plex asks for its own sign-in.
 
 ## See also
 
