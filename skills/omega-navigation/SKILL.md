@@ -128,4 +128,5 @@ The sequence when you find an unfamiliar page:
 - **Read before you write.** Never write to or modify a page you have not first read or listed.
 - **Never fabricate a page path.** If you don't know whether a path exists, `ls` the parent to discover it — don't guess.
 - **One workspace at a time** — the Session workspace, plus your memory in the Home workspace — unless the user explicitly tells you to work across multiple workspaces.
+- **No more than six children per level.** A folder, and above all `Notes/`, holds at most six pages. Before you create a page, `ls` its parent: if the parent already has six, put the new page inside the branch it belongs to (a link page under the topic it is about, not at the top of `Notes/`), or group related pages under a new folder, and add the line to that branch's `README`. Never add a seventh page to a level.
 - **Delete only pages you created yourself in this task.** Deleting a page deletes every page and block under it, and a parent such as `Component Installs`, `Notes` or `Resources` holds other people's work. If something you made is in the wrong place, stop and tell the user; they decide what to remove.
