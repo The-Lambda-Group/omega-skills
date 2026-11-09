@@ -56,13 +56,9 @@ qo service status web --devcontainer "$DC"
 qo service stop web --devcontainer "$DC"
 ```
 
-- A service name is 1 to 20 characters: lower-case letters, digits and dashes, starting with a letter and not ending with a dash. The port is 1 to 65535, except 4096 to 4099, which the ASP uses. Two services of one Devcontainer cannot share a port (`PortInUseException`).
+- A service name is 1 to 20 characters: lower-case letters, digits and dashes, starting with a letter and not ending with a dash. The port is 1 to 65535. Two services of one Devcontainer cannot share a port (`PortInUseException`).
 - Run `up` again with the same name to change its port.
-- `up` and `status` print the service as JSON, with its `service-id`, `host`, `url`, `port` and `state`. `state` is one of four, each meaning one thing:
-  - `gone`: there is no address.
-  - `off`: the address exists and the Devcontainer has no always-on ASP, so nothing will boot (it is serverless, or its always-on ASP has not been applied yet).
-  - `starting`: the address exists and the always-on ASP's pod is booting.
-  - `running`: the address exists and the always-on ASP has a running pod. This does not check that your program answers.
+- `up` and `status` print the service as JSON, with its `service-id`, `host`, `url`, `port` and `state`. `state` is read from the service's own address only: `running` when the address exists, `gone` when it does not. It does not say whether the Devcontainer's always-on ASP is running or whether your program answers; when nothing answers, visiting the address gives HTTP status `503`.
 - `stop` removes the address and its forwarding. It does not stop the pod or any program in it. Stopping a service that is not stored answers `omega/query/no-return`, so `qo service stop` is safe to repeat.
 - A service is stored at the path `system:#service:$DC:web`. `qo service up` is a `qo write` of that path, `status` is a `qo get` and `stop` is a `qo delete`. A write that carries any field but the port (for example `command` or `env`) is refused with `UnsupportedServiceKeyException`.
 
@@ -74,7 +70,7 @@ qo service stop web --devcontainer "$DC"
 
 ## Limits
 
-- Deleting a Devcontainer that still has a service is refused with `DevcontainerHasServicesException`: stop its services first. Writing it `"serverless"` is not refused; its services then read `off` and answer `503` until it is always-on again.
+- Deleting a Devcontainer that still has a service is refused with `DevcontainerHasServicesException`: stop its services first. Writing it `"serverless"` is not refused; its services keep their addresses, read `running`, and answer `503` until it is always-on again.
 - `qo get "system:#service:$DC"` lists a Devcontainer's services: a `services` list whose items carry `service-id`, `name` and `port`. `qo service status` reads one service by its name, with its `state`.
 
 ## Recipe: a remote desktop in the browser (VNC), tested
