@@ -69,6 +69,7 @@ build.
 4. Every 30 seconds (`sleep 30` in bash between reads), read `block_devcontainer_get` on the same
    path until `build-status` is `ready` or `failed`. A build takes from under a minute to about ten.
    On `failed`, stop and tell the user the `build-error`.
+4.1. Before any worker is created or messaged, reboot onto the new image: run `qo block devcontainer rebuild PATH`, poll `qo block devcontainer get PATH` until `build-status` is `ready`, then run `qo block devcontainer reboot DEVCONTAINER_ID`. A worker on the same Devcontainer is also rebooted: a Reboot restarts every pod on the Devcontainer.
 
 ## 2.5 Or run it as a Run (no worker)
 
@@ -127,7 +128,7 @@ If the job is one program, or the same program many times, and needs no thinking
    - `done` — the worker has finished and is idle. `data.text` is its answer.
    - `error` — the worker's turn failed (`data.reason` says how). Tell the user `data.reason` and `data.text` exactly, and stop. `after-id-not-found` means INFO_ID is not a message of this session: read the newest message again (step 4.2) and wait again.
    - `not-started` — the worker has not begun your message. Do the next round. `not-started` in 3 rounds in a row (about 15 minutes) → tell the user the session id and that the job did not start, and stop.
-   - `busy` — the worker is still working. This is this wait's own 300 second timeout, which is deliberate and not an error: the worker is not broken and nothing failed. Do not re-send the job and do not open a new session. `data.activity` is what it is doing now (the newest part's tool name plus its status, or the first 200 characters of its text); when that says something new, write the user one line from it. Then the next round, the same command. If `data.activity` is the same for 12 rounds in a row (one hour) and the job message did not carry the omega-long-running-work sentence, tell the user the session id and what it is doing, and stop. If it did carry it, the limit is 36 rounds (three hours). Keep your turn open until `done`, `error` or one of the stops above.
+   - `busy` — the worker is still working. This is this wait's own 300 second timeout, which is deliberate and not an error: the worker is not broken and nothing failed. Do not re-send the job and do not open a new session. A message you do send to a busy session is queued and runs after its turn, never refused, so a re-sent job runs twice. `data.activity` is what it is doing now (the newest part's tool name plus its status, or the first 200 characters of its text); when that says something new, write the user one line from it. Then the next round, the same command. If `data.activity` is the same for 12 rounds in a row (one hour) and the job message did not carry the omega-long-running-work sentence, tell the user the session id and what it is doing, and stop. If it did carry it, the limit is 36 rounds (three hours). Keep your turn open until `done`, `error` or one of the stops above.
    - `interrupted` — the worker's turn was cut off (the service was restarted, a node was lost). Stop the rounds and follow `omega-interrupted-turn`.
    - `needs-input` — the worker asked a question and nothing answers it. Tell the user what it asked (`data.activity`), and stop.
 

@@ -185,7 +185,7 @@ Claude login of its own, the Dev Subagent runs on your user's, so do not set the
 
    Repeat it until `data.state` is `done` — `data.text` is the reply — or `error` (tell the user `data.reason` and `data.text` exactly and stop; during
    `omega-dev-develop`, give it to `omega-dev-develop-surface`). `busy`, `not-started`, `interrupted` and `needs-input` are the rules of
-   `omega-installing-software` step 4.3; `busy` is the wait's own timeout, not an error, so never send a working Dev Subagent another message. Output with an error instead of `data`
+   `omega-installing-software` step 4.3; `busy` is the wait's own timeout, not an error, so do not re-send the job: a new message to a working Dev Subagent is queued and runs after its turn, never refused (omega-ai-agent-service `pages/agent-service/service-account-http-api.html`, Refused Claude turns). Output with an error instead of `data`
    is handled as `omega-installing-software` step 4.3 says: read THAT round with
    `block_service_account_get_messages` (`limit` 1); the NEXT round is again the full `qo session wait` call. One line to the user when `data.activity` (what the Dev
    Subagent is doing now) says something new. The one extra `--limit 5` call is as in `omega-installing-software` step 4.3. Never
