@@ -39,7 +39,7 @@ qo block devcontainer get "Resources/Containers@web-env"
 - There is no limit on the number of always-on Devcontainers per account.
 - Files written outside a mounted Volume are lost when the pod starts again. Mount a Volume (`omega-devcontainers`, "Volumes") for anything that must last. A Volume is mounted by one container at a time, and an always-on ASP mounts its Devcontainer's Volumes all the time.
 
-An always-on pod has one owner. The first Account whose session joins it owns it for good. A session of another Account is refused with `always-on-pod-owned`. To clear the owner, set `executionType` back to `"serverless"` and then to `"always-on"` again. There is no takeover.
+An always-on pod has one owner. The first Account whose session joins it owns it for good. A session of another Account is refused with `always-on-pod-owned`. To clear the owner, set `executionType` back to `"serverless"` and then to `"always-on"` again. There is no takeover, and the owner stays even if its Account is deleted, until `executionType` is set to `"serverless"` and then to `"always-on"` again. No session ever stops an always-on pod: a serverless session of another Account that needs a Volume the pod mounts is refused (`VolumeInUseError`, HTTP 409) and the pod keeps running. Until a session of the owner has joined the pod, its Volumes are not guarded.
 
 ## Devcontainer Services
 
@@ -74,7 +74,7 @@ qo service stop web --devcontainer "$DC"
 
 - Deleting a Devcontainer that still has a service is refused with `DevcontainerHasServicesException`: stop its services first. Writing it `"serverless"` is not refused; its services keep their addresses, read `running`, and answer `503` until it is always-on again.
 - `qo get "system:#service:$DC"` lists a Devcontainer's services: a `services` list whose items carry `service-id`, `name` and `port`. `qo service status` reads one service by its name, with its `state`.
-- An always-on pod is owned for good by the first Account whose session joins it; a session of another Account is refused with `always-on-pod-owned`. To clear the owner, set `executionType` to `"serverless"` and then to `"always-on"` again. There is no takeover.
+- An always-on pod is owned for good by the first Account whose session joins it; a session of another Account is refused with `always-on-pod-owned`. To clear the owner, set `executionType` to `"serverless"` and then to `"always-on"` again. There is no takeover, and the owner stays even if its Account is deleted. No session ever stops an always-on pod: a serverless session of another Account that needs its Volume is refused with `VolumeInUseError`, and until a session of the owner has joined the pod, its Volumes are not guarded.
 
 ## Security
 
