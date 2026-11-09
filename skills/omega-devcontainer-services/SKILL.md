@@ -39,6 +39,8 @@ qo block devcontainer get "Resources/Containers@web-env"
 - There is no limit on the number of always-on Devcontainers per account.
 - Files written outside a mounted Volume are lost when the pod starts again. Mount a Volume (`omega-devcontainers`, "Volumes") for anything that must last. A Volume is mounted by one container at a time, and an always-on ASP mounts its Devcontainer's Volumes all the time.
 
+An always-on pod has one owner. The first Account whose session joins it owns it for good. A session of another Account is refused with `always-on-pod-owned`. To clear the owner, set `executionType` back to `"serverless"` and then to `"always-on"` again. There is no takeover.
+
 ## Devcontainer Services
 
 A **Devcontainer Service** is a name and a port on a Devcontainer, and nothing else: it has no command and no environment variables. It gives that port an address of its own, its **Service Host**: for a service named `web` on a Devcontainer whose id begins `7f3c91aa-`, it is `https://web-7f3c91aa.svc.cloud.queryomega.com` (the service name, a dash, the part of the Devcontainer's id before its first dash). The address has a certificate.
@@ -72,8 +74,15 @@ qo service stop web --devcontainer "$DC"
 
 - Deleting a Devcontainer that still has a service is refused with `DevcontainerHasServicesException`: stop its services first. Writing it `"serverless"` is not refused; its services keep their addresses, read `running`, and answer `503` until it is always-on again.
 - `qo get "system:#service:$DC"` lists a Devcontainer's services: a `services` list whose items carry `service-id`, `name` and `port`. `qo service status` reads one service by its name, with its `state`.
+- An always-on pod is owned for good by the first Account whose session joins it; a session of another Account is refused with `always-on-pod-owned`. To clear the owner, set `executionType` to `"serverless"` and then to `"always-on"` again. There is no takeover.
+
+## Security
+
+A personal Account's login stays in an always-on pod, so never share that Devcontainer's pod. It is the same exposure as holding a secret API key. A service account your teammates already have access to is no worse.
 
 ## Recipe: a remote desktop in the browser (VNC), tested
+
+The session you open on the Devcontainer must be the owner's: the Account whose session first joined the pod (see "The ASP Execution Model").
 
 1. The Volume, made once: `qo block volume create "Resources/Volumes" vnc-config`.
 2. The Devcontainer: `qo block devcontainer create "Resources/Containers" desktop`, with this as its `devcontainer-json` (write it as `omega-devcontainers` describes and wait for `ready`):
