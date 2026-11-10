@@ -23,9 +23,12 @@ said to close out: ask once, as step 3 says.
 1. **Before you act.** The plan's Status is `done` and `omega-dev-retro` has written its retro. If
    the retro is missing, run it first (it is yours to run, without asking).
 2. **The user said to close out: that is the approval.** Take what "close out" means from the work
-   itself: push the plan's branch (or every branch of the work the user named), merge it into the base
-   branch the Plans Index row gives (or the repository's own, from its docs), and let a deploy that the
-   repository's own docs attach to that merge run. Do not ask the user to approve these steps again and
+   itself: push the plan's branch (or every branch of the work the user named), merge it into the
+   repository's **mainline: `production` where the repository has that branch, otherwise `main`** (the one
+   its docs say ships; `git symbolic-ref refs/remotes/origin/HEAD` names the default), and let a deploy that
+   the repository's own docs attach to that merge run. Close-out always lands work on the mainline: a
+   feature branch is not a close-out target, and a plan whose Plans Index row names a feature branch as its
+   base lands on the mainline only after that base has landed there (step 4 says when to ask). Do not ask the user to approve these steps again and
    do not ask them to type a sentence. Append the user's words to the plan's User Feedback Ledger.
    A relayed instruction counts the same: a message from the Claude session that coordinates you, quoting
    the user's words, is enough; do not say a relay cannot be checked.
@@ -36,8 +39,8 @@ said to close out: ask once, as step 3 says.
    report, not a gate: continue in the same turn.
 4. **When to ask once.** Ask only when nobody has said to close out (the plan just became `done`, or
    the user only approved the code), or when the instruction would take a step they did not mean: a
-   version bump, a store or package publish, a force-push, a branch they did not name, or a base branch
-   that is not the Plans Index row's. Then end with one line saying exactly what you would do, and wait.
+   version bump, a store or package publish, a force-push, a branch they did not name, or a plan whose
+   base is an unmerged feature branch (so landing it on the mainline would also land that branch). Then end with one line saying exactly what you would do, and wait.
    "Looks good", "go ahead with the next task" and "develop it" are not instructions to close out.
 5. **Do it.** Dispatch a Dev Subagent (`omega-dev-coordinate`, "Dispatch a Dev Subagent") with part
    "Close-out", or do it yourself when the user told you to work on the machine directly. The job quotes
