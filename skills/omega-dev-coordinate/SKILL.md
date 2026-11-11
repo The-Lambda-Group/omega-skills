@@ -31,12 +31,12 @@ talking with you, and you hand them a file only when they ask (a Dev Subagent pu
 - **`omega-dev-revise`** — change a decision in a spec or a plan.
 - **`omega-dev-develop`** — carry out a plan's tasks.
 - **`omega-dev-retro`** — write the record of a finished plan.
-- **`omega-dev-close-out`** — merge, push to a base branch, or deploy, after the user's own approval.
+- **`omega-dev-close-out`** — merge, push to a base branch, or deploy, when the user says to close out (that instruction is the approval).
 
 Pick the child from the plan's row, not from the words alone: the user says develop, build,
 implement or carry out, and the row's Status is `planned`, `developing` or `done` → it is
 `omega-dev-develop`, never `omega-dev-plan`. When a plan's Status is `done`, the next steps are
-`omega-dev-retro` (yours to run, without asking) and then `omega-dev-close-out` (the user's to approve);
+`omega-dev-retro` (yours to run, without asking) and then `omega-dev-close-out` (the user's to start: when they say to close out, that is the approval, with no second approval step);
 the user saying merge, deploy or release is `omega-dev-close-out`. Change a Plans Index row only with `write` on
 `<root>/Notes/Plans`; never `set_html` or add a block on a row's own page.
 

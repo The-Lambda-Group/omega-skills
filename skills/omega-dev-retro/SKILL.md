@@ -12,8 +12,8 @@ A Dev Subagent skips that line and goes straight to its part below.
 A retro is the record of how a finished plan went: what was built, what went wrong, what the user
 changed, and what is left. It reads the spec, the plan and their ledgers, changes nothing in the
 repository, and writes one file on the Dev Volume. Because it changes nothing outside the Dev
-Volume, you run it when the plan's Status becomes `done`, without asking; the user's approval is
-for `omega-dev-close-out`, not for this.
+Volume, you run it when the plan's Status becomes `done`, without asking; the user's word is
+for `omega-dev-close-out` (their instruction to close out is that word), not for this.
 
 ## Coordinator
 
@@ -24,7 +24,7 @@ for `omega-dev-close-out`, not for this.
    final test report you gave the user, quoted. Report: the retro path and its headings, in at
    most 30 lines. The job is short; it does not need the plan-only devcontainer.
 3. Tell the user, in a few lines: what the retro says went wrong and what it says is left. Then
-   say that closing out is the next step and is theirs to approve (`omega-dev-close-out`).
+   say that closing out is the next step, and that it starts when they tell you to close out (`omega-dev-close-out`; that instruction is the approval).
 4. Clear your session goal: call `agent_goal` with your own `session_id` and `clear` true.
 
 ## Dev Subagent — part "Retro"
