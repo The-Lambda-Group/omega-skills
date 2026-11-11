@@ -1,4 +1,4 @@
-// The omega-dedicated-pod-work skill (skills/omega-dedicated-pod-work/SKILL.md): a generic skill about running a job on a Dedicated Pod.
+// The omega-dedicated-pod-work skill (skills/omega-dedicated-pod-work/SKILL.md): a generic skill about running a job on a Run Pod.
 // It lives in a public repository, so it names no worker, repository, workspace or person. A structural test: frontmatter, parent line, nothing private.
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
@@ -25,16 +25,17 @@ test("it names no worker, repository, workspace or person", () => {
   for (const bad of [/ryan/i, /personal-worker/i, /cas-reels/i, /lambda-?group/i, /3b12bbed/, /[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-/, /github\.com\/[A-Za-z-]+\//]) assert.ok(!bad.test(skill), `the skill matches ${bad}`);
 });
 
-test("it carries the two commands, the limit of ten and its error code, and the 60 seconds", () => {
-  assert.ok(skill.includes("qo agent create-session --dedicated-pod"));
-  assert.ok(skill.includes("qo agent hold-session SESSION_ID"));
-  assert.match(skill, /\*\*ten\*\* Dedicated Pods/);
-  assert.match(skill, /HTTP status 429 and the code `dedicated-pod-cap`/);
-  assert.match(skill, /About 60 seconds after the last hold closes/);
+test("it carries the three commands, the limit of ten and its error kind, and the Run Lease", () => {
+  assert.ok(skill.includes("qo run \"PAGE_PATH\" -p PROTOCOL -m METHOD --args '[]'"));
+  assert.ok(skill.includes("qo pod status POD_ID"));
+  assert.ok(skill.includes("qo pod stop POD_ID"));
+  assert.match(skill, /\*\*ten\*\* Run Pods/);
+  assert.match(skill, /HTTP status 429 and the kind `pod-cap`/);
+  assert.match(skill, /Every `qo pod status` read renews the lease/);
 });
 
-test("it says the transcript is not kept and results leave as public links", () => {
-  assert.match(skill, /Its transcript is not kept/);
+test("it says there is no transcript and results leave as public links", () => {
+  assert.match(skill, /It has no Session and no transcript/);
   assert.match(skill, /omega-present-file/);
   assert.match(skill, /public links/);
 });
