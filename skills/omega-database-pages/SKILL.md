@@ -152,3 +152,18 @@ not yours.
 - **`write "<table>/<row>#prop-vals"` replaces the row's WHOLE value set.** Use it only with every column, primary key included. Name the ROW, not the table — the table is inferred.
 - **A uuid-named page is a symptom.** If `ls` shows a child whose name is a uuid, a write created it
   by accident — the values landed there instead of on the page you meant.
+
+## Your own working table
+
+This section is for a table your instructions tell you to create and keep for yourself (a drafts log, a processed-items list). It does not apply to a table that already exists or that someone else asked you to write to: for those, "The page's shape is NOT yours to change" above holds.
+
+You own the whole design of a table you create. Do these in order and read each result back with `describe`:
+
+1. **One table, one key.** Decide the single column that identifies a row (a message id, an order number) and make it the primary key with `set_primary_key` BEFORE the first write. A table with no primary key inserts a new row page on every write.
+2. **Columns.** Declare every column with `set_db_columns` (text) or `set_column` (select). Dates are text `YYYY-MM-DD` or an ISO timestamp string.
+3. **Views.** Add the views the next reader needs with `set_view` (upsert, never `add_view` twice): an `All` table view sorted by the most useful column, and one view per status you will filter on. A table with no view renders as a bare table.
+4. **Secondary indexes.** Add `set_sec_index` for every column you will look rows up by other than the primary key (a thread id, a timestamp you filter ranges on). Add the index before relying on lookups by that column; adding it later backfills existing rows.
+5. **Idempotence.** Before creating, `describe` the path: if the table exists with a primary key, use it as it is and change nothing. Creating twice must not create a second table or a second view.
+6. **Upsert, do not append.** Write rows with `write {header, rows}` including the primary-key column, so a second write for the same key updates the row.
+
+The facts about a particular table (its columns, views and indexes) belong in the docs of the package that asks for it, and the instructions point there. This skill states the method only.
